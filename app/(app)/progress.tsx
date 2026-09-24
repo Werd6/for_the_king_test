@@ -1,18 +1,20 @@
 import { useCallback, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
-import { useFocusEffect } from 'expo-router';
-import { Body, Loading, Screen, Section, Title } from '@/components/ui';
-import { getHuddleMembers, getProgressForWeek } from '@/lib/api';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Body, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
+import { advanceWeek, dissolveHuddle, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { isStandardWeek, progressItemIdsForWeek } from '@/lib/content';
+import { confirmAction, showAlert } from '@/lib/dialogs';
 import { useTheme } from '@/lib/ThemeContext';
 import type { Profile, ProgressRow } from '@/lib/types';
 
 export default function ProgressScreen() {
-  const { huddle } = useAuth();
-  const { getWeek, loading: contentLoading, pathway } = useContent();
+  const { huddle, userId, isLeader, refresh } = useAuth();
+  const { getWeek, loading: contentLoading, pathway, reloadForHuddle } = useContent();
   const { colors } = useTheme();
+  const router = useRouter();
   const [members, setMembers] = useState<Profile[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,19 +40,69 @@ export default function ProgressScreen() {
     }, [load])
   );
 
+  async function onAdvance() {
+    if (!huddle || !userId) return;
+    const ok = await confirmAction(
+      'Advance to next week?',
+      'Everyone will see the next week’s content.',
+      'Advance'
+    );
+    if (!ok) return;
+    try {
+      await advanceWeek(huddle.id, userId, pathway?.totalWeeks ?? 20);
+      await refresh();
+      await reloadForHuddle();
+      showAlert('Week advanced', `Now on week ${huddle.current_week + 1}.`);
+    } catch (e) {
+      showAlert('Error', e instanceof Error ? e.message : 'Could not advance');
+    }
+  }
+
+  async function onDissolve() {
+    if (!huddle) return;
+    const ok = await confirmAction(
+      'Dissolve huddle?',
+      'This removes the huddle for everyone.',
+      'Dissolve'
+    );
+    if (!ok) return;
+    try {
+      await dissolveHuddle(huddle.id);
+      await refresh();
+      router.replace('/');
+    } catch (e) {
+      showAlert('Error', e instanceof Error ? e.message : 'Could not dissolve');
+    }
+  }
+
   if (!huddle) return <Loading />;
   if (loading || contentLoading || !pathway) return <Loading />;
 
   const week = getWeek(huddle.current_week);
+  const leaderTools = isLeader ? (
+    <SettingsGroup label="Leader">
+      <SettingsRow label="Advance to next week" onPress={onAdvance} />
+      <SettingsRow
+        label="Leader materials"
+        onPress={() => router.push('/(app)/leader-materials')}
+      />
+      <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
+      <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
+      <SettingsRow label="Dissolve huddle" onPress={onDissolve} destructive />
+    </SettingsGroup>
+  ) : null;
 
   if (!isStandardWeek(week)) {
     return (
       <Screen>
-        <Title>Huddle Progress</Title>
-        <Body>
-          Week {week.weekNumber} is a group challenge. Progress checkmarks resume on standard weeks.
-          See This Week for the selected activity.
-        </Body>
+        <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
+          <Title>Huddle Progress</Title>
+          <Body>
+            Week {week.weekNumber} is a group challenge. Progress checkmarks resume on standard
+            weeks. See This Week for the selected activity.
+          </Body>
+          {leaderTools}
+        </ScrollView>
       </Screen>
     );
   }
@@ -81,6 +133,8 @@ export default function ProgressScreen() {
             );
           })}
         </Section>
+
+        {leaderTools}
       </ScrollView>
     </Screen>
   );

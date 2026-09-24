@@ -12,13 +12,7 @@ import {
   SettingsSegmented,
   Title,
 } from '@/components/ui';
-import {
-  advanceWeek,
-  deleteAccount,
-  dissolveHuddle,
-  leaveHuddle,
-  updateDisplayName,
-} from '@/lib/api';
+import { deleteAccount, leaveHuddle, updateDisplayName } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
@@ -28,7 +22,7 @@ import type { ThemePreference } from '@/lib/theme';
 
 export default function SettingsScreen() {
   const { userId, profile, huddle, isLeader, refresh, signOut, usingLocalMode } = useAuth();
-  const { pathway, reloadForHuddle } = useContent();
+  const { pathway } = useContent();
   const { preference, setPreference } = useTheme();
   const router = useRouter();
   const [name, setName] = useState(profile?.display_name ?? '');
@@ -64,23 +58,6 @@ export default function SettingsScreen() {
     }
   }
 
-  async function onAdvance() {
-    const ok = await confirmAction(
-      'Advance to next week?',
-      'Everyone will see the next week’s content.',
-      'Advance'
-    );
-    if (!ok) return;
-    try {
-      await advanceWeek(huddle!.id, userId!, pathway?.totalWeeks ?? 20);
-      await refresh();
-      await reloadForHuddle();
-      showAlert('Week advanced', `Now on week ${huddle!.current_week + 1}.`);
-    } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not advance');
-    }
-  }
-
   async function onLeave() {
     const ok = await confirmAction(
       'Leave huddle?',
@@ -94,22 +71,6 @@ export default function SettingsScreen() {
       router.replace('/');
     } catch (e) {
       showAlert('Error', e instanceof Error ? e.message : 'Could not leave');
-    }
-  }
-
-  async function onDissolve() {
-    const ok = await confirmAction(
-      'Dissolve huddle?',
-      'This removes the huddle for everyone.',
-      'Dissolve'
-    );
-    if (!ok) return;
-    try {
-      await dissolveHuddle(huddle!.id);
-      await refresh();
-      router.replace('/');
-    } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not dissolve');
     }
   }
 
@@ -188,25 +149,11 @@ export default function SettingsScreen() {
           <SettingsRow label="Add to device calendar" onPress={onSyncCalendar} />
         </SettingsGroup>
 
-        {isLeader ? (
-          <SettingsGroup label="Leader">
-            <SettingsRow label="Advance to next week" onPress={onAdvance} />
-            <SettingsRow
-              label="Leader materials"
-              onPress={() => router.push('/(app)/leader-materials')}
-            />
-            <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
-            <SettingsRow
-              label="Challenge pool"
-              onPress={() => router.push('/(app)/challenge-pool')}
-            />
-            <SettingsRow label="Dissolve huddle" onPress={onDissolve} destructive />
-          </SettingsGroup>
-        ) : (
+        {!isLeader ? (
           <SettingsGroup label="Membership">
             <SettingsRow label="Leave huddle" onPress={onLeave} destructive />
           </SettingsGroup>
-        )}
+        ) : null}
 
         <SettingsGroup
           label="Account"
