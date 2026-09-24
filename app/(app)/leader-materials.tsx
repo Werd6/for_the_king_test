@@ -1,6 +1,6 @@
 import { ScrollView, Text } from 'react-native';
-import { Redirect } from 'expo-router';
-import { Body, BulletList, Card, Loading, Screen, Subtitle, Title } from '@/components/ui';
+import { Redirect, useRouter } from 'expo-router';
+import { Body, BulletList, Card, Loading, PrimaryButton, Screen, Subtitle, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
@@ -14,6 +14,7 @@ export default function LeaderMaterialsScreen() {
   const { isLeader, huddle } = useAuth();
   const { getWeek, loading: contentLoading, pathway } = useContent();
   const { colors } = useTheme();
+  const router = useRouter();
 
   if (!isLeader) return <Redirect href="/(app)/settings" />;
   if (!huddle || contentLoading || !pathway) return <Loading />;
@@ -29,6 +30,7 @@ export default function LeaderMaterialsScreen() {
         </Subtitle>
         <Text style={{ fontWeight: '600', color: colors.ink }}>{week.movement}</Text>
         <Body>For the in-person huddle meeting — not shown on the brothers’ personal week screen.</Body>
+        <PrimaryButton title="Open Leader Guide" onPress={() => router.push('/(app)/leader-guide')} />
 
         {isStandardWeek(week) ? (
           <>
