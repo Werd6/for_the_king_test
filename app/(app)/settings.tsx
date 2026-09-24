@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import { ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
 import {
   Body,
   Field,
@@ -14,11 +11,14 @@ import {
 } from '@/components/ui';
 import { deleteAccount, dissolveHuddle, leaveHuddle, updateDisplayName } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { useContent } from '@/lib/ContentContext';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
+import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
-import { useTheme } from '@/lib/ThemeContext';
 import type { ThemePreference } from '@/lib/theme';
+import { useTheme } from '@/lib/ThemeContext';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
   const { userId, profile, huddle, isLeader, refresh, signOut, usingLocalMode } = useAuth();
@@ -180,7 +180,7 @@ export default function SettingsScreen() {
         </SettingsGroup>
 
         {isLeader ? (
-          <SettingsGroup label="Danger zone">
+          <SettingsGroup label="Dissolve">
             <SettingsRow label="Dissolve huddle" onPress={onDissolve} destructive />
           </SettingsGroup>
         ) : null}
