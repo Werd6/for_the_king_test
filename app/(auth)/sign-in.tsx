@@ -91,12 +91,9 @@ export default function SignInScreen() {
         <Title>For The King</Title>
         <Body>Men’s discipleship huddle companion.</Body>
         {usingLocalMode ? (
-          <Body>
-            Local prototype mode (no Supabase env). Data stays on this device. Add
-            EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY for remote auth.
-          </Body>
+          <Body>Sign up or sign in to get started. Data stays on this device until cloud sync is configured.</Body>
         ) : (
-          <Body>Connected to Supabase. Sign up / sign in with email to sync huddles across devices.</Body>
+          <Body>Sign up or sign in with email to sync your huddle across devices.</Body>
         )}
 
         {mode === 'up' ? (
@@ -105,7 +102,7 @@ export default function SignInScreen() {
             value={displayName}
             onChangeText={setDisplayName}
             autoCapitalize="words"
-            placeholder="e.g. Drew"
+            placeholder="Your name"
           />
         ) : null}
         <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@email.com" />

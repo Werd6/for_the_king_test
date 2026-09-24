@@ -2,16 +2,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const supabaseUrl = (process.env.EXPO_PUBLIC_SUPABASE_URL ?? '').trim();
+const supabaseAnonKey = (process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '').trim();
 
 /** True during Expo web static/SSR render (no DOM). */
 const isServer = typeof window === 'undefined';
 
+/** Anon JWT must look like a JWT (common paste error: missing leading "e"). */
+const looksLikeAnonJwt = /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(supabaseAnonKey);
+
 export const isRemoteConfigured =
   Boolean(supabaseUrl) &&
-  Boolean(supabaseAnonKey) &&
-  !supabaseUrl.includes('YOUR_PROJECT');
+  looksLikeAnonJwt &&
+  !supabaseUrl.includes('YOUR_PROJECT') &&
+  !supabaseAnonKey.includes('YOUR_ANON');
 
 const memoryStorage = {
   getItem: async (_key: string) => null as string | null,
