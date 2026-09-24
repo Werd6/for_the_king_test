@@ -1,0 +1,114 @@
+{
+  "intro": "These are add-ons, not requirements. A leader can substitute one for a weekly challenge, add one to a month, or let the group choose one together. The goal is embodied faithfulness, not competition.",
+  "categories": {
+    "physical": [
+      {
+        "id": "pool-physical-1",
+        "text": "10,000 steps a day for 7 days"
+      },
+      {
+        "id": "pool-physical-2",
+        "text": "Three workouts in one week"
+      },
+      {
+        "id": "pool-physical-3",
+        "text": "Seven days of morning sunlight"
+      },
+      {
+        "id": "pool-physical-4",
+        "text": "Seven days of consistent bedtime"
+      },
+      {
+        "id": "pool-physical-5",
+        "text": "One week with no sugary drinks"
+      },
+      {
+        "id": "pool-physical-6",
+        "text": "One week of drinking water consistently"
+      },
+      {
+        "id": "pool-physical-7",
+        "text": "24-hour technology fast"
+      },
+      {
+        "id": "pool-physical-8",
+        "text": "Complete a 5K walk/run"
+      },
+      {
+        "id": "pool-physical-9",
+        "text": "Take the stairs whenever practical for one week"
+      },
+      {
+        "id": "pool-physical-10",
+        "text": "Seven days of 10-minute mobility"
+      }
+    ],
+    "spiritual": [
+      {
+        "id": "pool-spiritual-1",
+        "text": "24-hour fast from food or a normal meal pattern, as appropriate"
+      },
+      {
+        "id": "pool-spiritual-2",
+        "text": "Memorize a Psalm"
+      },
+      {
+        "id": "pool-spiritual-3",
+        "text": "Pray for one person every day for a week"
+      },
+      {
+        "id": "pool-spiritual-4",
+        "text": "Read one Gospel in a month"
+      },
+      {
+        "id": "pool-spiritual-5",
+        "text": "Spend one hour in extended prayer"
+      }
+    ],
+    "relational": [
+      {
+        "id": "pool-relational-1",
+        "text": "Write a letter of gratitude to your wife or a friend"
+      },
+      {
+        "id": "pool-relational-2",
+        "text": "Encourage three men intentionally"
+      },
+      {
+        "id": "pool-relational-3",
+        "text": "Ask forgiveness from someone you have wronged"
+      },
+      {
+        "id": "pool-relational-4",
+        "text": "Have a phone-free meal with your family"
+      },
+      {
+        "id": "pool-relational-5",
+        "text": "Invite a newer man into a meal or activity"
+      }
+    ],
+    "missional": [
+      {
+        "id": "pool-missional-1",
+        "text": "Pray with someone outside your immediate family"
+      },
+      {
+        "id": "pool-missional-2",
+        "text": "Invite someone to church"
+      },
+      {
+        "id": "pool-missional-3",
+        "text": "Share your testimony with another person"
+      },
+      {
+        "id": "pool-missional-4",
+        "text": "Serve someone who cannot repay you"
+      },
+      {
+        "id": "pool-missional-5",
+        "text": "Invite a man into a Scripture conversation"
+      }
+    ]
+  },
+  "guardrails": "Physical challenges should build stewardship and brotherhood, not shame. Men should scale challenges to their age, fitness, injuries, health, and season of life. No man should feel pressured to compete, disclose health information, or attempt an activity that is unsafe for him."
+}

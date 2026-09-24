@@ -1,0 +1,936 @@
+{
+  "id": "for-the-king-v1",
+  "name": "FOR THE KING",
+  "description": "A 20-week huddle pathway.",
+  "totalWeeks": 20,
+  "weeks": [
+    {
+      "weekNumber": 1,
+      "title": "Remain in the Vine",
+      "movement": "Abide",
+      "type": "standard",
+      "intro": "Jesus does not call us to produce fruit by trying harder. He calls us to remain in him. The first question of discipleship is not “How much am I doing?” but “Am I remaining with Jesus?”",
+      "reading": "John 15:1–11",
+      "discuss": [
+        "What does Jesus say is the source of lasting fruit?",
+        "Where are you most tempted to operate independently of Jesus?"
+      ],
+      "talkingToGod": [
+        "Jesus, show me what it means to remain in you today.",
+        "Help me notice where I am trying to live by my own strength.",
+        "Produce in me the fruit that only you can produce."
+      ],
+      "journaling": [
+        {
+          "id": "w01-j1",
+          "text": "What usually pulls your attention away from Jesus?"
+        },
+        {
+          "id": "w01-j2",
+          "text": "What would a more abiding week look like in your actual schedule?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w01-c1",
+          "text": "Read John 15 each day"
+        },
+        {
+          "id": "w01-c2",
+          "text": "Pray for 5–10 minutes each day"
+        },
+        {
+          "id": "w01-c3",
+          "text": "Memorize John 15:5"
+        },
+        {
+          "id": "w01-c4",
+          "text": "Share one place where you need to depend on Jesus with a brother"
+        },
+        {
+          "id": "w01-c5",
+          "text": "Complete journaling"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w01-body",
+        "text": "Get outside for 15–20 minutes of morning or midday sunlight at least 4 days this week. Treat your body as something entrusted to you, not something separate from discipleship."
+      }
+    },
+    {
+      "weekNumber": 2,
+      "title": "Identity Before Performance",
+      "movement": "Abide",
+      "type": "standard",
+      "intro": "Our culture teaches men to prove themselves. The gospel teaches men to receive their identity from Christ and then live from it. We do not obey to become sons; we obey because, in Christ, we have been made sons.",
+      "reading": "Romans 8:1–17; Colossians 2:6–7",
+      "discuss": [
+        "How does Paul describe the difference between living from the flesh and living by the Spirit?",
+        "Where do you most often look for approval, significance, or identity apart from Christ?"
+      ],
+      "talkingToGod": [
+        "Father, help me rest in what you have already given me in Christ.",
+        "Expose the places where I am performing for approval.",
+        "Teach me to obey from sonship rather than striving for it."
+      ],
+      "journaling": [
+        {
+          "id": "w02-j1",
+          "text": "Where do you feel pressure to prove yourself?"
+        },
+        {
+          "id": "w02-j2",
+          "text": "What truth about your identity in Christ do you most need to remember?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w02-c1",
+          "text": "Write three truths about your identity in Christ"
+        },
+        {
+          "id": "w02-c2",
+          "text": "Read Romans 8 twice this week"
+        },
+        {
+          "id": "w02-c3",
+          "text": "Tell one brother where you struggle with performance"
+        },
+        {
+          "id": "w02-c4",
+          "text": "Pray before one major task each day"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w02-body",
+        "text": "Choose one nutrition practice for the week: drink water before your first caffeinated drink, eat a protein-rich breakfast, or remove one habitual source of junk food. Choose one, not all three."
+      }
+    },
+    {
+      "weekNumber": 3,
+      "title": "Lay Aside What Hinders",
+      "movement": "Abide",
+      "type": "standard",
+      "intro": "Abiding is not merely adding more spiritual activity. Sometimes faithfulness means removing what competes for our attention, affection, and obedience. Repentance is not punishment; it is turning back toward the King.",
+      "reading": "Hebrews 12:1–3; Psalm 1",
+      "discuss": [
+        "What does Hebrews say we must lay aside, and why?",
+        "What distraction, habit, or desire most competes with your attention to Christ right now?"
+      ],
+      "talkingToGod": [
+        "King Jesus, reveal what is hindering my faithfulness.",
+        "Give me courage to remove what needs to go.",
+        "Help me replace unhealthy patterns with practices that draw me toward you."
+      ],
+      "journaling": [
+        {
+          "id": "w03-j1",
+          "text": "What habit currently gets more of your attention than it deserves?"
+        },
+        {
+          "id": "w03-j2",
+          "text": "What specific change would make faithfulness easier this week?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w03-c1",
+          "text": "Name one hindrance"
+        },
+        {
+          "id": "w03-c2",
+          "text": "Fast from it for 24 hours"
+        },
+        {
+          "id": "w03-c3",
+          "text": "Replace it with Scripture, prayer, or time with people"
+        },
+        {
+          "id": "w03-c4",
+          "text": "Tell the group how it went"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w03-body",
+        "text": "Complete three 30-minute walks, runs, bike rides, or other moderate activities this week. The goal is consistency, not intensity."
+      }
+    },
+    {
+      "weekNumber": 4,
+      "title": "Abiding in Ordinary Life",
+      "movement": "Abide",
+      "type": "standard",
+      "intro": "Jesus is not only Lord during quiet time. He is King over work, marriage, parenting, money, time, body, friendships, and rest. Abiding means bringing ordinary life under the loving rule of Christ.",
+      "reading": "Colossians 3:1–17",
+      "discuss": [
+        "How does Paul move from what is true about Christ to ordinary daily behavior?",
+        "Which area of ordinary life is easiest for you to surrender to Jesus, and which is hardest?"
+      ],
+      "talkingToGod": [
+        "Jesus, rule over every part of my life.",
+        "Give me wisdom for my work, marriage, parenting, friendships, and responsibilities.",
+        "Show me one ordinary act of obedience I can offer you this week."
+      ],
+      "journaling": [
+        {
+          "id": "w04-j1",
+          "text": "Where is your life most compartmentalized?"
+        },
+        {
+          "id": "w04-j2",
+          "text": "What would it look like to practice the presence of Christ in one ordinary responsibility?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w04-c1",
+          "text": "Pray over one life area each day"
+        },
+        {
+          "id": "w04-c2",
+          "text": "Make one practical change in that area"
+        },
+        {
+          "id": "w04-c3",
+          "text": "Encourage your wife/family or a close friend"
+        },
+        {
+          "id": "w04-c4",
+          "text": "Share one area where you need prayer with someone else"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w04-body",
+        "text": "Set a consistent bedtime and wake time for at least 5 nights. Protect 7+ hours of sleep if your season allows."
+      }
+    },
+    {
+      "weekNumber": 5,
+      "title": "Group Challenge — Move Together",
+      "movement": "Abide",
+      "type": "groupChallenge",
+      "intro": "Men often build relationships shoulder-to-shoulder more naturally than face-to-face. Use that strength to build brotherhood without avoiding meaningful conversation.\n\nThis week replaces the normal huddle. Pick one challenge together, complete it as a group, and use the time to strengthen brotherhood. Keep the focus on shared effort, encouragement, and enjoying God’s good gifts.",
+      "options": [
+        {
+          "id": "w05-opt1",
+          "text": "Hike or long walk together for 60–90 minutes. Add weighted pack for additional challenge"
+        },
+        {
+          "id": "w05-opt2",
+          "text": "Complete a simple group workout: 3 rounds of 10 push-ups, 15 air squats, 20 walking lunges, and a 400-meter walk/run"
+        },
+        {
+          "id": "w05-opt3",
+          "text": "Play a sport together for 60–90 minutes"
+        },
+        {
+          "id": "w05-opt4",
+          "text": "Do a service project together for 2–3 hours"
+        },
+        {
+          "id": "w05-opt5",
+          "text": "Choose your own active challenge that everyone can reasonably participate in"
+        }
+      ],
+      "beforeYouGo": [
+        "What has God been showing you in the first month?",
+        "What is one area where you want your brothers to help you grow?"
+      ],
+      "closeInPrayer": "Thank God for the men in the group. Pray for strength, perseverance, humility, and joy as you care for your bodies and encourage one another.",
+      "celebrate": null,
+      "guardrails": "Physical challenges should build stewardship and brotherhood, not shame. Scale to age, fitness, injuries, health, and season of life."
+    },
+    {
+      "weekNumber": 6,
+      "title": "Known, Not Alone",
+      "movement": "Be Known",
+      "type": "standard",
+      "intro": "God does not intend for men to follow Jesus in isolation. Christian brotherhood is not an optional add-on for unusually relational men. We need brothers who know us, encourage us, warn us, and help us persevere.",
+      "reading": "Hebrews 3:12–13; Ecclesiastes 4:9–12",
+      "discuss": [
+        "What dangers does Hebrews connect to isolation?",
+        "What makes it difficult for you to let other men truly know you?"
+      ],
+      "talkingToGod": [
+        "God, thank you for giving me brothers.",
+        "Give me humility to be known and courage to know others.",
+        "Protect this group from superficiality and isolation."
+      ],
+      "journaling": [
+        {
+          "id": "w06-j1",
+          "text": "Where are you most isolated right now?"
+        },
+        {
+          "id": "w06-j2",
+          "text": "What is one step toward deeper brotherhood you can take?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w06-c1",
+          "text": "Pray for each man in the group"
+        },
+        {
+          "id": "w06-c2",
+          "text": "Send one genuine encouragement"
+        },
+        {
+          "id": "w06-c3",
+          "text": "Share one real struggle"
+        },
+        {
+          "id": "w06-c4",
+          "text": "Invite one man into a deeper conversation"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w06-body",
+        "text": "Do two strength sessions this week using movements you can perform safely: squat, hinge, push, pull, carry, and core. Keep it moderate and focus on good form."
+      }
+    },
+    {
+      "weekNumber": 7,
+      "title": "Walk in the Light",
+      "movement": "Be Known",
+      "type": "standard",
+      "intro": "Confession is not about being humiliated. It is about refusing to hide. Because Christ has already secured our forgiveness, we can bring sin and weakness into the light and receive grace, prayer, and help.",
+      "reading": "1 John 1:5–9; James 5:16",
+      "discuss": [
+        "What does John say happens when we walk in the light?",
+        "What makes honest confession difficult for men, and what does the gospel give us to overcome that fear?"
+      ],
+      "talkingToGod": [
+        "Jesus, give me courage to stop hiding.",
+        "Help me confess sin honestly without minimizing or dramatizing it.",
+        "Give my brothers wisdom to respond with grace and truth."
+      ],
+      "journaling": [
+        {
+          "id": "w07-j1",
+          "text": "What are you most tempted to hide?"
+        },
+        {
+          "id": "w07-j2",
+          "text": "What would honest, appropriate confession look like this week?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w07-c1",
+          "text": "Name one area where you need prayer"
+        },
+        {
+          "id": "w07-c2",
+          "text": "Confess honestly to a trusted brother"
+        },
+        {
+          "id": "w07-c3",
+          "text": "Receive prayer without defending yourself"
+        },
+        {
+          "id": "w07-c4",
+          "text": "Follow through on one step of repentance"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w07-body",
+        "text": "Take a 24-hour break from alcohol, junk food, social media, or another non-essential indulgence. Use the time to notice your cravings and bring them to God."
+      }
+    },
+    {
+      "weekNumber": 8,
+      "title": "Truth That Makes Us Stronger",
+      "movement": "Be Known",
+      "type": "standard",
+      "intro": "Real brotherhood is more than encouragement. Love is willing to tell the truth, receive correction, and help another man become more like Jesus. Healthy accountability is not policing; it is helping one another stay faithful to the King.",
+      "reading": "Proverbs 27:17; Ephesians 4:15",
+      "discuss": [
+        "What does biblical truth-telling require from the person speaking and the person receiving?",
+        "Where would you most benefit from honest correction?"
+      ],
+      "talkingToGod": [
+        "Lord, make me humble enough to receive correction.",
+        "Give me courage to speak truth with gentleness.",
+        "Help us become men who make one another stronger in Christ."
+      ],
+      "journaling": [
+        {
+          "id": "w08-j1",
+          "text": "How do you normally respond when someone corrects you?"
+        },
+        {
+          "id": "w08-j2",
+          "text": "What blind spot would you be willing to ask a brother about?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w08-c1",
+          "text": "Ask one brother: “Where do you see a blind spot in me?”"
+        },
+        {
+          "id": "w08-c2",
+          "text": "Listen without defending yourself"
+        },
+        {
+          "id": "w08-c3",
+          "text": "Speak one encouraging truth to another man"
+        },
+        {
+          "id": "w08-c4",
+          "text": "Pray for humility"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w08-body",
+        "text": "Do a simple mobility routine for 10 minutes on at least 5 days. Include hips, shoulders, back, and ankles. The goal is caring for the body you will steward for decades."
+      }
+    },
+    {
+      "weekNumber": 9,
+      "title": "Love Your People Well",
+      "movement": "Be Known",
+      "type": "standard",
+      "intro": "Abiding in Christ should make us more attentive to the people closest to us. For many men, spiritual maturity is most clearly seen at home—in how we listen, apologize, serve, lead, and love.",
+      "reading": "Ephesians 5:25–33; Colossians 3:12–21",
+      "discuss": [
+        "What kind of love does Scripture call husbands and fathers to embody?",
+        "Where do the people closest to you most need the fruit of Christ in you?"
+      ],
+      "talkingToGod": [
+        "Jesus, make me a man who loves sacrificially.",
+        "Give me patience and tenderness toward my family.",
+        "Help me lead without controlling and serve without needing recognition."
+      ],
+      "journaling": [
+        {
+          "id": "w09-j1",
+          "text": "What do your wife or children experience from you when you are stressed?"
+        },
+        {
+          "id": "w09-j2",
+          "text": "What is one small way you can love your family intentionally this week?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w09-c1",
+          "text": "Ask your wife/family how you can serve them"
+        },
+        {
+          "id": "w09-c2",
+          "text": "Apologize where needed"
+        },
+        {
+          "id": "w09-c3",
+          "text": "Give focused, distraction-free time"
+        },
+        {
+          "id": "w09-c4",
+          "text": "Pray for your family by name"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w09-body",
+        "text": "Take your wife/family or a close friend outside for a walk. If possible, make it phone-free."
+      }
+    },
+    {
+      "weekNumber": 10,
+      "title": "Group Challenge — Do Hard Things Together",
+      "movement": "Be Known",
+      "type": "groupChallenge",
+      "intro": "Physical challenge can become a laboratory for perseverance, encouragement, humility, and joy. Choose something difficult enough to require commitment but accessible enough that no man is left behind.\n\nThis week replaces the normal huddle. Pick one challenge together, complete it as a group, and use the time to strengthen brotherhood. Keep the focus on shared effort, encouragement, and enjoying God’s good gifts.",
+      "options": [
+        {
+          "id": "w10-opt1",
+          "text": "Group ruck/walk: 3–5 miles at a sustainable pace"
+        },
+        {
+          "id": "w10-opt2",
+          "text": "Outdoor workout and breakfast/coffee together"
+        },
+        {
+          "id": "w10-opt3",
+          "text": "Serve physically together: yard work, moving, cleanup, or another practical project"
+        },
+        {
+          "id": "w10-opt4",
+          "text": "Pick a team sport or recreational tournament"
+        }
+      ],
+      "beforeYouGo": [
+        "Who in the group needs encouragement right now?",
+        "How can we make this challenge about brotherhood rather than comparison?"
+      ],
+      "closeInPrayer": "Thank God for the men in the group. Pray for strength, perseverance, humility, and joy as you care for your bodies and encourage one another.",
+      "celebrate": null,
+      "guardrails": "Physical challenges should build stewardship and brotherhood, not shame. Scale to age, fitness, injuries, health, and season of life."
+    },
+    {
+      "weekNumber": 11,
+      "title": "FOR the King at Work",
+      "movement": "FOR THE KING",
+      "type": "standard",
+      "intro": "Work is not separate from discipleship. We work under the authority of Christ, and our faithfulness, honesty, diligence, and treatment of people can display what it means to belong to the King.",
+      "reading": "Colossians 3:22–24; 1 Thessalonians 4:9–12",
+      "discuss": [
+        "What changes when you remember that you ultimately work for the Lord?",
+        "Where are you most tempted toward laziness, overwork, bitterness, or compromise?"
+      ],
+      "talkingToGod": [
+        "King Jesus, receive my work as an offering.",
+        "Give me diligence without making work my identity.",
+        "Help me represent you with integrity and humility."
+      ],
+      "journaling": [
+        {
+          "id": "w11-j1",
+          "text": "What does your work reveal about what you value?"
+        },
+        {
+          "id": "w11-j2",
+          "text": "What one work habit needs to change?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w11-c1",
+          "text": "Begin each workday with a short prayer"
+        },
+        {
+          "id": "w11-c2",
+          "text": "Do one difficult task without complaining"
+        },
+        {
+          "id": "w11-c3",
+          "text": "Encourage a coworker"
+        },
+        {
+          "id": "w11-c4",
+          "text": "End one workday by thanking God"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w11-body",
+        "text": "Take three 20–30 minute walks during the workday or after work. Use one walk to pray for people you work with."
+      }
+    },
+    {
+      "weekNumber": 12,
+      "title": "A Holy Body",
+      "movement": "FOR THE KING",
+      "type": "standard",
+      "intro": "Your body belongs to God. Caring for it is not vanity, and discipline is not legalism. We care for our bodies because they are gifts entrusted to us and because physical habits can either support or hinder faithful obedience.",
+      "reading": "1 Corinthians 6:19–20; 9:24–27",
+      "discuss": [
+        "What does Paul mean by saying your body belongs to God?",
+        "How can physical discipline serve spiritual faithfulness without becoming an idol?"
+      ],
+      "talkingToGod": [
+        "God, teach me to steward my body without worshiping it.",
+        "Give me discipline where I am passive and freedom where I am obsessive.",
+        "Help me use my strength for your purposes."
+      ],
+      "journaling": [
+        {
+          "id": "w12-j1",
+          "text": "What physical habit most affects your spiritual life?"
+        },
+        {
+          "id": "w12-j2",
+          "text": "What is one realistic change you can sustain?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w12-c1",
+          "text": "Choose one nutrition goal"
+        },
+        {
+          "id": "w12-c2",
+          "text": "Exercise 3 times"
+        },
+        {
+          "id": "w12-c3",
+          "text": "Drink water consistently"
+        },
+        {
+          "id": "w12-c4",
+          "text": "Avoid one habitual excess"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w12-body",
+        "text": "Complete three intentional workouts this week, each 20–45 minutes. Modify for your ability, injuries, and season. Consistency matters more than performance."
+      }
+    },
+    {
+      "weekNumber": 13,
+      "title": "Fighting for Purity",
+      "movement": "FOR THE KING",
+      "type": "standard",
+      "intro": "Purity is not merely avoiding a list of bad behaviors. It is learning to desire what is good and to bring our sexuality, imagination, technology, and relationships under the rule of Christ. Men need truth, grace, and brothers who will not let them hide.",
+      "reading": "1 Thessalonians 4:3–8; 2 Timothy 2:22",
+      "discuss": [
+        "What does Paul say holiness requires us to learn?",
+        "What practical boundaries help you flee temptation rather than merely resist it at the last moment?"
+      ],
+      "talkingToGod": [
+        "Jesus, make my desires holy.",
+        "Give me courage to flee temptation early.",
+        "Help me receive grace without making excuses and accountability without shame."
+      ],
+      "journaling": [
+        {
+          "id": "w13-j1",
+          "text": "Where are your predictable moments of vulnerability?"
+        },
+        {
+          "id": "w13-j2",
+          "text": "What boundary or replacement habit would make faithfulness easier?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w13-c1",
+          "text": "Identify one trigger"
+        },
+        {
+          "id": "w13-c2",
+          "text": "Set one concrete boundary"
+        },
+        {
+          "id": "w13-c3",
+          "text": "Tell a trusted brother"
+        },
+        {
+          "id": "w13-c4",
+          "text": "Replace temptation with a healthy action"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w13-body",
+        "text": "Prioritize sleep and remove screens 30–60 minutes before bed on at least 4 nights. Use that time for prayer, reading, or conversation."
+      }
+    },
+    {
+      "weekNumber": 14,
+      "title": "Faithful in What God Entrusted",
+      "movement": "FOR THE KING",
+      "type": "standard",
+      "intro": "Men are stewards before they are owners. Time, money, family, influence, gifts, and opportunities belong ultimately to the King. Faithfulness means receiving what God gives and using it for his purposes.",
+      "reading": "Luke 16:10–13; 1 Peter 4:10–11",
+      "discuss": [
+        "What does faithfulness in small things reveal about a person?",
+        "What resource God has entrusted to you most needs intentional stewardship right now?"
+      ],
+      "talkingToGod": [
+        "King Jesus, help me hold what I have with open hands.",
+        "Give me wisdom with time, money, influence, and responsibility.",
+        "Show me where I can serve rather than consume."
+      ],
+      "journaling": [
+        {
+          "id": "w14-j1",
+          "text": "Where are you most tempted to act like an owner rather than a steward?"
+        },
+        {
+          "id": "w14-j2",
+          "text": "What one resource can you steward more faithfully this week?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w14-c1",
+          "text": "Review your calendar"
+        },
+        {
+          "id": "w14-c2",
+          "text": "Give something away"
+        },
+        {
+          "id": "w14-c3",
+          "text": "Serve someone without recognition"
+        },
+        {
+          "id": "w14-c4",
+          "text": "Make one stewardship change"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w14-body",
+        "text": "Spend one hour doing something active that benefits someone else: yard work, helping a neighbor, serving at church, or another practical act."
+      }
+    },
+    {
+      "weekNumber": 15,
+      "title": "Group Challenge — Endure Together",
+      "movement": "FOR THE KING",
+      "type": "groupChallenge",
+      "intro": "The Christian life requires perseverance. Choose a challenge that stretches the group, then finish it together. The point is not who is strongest; the point is learning to encourage one another when the work gets hard.\n\nThis week replaces the normal huddle. Pick one challenge together, complete it as a group, and use the time to strengthen brotherhood. Keep the focus on shared effort, encouragement, and enjoying God’s good gifts.",
+      "options": [
+        {
+          "id": "w15-opt1",
+          "text": "Sunrise walk/ruck and breakfast"
+        },
+        {
+          "id": "w15-opt2",
+          "text": "Group workout with a shared goal: total miles, reps, or minutes"
+        },
+        {
+          "id": "w15-opt3",
+          "text": "Long bike ride or hike"
+        },
+        {
+          "id": "w15-opt4",
+          "text": "A physically demanding service project"
+        },
+        {
+          "id": "w15-opt5",
+          "text": "Outdoor endurance challenge chosen by the group"
+        }
+      ],
+      "beforeYouGo": [
+        "When did you want to quit during the challenge?",
+        "Who encouraged you, and what did that teach you about brotherhood?"
+      ],
+      "closeInPrayer": "Thank God for the men in the group. Pray for strength, perseverance, humility, and joy as you care for your bodies and encourage one another.",
+      "celebrate": null,
+      "guardrails": "Physical challenges should build stewardship and brotherhood, not shame. Scale to age, fitness, injuries, health, and season of life."
+    },
+    {
+      "weekNumber": 16,
+      "title": "Sent to Make Disciples",
+      "movement": "Make Disciples",
+      "type": "standard",
+      "intro": "Jesus did not save us merely to make us better consumers of church. Disciples are sent. The man who abides in Christ begins to ask, “Who might Jesus want me to help follow him?”",
+      "reading": "Matthew 28:18–20",
+      "discuss": [
+        "What authority does Jesus have as he sends his disciples?",
+        "What keeps you from seeing yourself as someone who can help another person follow Jesus?"
+      ],
+      "talkingToGod": [
+        "Jesus, make me available to your mission.",
+        "Give me eyes to see a man you want me to pursue.",
+        "Give me courage to initiate spiritual conversations."
+      ],
+      "journaling": [
+        {
+          "id": "w16-j1",
+          "text": "Who has God already placed around you?"
+        },
+        {
+          "id": "w16-j2",
+          "text": "Which man could benefit from a regular relationship with you?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w16-c1",
+          "text": "Name one man to pray for"
+        },
+        {
+          "id": "w16-c2",
+          "text": "Contact him"
+        },
+        {
+          "id": "w16-c3",
+          "text": "Invite him to coffee or a meal"
+        },
+        {
+          "id": "w16-c4",
+          "text": "Ask one spiritual question"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w16-body",
+        "text": "Invite that man to do something active with you—walk, workout, golf, hike, or another shared activity. Let relationship create the doorway for discipleship."
+      }
+    },
+    {
+      "weekNumber": 17,
+      "title": "Be With Jesus, Then Go",
+      "movement": "Make Disciples",
+      "type": "standard",
+      "intro": "Jesus formed men through presence before assignment. Disciple-making is not primarily transferring information; it is helping another person follow Jesus through Scripture, prayer, example, correction, encouragement, and shared life.",
+      "reading": "Mark 3:13–15; 2 Timothy 2:1–2",
+      "discuss": [
+        "Why does Mark emphasize that Jesus appointed the disciples to be with him before sending them out?",
+        "What could life-on-life discipleship look like in your current season?"
+      ],
+      "talkingToGod": [
+        "Jesus, teach me to be with you before I try to work for you.",
+        "Give me patience to invest in people over time.",
+        "Help me model what I am asking others to become."
+      ],
+      "journaling": [
+        {
+          "id": "w17-j1",
+          "text": "Who discipled you most effectively, and what did they actually do?"
+        },
+        {
+          "id": "w17-j2",
+          "text": "What is one rhythm you could reproduce with another man?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w17-c1",
+          "text": "Share part of your testimony"
+        },
+        {
+          "id": "w17-c2",
+          "text": "Read Scripture with another man"
+        },
+        {
+          "id": "w17-c3",
+          "text": "Pray with him"
+        },
+        {
+          "id": "w17-c4",
+          "text": "Schedule a second meeting"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w17-body",
+        "text": "Do one physical activity with the man you are investing in. Keep it relational, not performative."
+      }
+    },
+    {
+      "weekNumber": 18,
+      "title": "Fruit That Remains",
+      "movement": "Make Disciples",
+      "type": "standard",
+      "intro": "Jesus wants fruit that lasts. The goal is not to create dependent relationships where men always need us; it is to help men know Christ, grow in maturity, and eventually invest in others.",
+      "reading": "John 15:16; 2 Timothy 2:2",
+      "discuss": [
+        "What does Jesus mean by fruit that remains?",
+        "How does multiplication change the way you think about discipleship?"
+      ],
+      "talkingToGod": [
+        "Jesus, make my life fruitful for generations I may never see.",
+        "Keep me from making discipleship about myself.",
+        "Give me patience to invest for the long haul."
+      ],
+      "journaling": [
+        {
+          "id": "w18-j1",
+          "text": "What kind of man do you hope another man becomes because of your investment?"
+        },
+        {
+          "id": "w18-j2",
+          "text": "What would multiplication look like beyond this one relationship?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w18-c1",
+          "text": "Identify one practice to reproduce"
+        },
+        {
+          "id": "w18-c2",
+          "text": "Ask your disciple what he is learning"
+        },
+        {
+          "id": "w18-c3",
+          "text": "Encourage him to invest in someone else"
+        },
+        {
+          "id": "w18-c4",
+          "text": "Pray for the next generation"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w18-body",
+        "text": "Set a personal 30-day physical habit you could eventually teach another man: walking, strength training, sleep, nutrition, or another sustainable practice."
+      }
+    },
+    {
+      "weekNumber": 19,
+      "title": "Finish Faithfully",
+      "movement": "Make Disciples",
+      "type": "standard",
+      "intro": "Discipleship is measured over decades, not moments. Paul’s vision was not merely to start well but to finish faithfully. Men need rhythms and brothers that help them keep going when life becomes complicated.",
+      "reading": "2 Timothy 4:6–8; Hebrews 12:1–3",
+      "discuss": [
+        "What does Paul say enabled him to finish faithfully?",
+        "What threatens your long-term faithfulness in this season?"
+      ],
+      "talkingToGod": [
+        "Father, help me finish the race you have given me.",
+        "Give me endurance when life is complicated.",
+        "Keep my eyes on Jesus when I grow weary."
+      ],
+      "journaling": [
+        {
+          "id": "w19-j1",
+          "text": "Where are you most vulnerable to drifting?"
+        },
+        {
+          "id": "w19-j2",
+          "text": "What relationship or rhythm will help you remain faithful?"
+        }
+      ],
+      "challenges": [
+        {
+          "id": "w19-c1",
+          "text": "Name one long-term commitment"
+        },
+        {
+          "id": "w19-c2",
+          "text": "Tell your brothers what you need"
+        },
+        {
+          "id": "w19-c3",
+          "text": "Encourage a younger man"
+        },
+        {
+          "id": "w19-c4",
+          "text": "Thank God for his faithfulness"
+        }
+      ],
+      "careForTheBody": {
+        "id": "w19-body",
+        "text": "Complete one meaningful physical activity that reflects your current season—not your ideal season. The goal is to practice faithful stewardship, not prove fitness."
+      }
+    },
+    {
+      "weekNumber": 20,
+      "title": "Group Challenge — FOR THE KING: Finish and Go",
+      "movement": "Make Disciples",
+      "type": "groupChallenge",
+      "intro": "This final gathering is a celebration and a commissioning. Look back at what God has done, enjoy brotherhood, and choose a shared activity that reminds you that discipleship is embodied, relational, and ongoing.\n\nThis week replaces the normal huddle. Pick one challenge together, complete it as a group, and use the time to strengthen brotherhood. Keep the focus on shared effort, encouragement, and enjoying God’s good gifts.",
+      "options": [
+        {
+          "id": "w20-opt1",
+          "text": "Sunrise hike or walk, followed by breakfast"
+        },
+        {
+          "id": "w20-opt2",
+          "text": "Group workout and testimony time"
+        },
+        {
+          "id": "w20-opt3",
+          "text": "Outdoor service project followed by a meal"
+        },
+        {
+          "id": "w20-opt4",
+          "text": "Team sport/recreation day"
+        },
+        {
+          "id": "w20-opt5",
+          "text": "Choose another shared challenge that fits the group"
+        }
+      ],
+      "beforeYouGo": [
+        "What has God changed in you during these 20 weeks?",
+        "Who are you going to keep walking with, and who are you going to invest in next?"
+      ],
+      "closeInPrayer": "Thank God for the men in the group. Pray for strength, perseverance, humility, and joy as you care for your bodies and encourage one another.",
+      "celebrate": "*Content still to be written.*",
+      "guardrails": "Physical challenges should build stewardship and brotherhood, not shame. Scale to age, fitness, injuries, health, and season of life."
+    }
+  ]
+}
