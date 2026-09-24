@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Body, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
-import { advanceWeek, dissolveHuddle, getHuddleMembers, getProgressForWeek } from '@/lib/api';
+import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { isStandardWeek, progressItemIdsForWeek } from '@/lib/content';
@@ -58,23 +58,6 @@ export default function ProgressScreen() {
     }
   }
 
-  async function onDissolve() {
-    if (!huddle) return;
-    const ok = await confirmAction(
-      'Dissolve huddle?',
-      'This removes the huddle for everyone.',
-      'Dissolve'
-    );
-    if (!ok) return;
-    try {
-      await dissolveHuddle(huddle.id);
-      await refresh();
-      router.replace('/');
-    } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not dissolve');
-    }
-  }
-
   if (!huddle) return <Loading />;
   if (loading || contentLoading || !pathway) return <Loading />;
 
@@ -88,7 +71,6 @@ export default function ProgressScreen() {
       />
       <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
       <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
-      <SettingsRow label="Dissolve huddle" onPress={onDissolve} destructive />
     </SettingsGroup>
   ) : null;
 

@@ -12,7 +12,7 @@ import {
   SettingsSegmented,
   Title,
 } from '@/components/ui';
-import { deleteAccount, leaveHuddle, updateDisplayName } from '@/lib/api';
+import { deleteAccount, dissolveHuddle, leaveHuddle, updateDisplayName } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
@@ -71,6 +71,22 @@ export default function SettingsScreen() {
       router.replace('/');
     } catch (e) {
       showAlert('Error', e instanceof Error ? e.message : 'Could not leave');
+    }
+  }
+
+  async function onDissolve() {
+    const ok = await confirmAction(
+      'Dissolve huddle?',
+      'This removes the huddle for everyone.',
+      'Dissolve'
+    );
+    if (!ok) return;
+    try {
+      await dissolveHuddle(huddle!.id);
+      await refresh();
+      router.replace('/');
+    } catch (e) {
+      showAlert('Error', e instanceof Error ? e.message : 'Could not dissolve');
     }
   }
 
@@ -162,6 +178,12 @@ export default function SettingsScreen() {
           <SettingsRow label="Sign out" onPress={() => signOut()} showChevron={false} />
           <SettingsRow label="Delete account" onPress={onDeleteAccount} destructive />
         </SettingsGroup>
+
+        {isLeader ? (
+          <SettingsGroup label="Danger zone">
+            <SettingsRow label="Dissolve huddle" onPress={onDissolve} destructive />
+          </SettingsGroup>
+        ) : null}
       </ScrollView>
     </Screen>
   );
