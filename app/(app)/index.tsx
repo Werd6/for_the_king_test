@@ -1,6 +1,3 @@
-import { useCallback, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Body,
   BulletList,
@@ -14,11 +11,14 @@ import {
 } from '@/components/ui';
 import { getProgressForWeek, getWeekPick, setProgress, setWeekPick } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { useContent } from '@/lib/ContentContext';
 import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
+import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
 import { useTheme } from '@/lib/ThemeContext';
 import type { ProgressRow } from '@/lib/types';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 
 export default function WeekHomeScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
@@ -189,7 +189,6 @@ export default function WeekHomeScreen() {
         </Card>
 
         <Card title="Journaling">
-          <Body>Prompts stay private — the app only stores checkmarks.</Body>
           {week.journaling.map((j) => (
             <CheckboxRow
               key={j.id}
