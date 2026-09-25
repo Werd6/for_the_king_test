@@ -3,6 +3,7 @@ import { Alert, Platform, ScrollView, Text } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { Body, Field, PrimaryButton, Screen, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
+import { openFeedbackForm } from '@/lib/feedback';
 import { signInWithApple } from '@/lib/socialAuth';
 import { useTheme } from '@/lib/ThemeContext';
 
@@ -134,6 +135,14 @@ export default function SignInScreen() {
         {!usingLocalMode && Platform.OS === 'ios' ? (
           <PrimaryButton title="Sign in with Apple" onPress={socialApple} disabled={busy} />
         ) : null}
+
+        <Text
+          accessibilityRole="link"
+          onPress={openFeedbackForm}
+          style={{ color: colors.muted, textAlign: 'center', marginTop: 12, textDecorationLine: 'underline' }}
+        >
+          Found a bug or have a suggestion? Send feedback
+        </Text>
       </ScrollView>
     </Screen>
   );

@@ -14,6 +14,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
+import { openFeedbackForm } from '@/lib/feedback';
 import type { ThemePreference } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import { useRouter } from 'expo-router';
@@ -170,6 +171,10 @@ export default function SettingsScreen() {
             <SettingsRow label="Leave huddle" onPress={onLeave} destructive />
           </SettingsGroup>
         ) : null}
+
+        <SettingsGroup label="Feedback" footer="Report bugs or share suggestions for the prototype.">
+          <SettingsRow label="Send feedback" onPress={openFeedbackForm} />
+        </SettingsGroup>
 
         <SettingsGroup
           label="Account"
