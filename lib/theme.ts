@@ -9,6 +9,8 @@ export type ThemeColors = {
   surfaceStrong: string;
   primary: string;
   muted: string;
+  /** Secondary text; muted fails 4.5:1 contrast on the light background. */
+  mutedText: string;
   ink: string;
   onPrimary: string;
   danger: string;
@@ -24,6 +26,7 @@ export const lightColors: ThemeColors = {
   surfaceStrong: '#9DC5BB',
   primary: '#17B890',
   muted: '#5E807F',
+  mutedText: '#466665',
   ink: '#082D0F',
   onPrimary: '#082D0F',
   danger: '#8B1E1E',
@@ -42,6 +45,7 @@ export const darkColors: ThemeColors = {
   surfaceStrong: '#5E807F',
   primary: '#17B890',
   muted: '#9DC5BB',
+  mutedText: '#9DC5BB',
   ink: '#DEE5E5',
   onPrimary: '#082D0F',
   danger: '#E07070',

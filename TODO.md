@@ -28,17 +28,25 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 ## Phase 2 — Polish & branding
 
 - [ ] **App icon** — replace `assets/images/icon.png` (1024×1024, no transparency)
-- [ ] **Android adaptive icon** — replace foreground/background/monochrome PNGs; set `android.adaptiveIcon.backgroundColor` to a palette color
-- [ ] **Splash screen** — replace `splash-icon.png`; set splash `backgroundColor` in `app.json` (currently `#ffffff`)
-- [ ] **Favicon** for web
-- [ ] **Forgot password** flow on sign-in (`supabase.auth.resetPasswordForEmail` + reset screen)
+- [ ] **Android adaptive icon** — replace foreground/background/monochrome PNGs
+  - [x] Background color set to palette `#DEE5E5`
+- [ ] **Splash screen** — replace `splash-icon.png`
+  - [x] Background `#DEE5E5` light / `#082D0F` dark
+- [ ] **Favicon** for web — replace `assets/images/favicon.png` (48×48)
+- [ ] **Forgot password**
+  - [x] "Forgot password?" link on sign-in + `/reset-password` screen
+  - [ ] Supabase → Authentication → URL Configuration → Redirect URLs: add `https://for-the-king-test.vercel.app/reset-password`, `http://localhost:8081/reset-password`, `fortheking://reset-password`
+  - [ ] Test: request reset on the live site, open the email link, set a new password
 - [ ] **Auth emails**
-  - [ ] Customize Supabase confirm/reset email templates
+  - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
   - [ ] Set up custom SMTP (Resend, Postmark, etc.) — built-in sender is rate-limited
-- [ ] **Remove dev-only text** — "Local mode / Cloud content / Bundled content" label in Settings
-- [ ] **Error & empty states** — offline message, failed-load retry, no-huddle state
+- [x] **Remove dev-only text** — Settings content label, "Run npm run publish:pathway" messages
+- [x] **Error states** — friendly error messages; "Couldn't load / Try again" on week + progress screens
 - [ ] **Content review** — proofread every week in `content/` and `for_the_king_content1.md`
-- [ ] **Accessibility pass** — labels on buttons/checkboxes, text scaling, contrast in both themes
+- [ ] **Accessibility pass**
+  - [x] Screen-reader headings, input/checkbox/row labels, disabled states, email/password autofill
+  - [x] Light-mode secondary text darkened to pass 4.5:1 contrast
+  - [ ] Test with VoiceOver (iOS) and large text sizes once native builds exist
 
 ---
 
@@ -85,6 +93,35 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **CI** — typecheck + tests on every push (GitHub Actions)
 - [ ] **Analytics** (optional, privacy-respecting) — weekly active huddles, retention
 - [ ] **Push notifications** (optional) — meeting reminders, weekly check-in nudges
+
+---
+
+## Feature — Pathway theming
+
+Each pathway brings its own look; the platform default ("For The King") is the fallback everywhere.
+
+- [ ] **Theme data**
+  - [ ] Add `theme jsonb` to `public.pathways` (pathway-level so branding can change without a new content version)
+  - [ ] Shape: `{ light: {...colors}, dark: {...colors}, logoUrl, logoDarkUrl, faviconUrl, iconKey }`
+  - [ ] Supabase Storage bucket for logos/favicons (public read)
+- [ ] **Theme loading**
+  - [ ] Current `lib/theme.ts` palette becomes the default theme
+  - [ ] Merge the huddle's pathway theme over the default; missing/invalid colors fall back
+  - [ ] Contrast check so a bad theme can't make text unreadable
+  - [ ] Signed-out / no huddle / load failure → default theme
+  - [ ] Cache theme + logos for offline
+- [ ] **Apply it**
+  - [ ] Colors (light + dark) across all screens
+  - [ ] Logo on sign-in, week screen header, etc.
+  - [ ] Web: browser tab favicon, page title, `theme-color` meta update at runtime
+- [ ] **Publishing** — publish script uploads theme + logos with a pathway
+- [ ] **Home-screen app icons** (needs native builds, Phase 3)
+  - [ ] Default platform icon is the app's main icon
+  - [ ] Path-specific icons are added to the build occasionally with app updates
+  - [ ] `theme.iconKey` maps a pathway to a bundled icon; no key or no bundled icon → default icon
+  - [ ] Switch icon after sign-in / huddle change; reset to default on sign-out
+  - [ ] Pick an alternate-icon library compatible with Expo 57
+  - [ ] Note: iOS shows a system popup on each switch; splash screen stays the default
 
 ---
 

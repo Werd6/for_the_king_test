@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Body, Field, PrimaryButton, Screen, Title } from '@/components/ui';
 import { joinHuddleByCode } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 
 export default function JoinHuddleScreen() {
   const { userId, refresh } = useAuth();
@@ -20,7 +21,7 @@ export default function JoinHuddleScreen() {
       Alert.alert('Joined', `You are in ${huddle.name}`);
       router.replace('/');
     } catch (e) {
-      Alert.alert('Could not join', e instanceof Error ? e.message : 'Error');
+      Alert.alert('Could not join', friendlyError(e, 'Error'));
     } finally {
       setBusy(false);
     }

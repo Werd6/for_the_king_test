@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  type TextInputProps,
   StyleSheet,
   Text,
   TextInput,
@@ -84,6 +85,7 @@ function makeStyles(colors: ThemeColors) {
       gap: 10,
       marginVertical: spacing.xs,
       paddingVertical: 2,
+      minHeight: 32,
     },
     checkbox: {
       width: 22,
@@ -155,6 +157,14 @@ function makeStyles(colors: ThemeColors) {
       justifyContent: 'center',
       backgroundColor: colors.bg,
     },
+    errorState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+      gap: spacing.md,
+      backgroundColor: colors.bg,
+    },
     bullet: {
       ...typography.body,
       color: colors.ink,
@@ -169,7 +179,7 @@ function makeStyles(colors: ThemeColors) {
       fontWeight: '600',
       letterSpacing: 0.4,
       textTransform: 'uppercase',
-      color: colors.muted,
+      color: colors.mutedText,
       marginLeft: spacing.xs,
     },
     settingsGroup: {
@@ -207,19 +217,19 @@ function makeStyles(colors: ThemeColors) {
     },
     settingsRowValue: {
       fontSize: 15,
-      color: colors.muted,
+      color: colors.mutedText,
       maxWidth: '45%',
     },
     settingsRowChevron: {
       fontSize: 20,
-      color: colors.muted,
+      color: colors.mutedText,
       fontWeight: '300',
       marginLeft: 2,
     },
     settingsFooter: {
       fontSize: 13,
       lineHeight: 18,
-      color: colors.muted,
+      color: colors.mutedText,
       marginTop: spacing.sm,
       marginHorizontal: spacing.xs,
     },
@@ -244,7 +254,7 @@ function makeStyles(colors: ThemeColors) {
     segmentItemText: {
       fontSize: 14,
       fontWeight: '600',
-      color: colors.muted,
+      color: colors.mutedText,
     },
     segmentItemTextActive: {
       color: colors.onPrimary,
@@ -269,7 +279,11 @@ export function Screen({ children, style }: { children: React.ReactNode; style?:
 
 export function Title({ children }: { children: React.ReactNode }) {
   const { styles } = useUiStyles();
-  return <Text style={styles.title}>{children}</Text>;
+  return (
+    <Text style={styles.title} accessibilityRole="header">
+      {children}
+    </Text>
+  );
 }
 
 export function Subtitle({ children }: { children: React.ReactNode }) {
@@ -286,7 +300,9 @@ export function Section({ title, children }: { title: string; children: React.Re
   const { styles } = useUiStyles();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionTitle} accessibilityRole="header">
+        {title}
+      </Text>
       {children}
     </View>
   );
@@ -297,7 +313,9 @@ export function Card({ title, children }: { title: string; children: React.React
   const { styles } = useUiStyles();
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.cardTitle} accessibilityRole="header">
+        {title}
+      </Text>
       <View style={styles.cardBody}>{children}</View>
     </View>
   );
@@ -310,6 +328,9 @@ export function Field({
   secureTextEntry,
   placeholder,
   autoCapitalize,
+  keyboardType,
+  autoComplete,
+  textContentType,
 }: {
   label: string;
   value: string;
@@ -317,6 +338,9 @@ export function Field({
   secureTextEntry?: boolean;
   placeholder?: string;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  keyboardType?: TextInputProps['keyboardType'];
+  autoComplete?: TextInputProps['autoComplete'];
+  textContentType?: TextInputProps['textContentType'];
 }) {
   const { colors, styles } = useUiStyles();
   const [focused, setFocused] = useState(false);
@@ -325,11 +349,15 @@ export function Field({
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, focused && styles.inputFocused]}
+        accessibilityLabel={label}
+        keyboardType={keyboardType}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={colors.mutedText}
         autoCapitalize={autoCapitalize ?? 'none'}
         autoCorrect={false}
         onFocus={() => setFocused(true)}
@@ -352,6 +380,7 @@ export function CheckboxRow({
   return (
     <Pressable
       accessibilityRole="checkbox"
+      accessibilityLabel={label}
       accessibilityState={{ checked }}
       onPress={() => onToggle(!checked)}
       style={({ pressed }) => [styles.checkRow, pressed && { opacity: 0.75 }]}
@@ -377,6 +406,7 @@ export function PrimaryButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: Boolean(disabled) }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -403,6 +433,7 @@ export function SecondaryButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: Boolean(disabled) }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -421,6 +452,19 @@ export function Loading() {
   return (
     <View style={styles.loading}>
       <ActivityIndicator color={colors.primary} size="large" />
+    </View>
+  );
+}
+
+export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const { styles } = useUiStyles();
+  return (
+    <View style={styles.errorState}>
+      <Text style={styles.subtitle} accessibilityRole="header">
+        Couldn't load
+      </Text>
+      <Text style={[styles.body, { textAlign: 'center' }]}>{message}</Text>
+      <PrimaryButton title="Try again" onPress={onRetry} />
     </View>
   );
 }
@@ -501,6 +545,7 @@ export function SettingsRow({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
       style={({ pressed }) => [styles.settingsRow, pressed && styles.settingsRowPressed]}
     >

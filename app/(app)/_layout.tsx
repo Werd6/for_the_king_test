@@ -15,7 +15,7 @@ export default function AppLayout() {
           borderTopColor: colors.muted,
         },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarInactiveTintColor: colors.mutedText,
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'This Week' }} />

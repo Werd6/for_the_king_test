@@ -11,6 +11,7 @@ import {
 } from '@/components/ui';
 import { deleteAccount, dissolveHuddle, leaveHuddle, updateDisplayName } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
@@ -22,7 +23,7 @@ import { useState } from 'react';
 import { ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
-  const { userId, profile, huddle, isLeader, refresh, signOut, usingLocalMode } = useAuth();
+  const { userId, profile, huddle, isLeader, refresh, signOut } = useAuth();
   const { pathway } = useContent();
   const { preference, setPreference } = useTheme();
   const router = useRouter();
@@ -32,11 +33,6 @@ export default function SettingsScreen() {
   if (!userId || !profile || !huddle) return <Loading />;
 
   const nameDirty = name.trim() !== (profile.display_name ?? '');
-  const contentLabel = usingLocalMode
-    ? 'Local mode'
-    : pathway?.source === 'remote'
-      ? 'Cloud content'
-      : 'Bundled content';
 
   async function saveName() {
     setBusy(true);
@@ -45,7 +41,7 @@ export default function SettingsScreen() {
       await refresh();
       showAlert('Saved', 'Display name updated.');
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not save');
+      showAlert('Error', friendlyError(e, 'Could not save'));
     } finally {
       setBusy(false);
     }
@@ -55,7 +51,7 @@ export default function SettingsScreen() {
     try {
       await shareText(`Join my For The King huddle with code ${huddle!.invite_code}`);
     } catch (e) {
-      showAlert('Share failed', e instanceof Error ? e.message : 'Could not share');
+      showAlert('Share failed', friendlyError(e, 'Could not share'));
     }
   }
 
@@ -71,7 +67,7 @@ export default function SettingsScreen() {
       await refresh();
       router.replace('/');
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not leave');
+      showAlert('Error', friendlyError(e, 'Could not leave'));
     }
   }
 
@@ -87,7 +83,7 @@ export default function SettingsScreen() {
       await refresh();
       router.replace('/');
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not dissolve');
+      showAlert('Error', friendlyError(e, 'Could not dissolve'));
     }
   }
 
@@ -96,7 +92,7 @@ export default function SettingsScreen() {
       const n = await syncHuddleMeetingsToDevice(huddle!);
       showAlert('Calendar', n ? 'Meeting added to your calendar.' : 'Set a meeting time first.');
     } catch (e) {
-      showAlert('Calendar error', e instanceof Error ? e.message : 'Failed');
+      showAlert('Calendar error', friendlyError(e, 'Failed'));
     }
   }
 
@@ -114,7 +110,7 @@ export default function SettingsScreen() {
       await refresh();
       router.replace('/');
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not delete');
+      showAlert('Error', friendlyError(e, 'Could not delete'));
     }
   }
 
@@ -129,7 +125,7 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={{ gap: 4, paddingBottom: 48 }}>
         <Title>Settings</Title>
         <Body>
-          {huddle.name} · Week {huddle.current_week} of {pathway?.totalWeeks ?? '—'} · {contentLabel}
+          {huddle.name} · Week {huddle.current_week} of {pathway?.totalWeeks ?? '—'}
         </Body>
 
         <SettingsGroup label="Appearance">

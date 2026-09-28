@@ -3,6 +3,7 @@ import {
   BulletList,
   Card,
   CheckboxRow,
+  ErrorState,
   Loading,
   PrimaryButton,
   Screen,
@@ -11,6 +12,7 @@ import {
 } from '@/components/ui';
 import { getProgressForWeek, getWeekPick, setProgress, setWeekPick } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
@@ -29,6 +31,7 @@ export default function WeekHomeScreen() {
   const [pickId, setPickId] = useState<string | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -39,6 +42,10 @@ export default function WeekHomeScreen() {
         setProgressRows(rows);
         const pick = await getWeekPick(huddle.id, huddle.current_week);
         setPickId(pick?.option_id ?? null);
+        setLoadError(null);
+      } catch (e) {
+        if (opts?.silent) throw e;
+        setLoadError(friendlyError(e, 'Could not load this week.'));
       } finally {
         if (!opts?.silent) setInitialLoading(false);
       }
@@ -53,6 +60,7 @@ export default function WeekHomeScreen() {
   );
 
   if (!huddle || !userId) return <Loading />;
+  if (loadError) return <ErrorState message={loadError} onRetry={() => load()} />;
   if (initialLoading || contentLoading || !pathway) return <Loading />;
 
   const week = getWeek(huddle.current_week);
@@ -95,7 +103,7 @@ export default function WeekHomeScreen() {
       await load({ silent: true });
     } catch (e) {
       await load({ silent: true });
-      showAlert('Error', e instanceof Error ? e.message : 'Could not update');
+      showAlert('Error', friendlyError(e, 'Could not update'));
     } finally {
       setSavingId(null);
     }
@@ -113,7 +121,7 @@ export default function WeekHomeScreen() {
       await load({ silent: true });
       await refresh();
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not pick');
+      showAlert('Error', friendlyError(e, 'Could not pick'));
     }
   }
 

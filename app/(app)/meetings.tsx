@@ -14,6 +14,7 @@ import {
 import { DateTimeField, defaultMeetingTime } from '@/components/DateTimeField';
 import { updateMeetingInfo } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
 import { showAlert } from '@/lib/dialogs';
 import { useTheme } from '@/lib/ThemeContext';
@@ -71,7 +72,7 @@ export default function MeetingsScreen() {
       setPicking(false);
       showAlert('Saved', 'Meeting details updated.');
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not update');
+      showAlert('Error', friendlyError(e, 'Could not update'));
     } finally {
       setBusy(false);
     }
@@ -173,14 +174,14 @@ export default function MeetingsScreen() {
                   n ? 'Meeting added to your calendar.' : 'Set a meeting time first.'
                 );
               } catch (e) {
-                showAlert('Error', e instanceof Error ? e.message : 'Failed');
+                showAlert('Error', friendlyError(e, 'Failed'));
               }
             }}
           />
         </SettingsGroup>
 
         {time ? (
-          <Text style={{ color: colors.muted, fontSize: 13, marginTop: 8, marginHorizontal: 4 }}>
+          <Text style={{ color: colors.mutedText, fontSize: 13, marginTop: 8, marginHorizontal: 4 }}>
             Tip: pick the next meeting’s date & time — brothers can add it to their calendars from
             here.
           </Text>

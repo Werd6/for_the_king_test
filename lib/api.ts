@@ -121,6 +121,22 @@ export async function signInWithEmail(email: string, password: string) {
   return { user: { id: profile.id } };
 }
 
+export async function requestPasswordReset(email: string, redirectTo: string) {
+  if (!isRemoteConfigured || !supabase) {
+    throw new Error('Password reset is only available with cloud sync.');
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw error;
+}
+
+export async function updatePassword(password: string) {
+  if (!isRemoteConfigured || !supabase) {
+    throw new Error('Password reset is only available with cloud sync.');
+  }
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
 export async function signOut() {
   if (isRemoteConfigured && supabase) {
     await supabase.auth.signOut();
@@ -205,7 +221,7 @@ export async function createHuddle(params: {
 
   if (isRemoteConfigured && supabase) {
     if (params.pathwayVersionId === 'local') {
-      throw new Error('No published pathway in Supabase. Run npm run publish:pathway first.');
+      throw new Error('No pathway is available yet. Please try again later.');
     }
     const { data, error } = await supabase
       .from('huddles')

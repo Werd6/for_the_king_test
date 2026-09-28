@@ -14,6 +14,7 @@ import {
 import { DateTimeField, defaultMeetingTime } from '@/components/DateTimeField';
 import { createHuddle } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
 import type { PathwayOption } from '@/lib/content';
@@ -63,7 +64,7 @@ export default function CreateHuddleScreen() {
       showAlert('Huddle created', `Invite code: ${huddle.invite_code}`);
       router.replace('/');
     } catch (e) {
-      showAlert('Could not create', e instanceof Error ? e.message : 'Error');
+      showAlert('Could not create', friendlyError(e, 'Error'));
     } finally {
       setBusy(false);
     }
@@ -79,7 +80,7 @@ export default function CreateHuddleScreen() {
 
         <Section title="Pathway">
           {options.length === 0 ? (
-            <Body>No published pathways found. Run npm run publish:pathway.</Body>
+            <Body>No pathways are available right now. Please try again later.</Body>
           ) : (
             options.map((p) => (
               <View key={p.pathwayVersionId} style={{ marginBottom: 8 }}>

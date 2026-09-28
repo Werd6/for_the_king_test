@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Body, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
+import { Body, ErrorState, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
 import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { useContent } from '@/lib/ContentContext';
 import { isStandardWeek, progressItemIdsForWeek } from '@/lib/content';
 import { confirmAction, showAlert } from '@/lib/dialogs';
@@ -18,6 +19,7 @@ export default function ProgressScreen() {
   const [members, setMembers] = useState<Profile[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!huddle) return;
@@ -29,6 +31,9 @@ export default function ProgressScreen() {
       ]);
       setMembers(m);
       setProgress(p);
+      setLoadError(null);
+    } catch (e) {
+      setLoadError(friendlyError(e, 'Could not load progress.'));
     } finally {
       setLoading(false);
     }
@@ -54,11 +59,12 @@ export default function ProgressScreen() {
       await reloadForHuddle();
       showAlert('Week advanced', `Now on week ${huddle.current_week + 1}.`);
     } catch (e) {
-      showAlert('Error', e instanceof Error ? e.message : 'Could not advance');
+      showAlert('Error', friendlyError(e, 'Could not advance'));
     }
   }
 
   if (!huddle) return <Loading />;
+  if (loadError) return <ErrorState message={loadError} onRetry={load} />;
   if (loading || contentLoading || !pathway) return <Loading />;
 
   const week = getWeek(huddle.current_week);

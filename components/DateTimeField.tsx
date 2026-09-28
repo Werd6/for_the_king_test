@@ -64,7 +64,7 @@ export function DateTimeField({
             if (next) onChange(next);
           }}
           style={webStyle}
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={colors.mutedText}
         />
       </View>
     );

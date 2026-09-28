@@ -27,6 +27,7 @@ function ThemedStack() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/sign-in" options={{ title: 'Sign In' }} />
+        <Stack.Screen name="(auth)/reset-password" options={{ title: 'Reset Password' }} />
         <Stack.Screen name="(onboarding)/join-create" options={{ title: 'Your Huddle' }} />
         <Stack.Screen name="(onboarding)/create" options={{ title: 'Create Huddle' }} />
         <Stack.Screen name="(onboarding)/join" options={{ title: 'Join Huddle' }} />

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, Text } from 'react-native';
+import * as Linking from 'expo-linking';
 import { Redirect, useRouter } from 'expo-router';
-import { Body, Field, PrimaryButton, Screen, Title } from '@/components/ui';
+import { Body, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
+import { requestPasswordReset } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { friendlyError } from '@/lib/errors';
 import { openFeedbackForm } from '@/lib/feedback';
 import { signInWithApple } from '@/lib/socialAuth';
 import { useTheme } from '@/lib/ThemeContext';
@@ -58,13 +61,37 @@ export default function SignInScreen() {
       }
       router.replace('/');
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      const msg = friendlyError(e, 'Something went wrong');
       setError(msg);
       showMessage('Auth', msg);
       // If account was created but needs email confirm, switch to sign-in
       if (msg.toLowerCase().includes('check your email')) {
         setMode('in');
       }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function forgotPassword() {
+    setError(null);
+    const trimmed = email.trim();
+    if (!trimmed) {
+      const msg = 'Enter your email above, then tap Forgot password.';
+      setError(msg);
+      return;
+    }
+    setBusy(true);
+    try {
+      await requestPasswordReset(trimmed, Linking.createURL('/reset-password'));
+      showMessage(
+        'Check your email',
+        `If an account exists for ${trimmed}, we sent a link to reset your password.`
+      );
+    } catch (e) {
+      const msg = friendlyError(e, 'Could not send reset email');
+      setError(msg);
+      showMessage('Reset password', msg);
     } finally {
       setBusy(false);
     }
@@ -78,7 +105,7 @@ export default function SignInScreen() {
       await refresh();
       router.replace('/');
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      const msg = friendlyError(e, 'Something went wrong');
       setError(msg);
       showMessage('Auth', msg);
     } finally {
@@ -104,16 +131,37 @@ export default function SignInScreen() {
             onChangeText={setDisplayName}
             autoCapitalize="words"
             placeholder="Your name"
+            autoComplete="name"
+            textContentType="name"
           />
         ) : null}
-        <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@email.com" />
+        <Field
+          label="Email"
+          value={email}
+          onChangeText={setEmail}
+          placeholder="you@email.com"
+          keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
+        />
         <Field
           label="Password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           placeholder="••••••••"
+          autoComplete={mode === 'up' ? 'new-password' : 'current-password'}
+          textContentType={mode === 'up' ? 'newPassword' : 'password'}
         />
+        {mode === 'in' && !usingLocalMode ? (
+          <Text
+            accessibilityRole="link"
+            onPress={busy ? undefined : forgotPassword}
+            style={{ color: colors.mutedText, textDecorationLine: 'underline', alignSelf: 'flex-end' }}
+          >
+            Forgot password?
+          </Text>
+        ) : null}
 
         {error ? (
           <Text style={{ color: colors.danger, marginBottom: 4 }}>{error}</Text>
@@ -124,7 +172,7 @@ export default function SignInScreen() {
           onPress={submit}
           disabled={busy}
         />
-        <PrimaryButton
+        <SecondaryButton
           title={mode === 'up' ? 'Already have an account? Sign in' : 'Need an account? Sign up'}
           onPress={() => {
             setError(null);
@@ -139,7 +187,7 @@ export default function SignInScreen() {
         <Text
           accessibilityRole="link"
           onPress={openFeedbackForm}
-          style={{ color: colors.muted, textAlign: 'center', marginTop: 12, textDecorationLine: 'underline' }}
+          style={{ color: colors.mutedText, textAlign: 'center', marginTop: 12, textDecorationLine: 'underline' }}
         >
           Found a bug or have a suggestion? Send feedback
         </Text>
