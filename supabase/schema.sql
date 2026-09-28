@@ -301,17 +301,14 @@ create policy "huddles_select_member"
   on public.huddles for select
   using (public.is_huddle_member(id) or leader_id = auth.uid());
 
-create policy "huddles_select_by_invite_for_join"
-  on public.huddles for select
-  using (auth.uid() is not null);
-
 create policy "huddles_insert_leader"
   on public.huddles for insert
   with check (leader_id = auth.uid());
 
 create policy "huddles_update_leader"
   on public.huddles for update
-  using (leader_id = auth.uid());
+  using (leader_id = auth.uid())
+  with check (leader_id = auth.uid());
 
 create policy "huddles_delete_leader"
   on public.huddles for delete
@@ -322,9 +319,11 @@ create policy "memberships_select_same_huddle"
   on public.memberships for select
   using (public.is_huddle_member(huddle_id) or user_id = auth.uid());
 
+-- Leader adding themselves to a huddle they just created. Everyone else joins
+-- through join_huddle_by_code.
 create policy "memberships_insert_self"
   on public.memberships for insert
-  with check (user_id = auth.uid());
+  with check (user_id = auth.uid() and public.is_huddle_leader(huddle_id));
 
 create policy "memberships_delete_self_or_leader"
   on public.memberships for delete
@@ -337,6 +336,11 @@ create policy "progress_select_same_huddle"
 
 create policy "progress_insert_own"
   on public.progress for insert
+  with check (user_id = auth.uid() and public.is_huddle_member(huddle_id));
+
+create policy "progress_update_own"
+  on public.progress for update
+  using (user_id = auth.uid())
   with check (user_id = auth.uid() and public.is_huddle_member(huddle_id));
 
 create policy "progress_delete_own"
@@ -354,7 +358,74 @@ create policy "picks_insert_leader"
 
 create policy "picks_update_leader"
   on public.huddle_week_picks for update
-  using (public.is_huddle_leader(huddle_id));
+  using (public.is_huddle_leader(huddle_id))
+  with check (public.is_huddle_leader(huddle_id) and picked_by = auth.uid());
+
+-- -----------------------------------------------------------------------------
+-- Client RPCs
+-- -----------------------------------------------------------------------------
+
+create or replace function public.join_huddle_by_code(p_code text)
+returns public.huddles
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_huddle public.huddles;
+begin
+  if v_uid is null then
+    raise exception 'Not signed in.';
+  end if;
+
+  if exists (select 1 from public.memberships where user_id = v_uid) then
+    raise exception 'You are already in a huddle.';
+  end if;
+
+  select * into v_huddle
+  from public.huddles
+  where invite_code = upper(trim(p_code));
+
+  if not found then
+    raise exception 'Invalid invite code.';
+  end if;
+
+  insert into public.memberships (huddle_id, user_id)
+  values (v_huddle.id, v_uid);
+
+  return v_huddle;
+end;
+$$;
+
+revoke all on function public.join_huddle_by_code(text) from public, anon;
+grant execute on function public.join_huddle_by_code(text) to authenticated;
+
+create or replace function public.delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+begin
+  if v_uid is null then
+    raise exception 'Not signed in.';
+  end if;
+
+  -- huddles.leader_id and huddle_week_picks.picked_by don't cascade, so clear
+  -- them first. Deleting a led huddle cascades its memberships/progress/picks.
+  delete from public.huddles where leader_id = v_uid;
+  delete from public.huddle_week_picks where picked_by = v_uid;
+
+  -- Cascades to profiles → memberships, progress.
+  delete from auth.users where id = v_uid;
+end;
+$$;
+
+revoke all on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;
 
 -- =============================================================================
 -- Seed: FOR THE KING pathway shell (weeks uploaded separately as JSON)

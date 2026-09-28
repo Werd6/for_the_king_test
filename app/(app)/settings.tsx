@@ -103,7 +103,9 @@ export default function SettingsScreen() {
   async function onDeleteAccount() {
     const ok = await confirmAction(
       'Delete account?',
-      'This removes your local/account data. Required for App Store compliance.',
+      isLeader
+        ? 'This permanently deletes your account and dissolves your huddle for everyone.'
+        : 'This permanently deletes your account and your check-ins.',
       'Delete'
     );
     if (!ok) return;

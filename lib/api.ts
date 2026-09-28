@@ -152,18 +152,10 @@ export async function updateDisplayName(userId: string, displayName: string) {
 
 export async function deleteAccount(userId: string) {
   if (isRemoteConfigured && supabase) {
-    // Requires an Edge Function with service role in production.
-    // For now: leave huddle / dissolve if leader, then sign out.
-    const membership = await getMembershipForUser(userId);
-    if (membership) {
-      const huddle = await getHuddle(membership.huddle_id);
-      if (huddle?.leader_id === userId) {
-        await dissolveHuddle(huddle.id);
-      } else {
-        await leaveHuddle(userId);
-      }
-    }
-    await supabase.auth.signOut();
+    const { error } = await supabase.rpc('delete_my_account');
+    if (error) throw new Error(error.message);
+    // The auth user is gone, so the server-side sign-out call can fail; clear locally.
+    await supabase.auth.signOut({ scope: 'local' });
     return;
   }
 
@@ -259,20 +251,10 @@ export async function joinHuddleByCode(userId: string, code: string): Promise<Hu
   const normalized = code.trim().toUpperCase();
 
   if (isRemoteConfigured && supabase) {
-    const existing = await getMembershipForUser(userId);
-    if (existing) throw new Error('You are already in a huddle.');
     const { data: huddle, error } = await supabase
-      .from('huddles')
-      .select('*')
-      .eq('invite_code', normalized)
-      .maybeSingle();
-    if (error) throw error;
-    if (!huddle) throw new Error('Invalid invite code.');
-    const { error: memErr } = await supabase.from('memberships').insert({
-      huddle_id: huddle.id,
-      user_id: userId,
-    });
-    if (memErr) throw memErr;
+      .rpc('join_huddle_by_code', { p_code: normalized })
+      .single();
+    if (error) throw new Error(error.message);
     return normalizeHuddle(huddle as Huddle);
   }
 
