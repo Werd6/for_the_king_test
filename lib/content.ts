@@ -1,10 +1,13 @@
 import pathwayData from '@/content/pathway.json';
 import challengePoolData from '@/content/challenge-pool.json';
 import leaderGuideData from '@/content/leader-guide.json';
+import type { RawPathwayTheme } from '@/lib/pathwayTheme';
 import { isRemoteConfigured, readJson, supabase, writeJson } from '@/lib/supabase';
+import { BUNDLED_THEMES } from '@/lib/themeAssets';
 import type { Pathway, PathwayWeek, StandardWeek } from '@/lib/types';
 
 const CACHE_KEY = 'ftk.pathwayCache';
+const THEME_CACHE_KEY = 'ftk.themeCache';
 
 export type PathwayOption = {
   pathwayId: string;
@@ -20,6 +23,7 @@ export type LoadedPathway = Pathway & {
   leaderGuide: typeof leaderGuideData;
   challengePool: typeof challengePoolData;
   source: 'remote' | 'local';
+  theme: RawPathwayTheme | null;
 };
 
 type PathwayCache = Record<
@@ -32,6 +36,8 @@ type PathwayCache = Record<
   }
 >;
 
+type ThemeCache = Record<string, { version: number; theme: RawPathwayTheme }>;
+
 const localPathway = pathwayData as Pathway;
 
 function localFallback(pathwayVersionId: string | null = null): LoadedPathway {
@@ -42,7 +48,54 @@ function localFallback(pathwayVersionId: string | null = null): LoadedPathway {
     leaderGuide: leaderGuideData,
     challengePool: challengePoolData,
     source: 'local',
+    theme: BUNDLED_THEMES['for-the-king'] ?? null,
   };
+}
+
+async function cachedTheme(pathwayId: string): Promise<RawPathwayTheme | null> {
+  const cache = await readJson<ThemeCache>(THEME_CACHE_KEY, {});
+  return cache[pathwayId]?.theme ?? BUNDLED_THEMES[pathwayId] ?? null;
+}
+
+function isNonEmptyTheme(v: unknown): v is RawPathwayTheme {
+  return Boolean(v) && typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length > 0;
+}
+
+/**
+ * Stored theme first; only downloads `pathways.theme` when `theme_version` is newer
+ * than the stored copy. Any failure (offline, column missing) keeps the stored/bundled theme.
+ */
+async function loadPathwayTheme(pathwayId: string): Promise<RawPathwayTheme | null> {
+  if (!isRemoteConfigured || !supabase) return cachedTheme(pathwayId);
+  const cache = await readJson<ThemeCache>(THEME_CACHE_KEY, {});
+  const stored = cache[pathwayId];
+  const fallback = stored?.theme ?? BUNDLED_THEMES[pathwayId] ?? null;
+  try {
+    const { data: meta, error } = await supabase
+      .from('pathways')
+      .select('theme_version')
+      .eq('id', pathwayId)
+      .maybeSingle();
+    if (error) throw error;
+    const remoteVersion = (meta?.theme_version as number | undefined) ?? 0;
+    if (remoteVersion === 0 || stored?.version === remoteVersion) return fallback;
+
+    const { data, error: themeErr } = await supabase
+      .from('pathways')
+      .select('theme')
+      .eq('id', pathwayId)
+      .maybeSingle();
+    if (themeErr) throw themeErr;
+    if (!isNonEmptyTheme(data?.theme)) return fallback;
+
+    await writeJson(THEME_CACHE_KEY, {
+      ...cache,
+      [pathwayId]: { version: remoteVersion, theme: data.theme },
+    });
+    return data.theme;
+  } catch {
+    return fallback;
+  }
 }
 
 function rowToWeek(row: {
@@ -132,6 +185,7 @@ export async function loadPathwayByVersionId(
         leaderGuide: (version.leader_guide as typeof leaderGuideData) ?? leaderGuideData,
         challengePool: (version.challenge_pool as typeof challengePoolData) ?? challengePoolData,
         source: 'remote',
+        theme: await loadPathwayTheme(version.pathway_id),
       };
 
       await writeJson(CACHE_KEY, {
@@ -159,6 +213,7 @@ export async function loadPathwayByVersionId(
           leaderGuide: cached.leaderGuide,
           challengePool: cached.challengePool,
           source: 'local',
+          theme: await cachedTheme(cached.pathway.id),
         };
       }
       console.warn('Remote pathway load failed, using bundled content', e);
@@ -173,6 +228,7 @@ export async function loadPathwayByVersionId(
       leaderGuide: cached.leaderGuide,
       challengePool: cached.challengePool,
       source: 'local',
+      theme: await cachedTheme(cached.pathway.id),
     };
   }
 

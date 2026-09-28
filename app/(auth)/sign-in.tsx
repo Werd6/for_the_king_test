@@ -4,6 +4,7 @@ import * as Linking from 'expo-linking';
 import { Redirect, useRouter } from 'expo-router';
 import { Body, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
 import { requestPasswordReset } from '@/lib/api';
+import { PathwayLogo } from '@/components/PathwayLogo';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
 import { openFeedbackForm } from '@/lib/feedback';
@@ -116,6 +117,7 @@ export default function SignInScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
+        <PathwayLogo height={64} />
         <Title>For The King</Title>
         <Body>Men’s discipleship huddle companion.</Body>
         {usingLocalMode ? (

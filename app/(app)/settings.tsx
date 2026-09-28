@@ -9,6 +9,7 @@ import {
   SettingsSegmented,
   Title,
 } from '@/components/ui';
+import { PathwayLogo } from '@/components/PathwayLogo';
 import { deleteAccount, dissolveHuddle, leaveHuddle, updateDisplayName } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
@@ -19,7 +20,7 @@ import { openFeedbackForm } from '@/lib/feedback';
 import type { ThemePreference } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
@@ -29,6 +30,11 @@ export default function SettingsScreen() {
   const router = useRouter();
   const [name, setName] = useState(profile?.display_name ?? '');
   const [busy, setBusy] = useState(false);
+
+  // Profile can arrive after first render (e.g. opening /settings directly).
+  useEffect(() => {
+    if (profile?.display_name) setName(profile.display_name);
+  }, [profile?.display_name]);
 
   if (!userId || !profile || !huddle) return <Loading />;
 
@@ -96,6 +102,11 @@ export default function SettingsScreen() {
     }
   }
 
+  async function onSignOut() {
+    await signOut();
+    router.replace('/');
+  }
+
   async function onDeleteAccount() {
     const ok = await confirmAction(
       'Delete account?',
@@ -123,6 +134,7 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 4, paddingBottom: 48 }}>
+        <PathwayLogo height={36} />
         <Title>Settings</Title>
         <Body>
           {huddle.name} · Week {huddle.current_week} of {pathway?.totalWeeks ?? '—'}
@@ -178,7 +190,7 @@ export default function SettingsScreen() {
           label="Account"
           footer="We store account, huddle membership, and checkmarks only — not journal or prayer text."
         >
-          <SettingsRow label="Sign out" onPress={() => signOut()} showChevron={false} />
+          <SettingsRow label="Sign out" onPress={onSignOut} showChevron={false} />
           <SettingsRow label="Delete account" onPress={onDeleteAccount} destructive />
         </SettingsGroup>
 

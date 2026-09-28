@@ -1,0 +1,37 @@
+{
+  "light": {
+    "bg": "#F3EFE8",
+    "surface": "#FAF7F2",
+    "surfaceStrong": "#E4DCCD",
+    "primary": "#1C1B19",
+    "accent": "#A8874F",
+    "muted": "#8A8378",
+    "mutedText": "#6B655C",
+    "ink": "#1C1B19",
+    "onPrimary": "#F3EFE8",
+    "danger": "#8B2E24",
+    "border": "#D6CFC2",
+    "inputBg": "#FFFDF9"
+  },
+  "dark": {
+    "bg": "#161513",
+    "surface": "#201E1B",
+    "surfaceStrong": "#3A3631",
+    "primary": "#E9E2D4",
+    "accent": "#C9A96A",
+    "muted": "#6F685E",
+    "mutedText": "#A79F92",
+    "ink": "#EDE7DB",
+    "onPrimary": "#161513",
+    "danger": "#E0826F",
+    "border": "#3A3631",
+    "inputBg": "#1B1A17"
+  },
+  "radii": { "sm": 4, "md": 6, "lg": 10 },
+  "spacingScale": 1.1,
+  "logo": "for-the-king-logo.png",
+  "logoDark": "for-the-king-logo-dark.png",
+  "favicon": "for-the-king-favicon.png",
+  "tabTitle": "For The King",
+  "iconKey": "ForTheKing"
+}

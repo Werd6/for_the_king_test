@@ -32,6 +32,10 @@ create table if not exists public.pathways (
   description text not null default '',
   is_published boolean not null default false,  -- visible in Create Huddle picker
   sort_order int not null default 0,
+  -- Pathway look (colors, radii, spacing, embedded logos). See content/theme.json.
+  theme jsonb not null default '{}'::jsonb,
+  -- Bumped on every theme change so apps only re-download when it's newer.
+  theme_version int not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

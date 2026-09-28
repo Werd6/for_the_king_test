@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ContentProvider } from '@/lib/ContentContext';
 import { ThemeProvider, useTheme } from '@/lib/ThemeContext';
@@ -12,9 +12,24 @@ export { ErrorBoundary } from 'expo-router';
 
 function ThemedStack() {
   const { colors, scheme } = useTheme();
+  const navigationTheme = useMemo(() => {
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.primary,
+        background: colors.bg,
+        card: colors.bg,
+        text: colors.ink,
+        border: colors.border,
+        notification: colors.accent,
+      },
+    };
+  }, [scheme, colors]);
 
   return (
-    <>
+    <NavigationThemeProvider value={navigationTheme}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
@@ -33,7 +48,7 @@ function ThemedStack() {
         <Stack.Screen name="(onboarding)/join" options={{ title: 'Join Huddle' }} />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
       </Stack>
-    </>
+    </NavigationThemeProvider>
   );
 }
 

@@ -1,7 +1,6 @@
 import { Platform, TextInput, View, type TextStyle } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTheme } from '@/lib/ThemeContext';
-import { radii, spacing } from '@/lib/theme';
 
 /** Format for HTML datetime-local (local timezone, no seconds). */
 export function toDatetimeLocalValue(date: Date): string {
@@ -35,7 +34,7 @@ export function DateTimeField({
   value: Date;
   onChange: (next: Date) => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, radii, spacing, scheme } = useTheme();
 
   if (Platform.OS === 'web') {
     const webStyle: TextStyle = {
@@ -48,7 +47,7 @@ export function DateTimeField({
       color: colors.ink,
       backgroundColor: colors.inputBg,
       // @ts-expect-error RN web accepts CSS color scheme
-      colorScheme: 'dark',
+      colorScheme: scheme,
       minHeight: 44,
     };
 

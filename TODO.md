@@ -100,28 +100,45 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 
 Each pathway brings its own look; the platform default ("For The King") is the fallback everywhere.
 
-- [ ] **Theme data**
-  - [ ] Add `theme jsonb` to `public.pathways` (pathway-level so branding can change without a new content version)
-  - [ ] Shape: `{ light: {...colors}, dark: {...colors}, logoUrl, logoDarkUrl, faviconUrl, iconKey }`
-  - [ ] Supabase Storage bucket for logos/favicons (public read)
-- [ ] **Theme loading**
-  - [ ] Current `lib/theme.ts` palette becomes the default theme
-  - [ ] Merge the huddle's pathway theme over the default; missing/invalid colors fall back
-  - [ ] Contrast check so a bad theme can't make text unreadable
-  - [ ] Signed-out / no huddle / load failure → default theme
-  - [ ] Cache theme + logos for offline
-- [ ] **Apply it**
-  - [ ] Colors (light + dark) across all screens
-  - [ ] Logo on sign-in, week screen header, etc.
-  - [ ] Web: browser tab favicon, page title, `theme-color` meta update at runtime
-- [ ] **Publishing** — publish script uploads theme + logos with a pathway
-- [ ] **Home-screen app icons** (needs native builds, Phase 3)
-  - [ ] Default platform icon is the app's main icon
-  - [ ] Path-specific icons are added to the build occasionally with app updates
-  - [ ] `theme.iconKey` maps a pathway to a bundled icon; no key or no bundled icon → default icon
-  - [ ] Switch icon after sign-in / huddle change; reset to default on sign-out
-  - [ ] Pick an alternate-icon library compatible with Expo 57
-  - [ ] Note: iOS shows a system popup on each switch; splash screen stays the default
+**Decisions**
+- Customizable: light + dark colors, logo (light + dark), browser tab icon + title, corner roundness, spacing. Not fonts, not app name copy.
+- Theme lives on the **pathway** (not the version), so branding fixes reach every huddle.
+- Users keep the System / Light / Dark picker; the pathway supplies both palettes.
+- Authored as a JSON file next to the content, uploaded by the publish script.
+- Downloaded with the huddle's content the first time, then stored on the device so it works with no signal. Logos are embedded in the JSON as small images so they're stored with it.
+
+**Step 1 — Theme format + default theme**
+- [x] `content/theme.json` — For The King theme (parchment / charcoal / gold, from the inspiration screenshot)
+- [x] `lib/pathwayTheme.ts` — merge over default, invalid values fall back, contrast check
+
+**Step 2 — Theme system**
+- [x] `ThemeContext` holds the pathway theme; `useTheme()` returns colors, radii, spacing, logo
+- [x] UI components + navigation chrome use theme radii/spacing/colors
+- [x] Signed out / no huddle → default theme; sign-out resets it
+
+**Step 3 — Load + store offline**
+- [x] Migration `supabase/migrations/002_pathway_theme.sql` (`theme`, `theme_version`)
+- [ ] Run the migration in Supabase → SQL Editor
+- [x] Theme loads with pathway content and is stored on the device; bundled theme as fallback
+- [x] Last theme applied on launch (no flash); re-downloads only when `theme_version` is newer
+
+**Step 4 — Apply it**
+- [x] `PathwayLogo` (crown + accent rule) on week screen, Settings, sign-in
+- [x] Web: browser tab favicon, title, `theme-color` update at runtime
+
+**Step 5 — Publishing**
+- [x] Publish script validates + embeds images, bumps `theme_version` only on change; `--theme-only` flag
+- [ ] Run `npm run publish:pathway -- --theme-only` after the migration
+
+**Step 6 — Home-screen app icons**
+- [x] `expo-alternate-app-icons` installed; `ForTheKing` icon registered (verified with a test prebuild)
+- [x] `lib/appIcon.native.ts` switches after the theme settles, skips if already correct; web no-op
+- [ ] Test on a native build (Phase 3) — Expo Go can't switch icons
+
+**Follow-ups**
+- [ ] Tab bar icons (currently placeholder triangles)
+- [x] Platform default logo — crown shows on sign-in and for pathways without their own logo
+
 
 ---
 

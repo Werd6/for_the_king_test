@@ -10,6 +10,7 @@ import {
   Subtitle,
   Title,
 } from '@/components/ui';
+import { PathwayLogo } from '@/components/PathwayLogo';
 import { getProgressForWeek, getWeekPick, setProgress, setWeekPick } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
@@ -130,6 +131,7 @@ export default function WeekHomeScreen() {
     return (
       <Screen>
         <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
+          <PathwayLogo />
           <Title>
             Week {week.weekNumber} of {totalWeeks}
           </Title>
@@ -180,6 +182,7 @@ export default function WeekHomeScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
+        <PathwayLogo />
         <Title>
           Week {week.weekNumber} of {totalWeeks}
         </Title>

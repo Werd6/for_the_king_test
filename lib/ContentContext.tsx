@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
+import { useTheme } from '@/lib/ThemeContext';
 import {
   getWeekFromPathway,
   listAvailablePathways,
@@ -21,7 +22,8 @@ type ContentState = {
 const ContentContext = createContext<ContentState | null>(null);
 
 export function ContentProvider({ children }: { children: React.ReactNode }) {
-  const { huddle } = useAuth();
+  const { huddle, loading: authLoading } = useAuth();
+  const { setPathwayTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [pathway, setPathway] = useState<LoadedPathway | null>(null);
   const [options, setOptions] = useState<PathwayOption[]>([]);
@@ -49,6 +51,12 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     reloadForHuddle();
   }, [reloadForHuddle]);
+
+  // Signed out / no huddle → default look; otherwise the huddle's pathway theme.
+  useEffect(() => {
+    if (authLoading || loading) return;
+    setPathwayTheme(huddle ? (pathway?.theme ?? null) : null);
+  }, [authLoading, loading, huddle, pathway, setPathwayTheme]);
 
   const value = useMemo<ContentState>(
     () => ({

@@ -8,6 +8,8 @@ export type ThemeColors = {
   surface: string;
   surfaceStrong: string;
   primary: string;
+  /** Decorative highlight (focus rings, logo rule). Not used for text. */
+  accent: string;
   muted: string;
   /** Secondary text; muted fails 4.5:1 contrast on the light background. */
   mutedText: string;
@@ -25,6 +27,7 @@ export const lightColors: ThemeColors = {
   surface: '#E8EEEE',
   surfaceStrong: '#9DC5BB',
   primary: '#17B890',
+  accent: '#17B890',
   muted: '#5E807F',
   mutedText: '#466665',
   ink: '#082D0F',
@@ -44,6 +47,7 @@ export const darkColors: ThemeColors = {
   surface: '#0F3A1C',
   surfaceStrong: '#5E807F',
   primary: '#17B890',
+  accent: '#17B890',
   muted: '#9DC5BB',
   mutedText: '#9DC5BB',
   ink: '#DEE5E5',
@@ -61,20 +65,23 @@ export function getColors(scheme: ColorScheme): ThemeColors {
   return scheme === 'dark' ? darkColors : lightColors;
 }
 
-export const spacing = {
+export type Spacing = { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number };
+export type Radii = { sm: number; md: number; lg: number };
+
+export const spacing: Spacing = {
   xs: 4,
   sm: 8,
   md: 12,
   lg: 16,
   xl: 24,
   xxl: 48,
-} as const;
+};
 
-export const radii = {
+export const radii: Radii = {
   sm: 6,
   md: 8,
   lg: 12,
-} as const;
+};
 
 export const typography = {
   title: { fontSize: 22, fontWeight: '700' as const, lineHeight: 28 },

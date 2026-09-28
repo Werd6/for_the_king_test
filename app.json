@@ -58,7 +58,21 @@
             "backgroundColor": "#082D0F"
           }
         }
-      ]
+      ],
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "ForTheKing",
+            "ios": "./assets/images/icon-for-the-king.png",
+            "android": {
+              "foregroundImage": "./assets/images/android-icon-for-the-king-foreground.png",
+              "backgroundColor": "#F3EFE8"
+            }
+          }
+        ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

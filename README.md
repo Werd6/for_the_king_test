@@ -46,6 +46,15 @@ npm run publish:pathway  # needs .env + .env.publish
 
 Curriculum lives in `for_the_king_content1.md`. Regenerate JSON with `npm run content`.
 
+## Pathway theme
+
+Each pathway's look lives in `content/theme.json` (light + dark colors, corner radii, spacing scale, logos, browser tab icon/title, home-screen icon key). Image files go in `content/assets/`.
+
+- The huddle's pathway theme applies after sign-in; signed out uses the platform default (`lib/theme.ts`).
+- Themes are stored on the device with the content, so they work offline.
+- `npm run publish:pathway -- --theme-only` publishes just the theme (validates colors/contrast, embeds images, bumps `theme_version`). Requires `supabase/migrations/002_pathway_theme.sql`.
+- Home-screen icons: add a 1024×1024 icon + Android foreground to `assets/images/`, register it in the `expo-alternate-app-icons` plugin in `app.json`, add its name to `BUNDLED_ICONS` in `lib/appIcon.native.ts`, and set `iconKey` in the theme. Takes effect in the next native build.
+
 ## Flows
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).

@@ -10,9 +10,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTheme } from '@/lib/ThemeContext';
-import { radii, spacing, typography, type ThemeColors } from '@/lib/theme';
+import { typography, type Radii, type Spacing, type ThemeColors } from '@/lib/theme';
 
-function makeStyles(colors: ThemeColors) {
+function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
   return StyleSheet.create({
     screen: {
       flex: 1,
@@ -77,7 +77,7 @@ function makeStyles(colors: ThemeColors) {
       backgroundColor: colors.inputBg,
     },
     inputFocused: {
-      borderColor: colors.primary,
+      borderColor: colors.accent,
     },
     checkRow: {
       flexDirection: 'row',
@@ -268,8 +268,11 @@ function makeStyles(colors: ThemeColors) {
 }
 
 function useUiStyles() {
-  const { colors } = useTheme();
-  return useMemo(() => ({ colors, styles: makeStyles(colors) }), [colors]);
+  const { colors, radii, spacing } = useTheme();
+  return useMemo(
+    () => ({ colors, styles: makeStyles(colors, radii, spacing) }),
+    [colors, radii, spacing]
+  );
 }
 
 export function Screen({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
