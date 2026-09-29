@@ -9,6 +9,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { openFeedbackForm } from '@/lib/feedback';
 import { useTheme } from '@/lib/ThemeContext';
 import { typography, type Radii, type Spacing, type ThemeColors } from '@/lib/theme';
 
@@ -278,6 +279,25 @@ function useUiStyles() {
 export function Screen({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   const { styles } = useUiStyles();
   return <View style={[styles.screen, style]}>{children}</View>;
+}
+
+export function FeedbackLink() {
+  const { colors } = useUiStyles();
+  return (
+    <Text
+      accessibilityRole="link"
+      onPress={openFeedbackForm}
+      style={{
+        ...typography.body,
+        color: colors.mutedText,
+        textAlign: 'center',
+        marginTop: 24,
+        textDecorationLine: 'underline',
+      }}
+    >
+      Found a bug or have a suggestion? Send feedback
+    </Text>
+  );
 }
 
 export function Title({ children }: { children: React.ReactNode }) {

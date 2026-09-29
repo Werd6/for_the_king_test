@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import {
   Body,
   CheckboxRow,
+  FeedbackLink,
   Field,
   Loading,
   PrimaryButton,
@@ -161,6 +162,7 @@ export default function CreateHuddleScreen() {
           onPress={submit}
           disabled={busy || !selected}
         />
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

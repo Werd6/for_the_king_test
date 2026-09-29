@@ -1,5 +1,5 @@
 import { Redirect, useRouter } from 'expo-router';
-import { Body, PrimaryButton, Screen, Title } from '@/components/ui';
+import { Body, FeedbackLink, PrimaryButton, Screen, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function JoinCreateScreen() {
@@ -16,6 +16,7 @@ export default function JoinCreateScreen() {
       <PrimaryButton title="Join Huddle" onPress={() => router.push('/(onboarding)/join')} />
       <PrimaryButton title="Create Huddle" onPress={() => router.push('/(onboarding)/create')} />
       <PrimaryButton title="Sign out" onPress={() => signOut()} />
+      <FeedbackLink />
     </Screen>
   );
 }

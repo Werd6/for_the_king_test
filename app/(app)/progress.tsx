@@ -1,4 +1,4 @@
-import { Body, ErrorState, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
+import { Body, ErrorState, FeedbackLink, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
 import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
@@ -212,6 +212,7 @@ export default function ProgressScreen() {
             weeks. See This Week for the selected activity.
           </Body>
           {leaderTools}
+          <FeedbackLink />
         </ScrollView>
       </Screen>
     );
@@ -240,6 +241,7 @@ export default function ProgressScreen() {
         </Section>
 
         {leaderTools}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

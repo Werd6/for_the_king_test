@@ -4,6 +4,7 @@ import {
   Body,
   BulletList,
   Card,
+  FeedbackLink,
   Loading,
   Screen,
   Section,
@@ -90,6 +91,7 @@ export default function StudyScreen() {
             ))}
           </SettingsGroup>
         ) : null}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

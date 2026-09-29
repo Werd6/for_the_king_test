@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, Text } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { Body, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
+import { Body, FeedbackLink, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
 import { requestPasswordReset } from '@/lib/api';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
-import { openFeedbackForm } from '@/lib/feedback';
 import { authRedirectUrl } from '@/lib/siteUrl';
 import { signInWithApple } from '@/lib/socialAuth';
 import { useTheme } from '@/lib/ThemeContext';
@@ -186,13 +185,7 @@ export default function SignInScreen() {
           <PrimaryButton title="Sign in with Apple" onPress={socialApple} disabled={busy} />
         ) : null}
 
-        <Text
-          accessibilityRole="link"
-          onPress={openFeedbackForm}
-          style={{ color: colors.mutedText, textAlign: 'center', marginTop: 12, textDecorationLine: 'underline' }}
-        >
-          Found a bug or have a suggestion? Send feedback
-        </Text>
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

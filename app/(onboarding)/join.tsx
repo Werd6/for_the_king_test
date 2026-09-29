@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Body, Field, PrimaryButton, Screen, Title } from '@/components/ui';
+import { Body, FeedbackLink, Field, PrimaryButton, Screen, Title } from '@/components/ui';
 import { joinHuddleByCode } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
@@ -39,6 +39,7 @@ export default function JoinHuddleScreen() {
         placeholder="ABC123"
       />
       <PrimaryButton title={busy ? 'Joining…' : 'Join'} onPress={submit} disabled={busy} />
+      <FeedbackLink />
     </Screen>
   );
 }

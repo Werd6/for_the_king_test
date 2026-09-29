@@ -1,6 +1,6 @@
 import { ScrollView } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { Body, Loading, Screen, Title } from '@/components/ui';
+import { Body, FeedbackLink, Loading, Screen, Title } from '@/components/ui';
 import { StudyBlocks } from '@/components/StudyBlocks';
 import { useContent } from '@/lib/ContentContext';
 
@@ -25,6 +25,7 @@ export default function GuideScreen() {
         ) : (
           <Body>This page isn’t available for your pathway.</Body>
         )}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

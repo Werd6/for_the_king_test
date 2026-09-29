@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Platform, ScrollView, Text } from 'react-native';
 import {
   Body,
+  FeedbackLink,
   Field,
   Loading,
   PrimaryButton,
@@ -186,6 +187,7 @@ export default function MeetingsScreen() {
             here.
           </Text>
         ) : null}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

@@ -1,6 +1,6 @@
 import { ScrollView } from 'react-native';
 import { Redirect } from 'expo-router';
-import { Body, BulletList, Loading, Screen, Section, Title } from '@/components/ui';
+import { Body, BulletList, FeedbackLink, Loading, Screen, Section, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 
@@ -35,6 +35,7 @@ export default function LeaderGuideScreen() {
           <BulletList items={leaderGuide.finalVision.points} />
           <Body>{leaderGuide.finalVision.closing}</Body>
         </Section>
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

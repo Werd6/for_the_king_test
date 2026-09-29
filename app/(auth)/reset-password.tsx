@@ -1,4 +1,4 @@
-import { Body, Field, Loading, PrimaryButton, Screen, Title } from '@/components/ui';
+import { Body, FeedbackLink, Field, Loading, PrimaryButton, Screen, Title } from '@/components/ui';
 import { updatePassword } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { showAlert } from '@/lib/dialogs';
@@ -171,6 +171,7 @@ export default function ResetPasswordScreen() {
           onPress={submit}
           disabled={busy}
         />
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

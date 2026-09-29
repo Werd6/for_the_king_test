@@ -1,6 +1,6 @@
 import { ScrollView, Text } from 'react-native';
 import { Redirect } from 'expo-router';
-import { Body, Loading, Screen, Section, Title } from '@/components/ui';
+import { Body, FeedbackLink, Loading, Screen, Section, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 
@@ -36,6 +36,7 @@ export default function ChallengePoolScreen() {
         <Section title="Physical Challenge Guardrails">
           <Body>{challengePool.guardrails}</Body>
         </Section>
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

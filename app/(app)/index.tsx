@@ -4,6 +4,7 @@ import {
   Card,
   CheckboxRow,
   ErrorState,
+  FeedbackLink,
   Loading,
   PrimaryButton,
   Screen,
@@ -174,6 +175,7 @@ export default function WeekHomeScreen() {
               <Body>Meeting prompts (Before You Go, prayer, etc.) are in Leader Materials.</Body>
             )}
           </Card>
+          <FeedbackLink />
         </ScrollView>
       </Screen>
     );
@@ -279,6 +281,7 @@ export default function WeekHomeScreen() {
             />
           </Card>
         ) : null}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );

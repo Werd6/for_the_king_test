@@ -1,6 +1,6 @@
 import { ScrollView, Text } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { Body, BulletList, Card, Loading, PrimaryButton, Screen, Subtitle, Title } from '@/components/ui';
+import { Body, BulletList, Card, FeedbackLink, Loading, PrimaryButton, Screen, Subtitle, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
@@ -87,6 +87,7 @@ export default function LeaderMaterialsScreen() {
             </Card>
           </>
         ) : null}
+        <FeedbackLink />
       </ScrollView>
     </Screen>
   );
