@@ -40,11 +40,16 @@ Never put `SUPABASE_SERVICE_ROLE_KEY` in Vercel or any `EXPO_PUBLIC_*` var.
 ```bash
 npm run content          # optional: regenerate JSON from the markdown
 npm run publish:pathway  # needs .env + .env.publish
+npm run publish:pathway -- --pathway pc3-focuses  # another pathway
 ```
 
 ## Content
 
 Curriculum lives in `for_the_king_content1.md`. Regenerate JSON with `npm run content`.
+
+Other pathways live in `content/pathways/<id>/` (`pathway.json`, `theme.json`, `assets/`, optional `leader-guide.json` / `challenge-pool.json`). Focuses (PC3) is authored in `content/pathways/pc3-focuses/source.md`; regenerate with `npm run content:pc3`. Register new pathways in `BUNDLED_PATHWAYS` (`lib/content.ts`) and `BUNDLED_THEMES` (`lib/themeAssets.ts`).
+
+Weeks with `study` content (quotes, article) and pathways with `resources` (guide pages) get a **Study** tab. Guide pages need `supabase/migrations/003_pathway_resources.sql`.
 
 ## Pathway theme
 
@@ -58,7 +63,7 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 ## Flows
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).
-- **In huddle:** This Week, Progress (accountability), Settings.
+- **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
 - **Leader:** advance week, Leader Materials / Guide / pool, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
 

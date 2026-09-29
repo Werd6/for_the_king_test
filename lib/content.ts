@@ -1,13 +1,52 @@
 import pathwayData from '@/content/pathway.json';
 import challengePoolData from '@/content/challenge-pool.json';
 import leaderGuideData from '@/content/leader-guide.json';
+import pc3PathwayData from '@/content/pathways/pc3-focuses/pathway.json';
 import type { RawPathwayTheme } from '@/lib/pathwayTheme';
 import { isRemoteConfigured, readJson, supabase, writeJson } from '@/lib/supabase';
 import { BUNDLED_THEMES } from '@/lib/themeAssets';
-import type { Pathway, PathwayWeek, StandardWeek } from '@/lib/types';
+import type { Pathway, PathwayResource, PathwayWeek, StandardWeek } from '@/lib/types';
 
 const CACHE_KEY = 'ftk.pathwayCache';
 const THEME_CACHE_KEY = 'ftk.themeCache';
+
+export type LeaderGuide = typeof leaderGuideData;
+export type ChallengePool = typeof challengePoolData;
+
+type BundledPathway = {
+  pathway: Pathway;
+  leaderGuide: LeaderGuide | null;
+  challengePool: ChallengePool | null;
+};
+
+/** Pathways shipped with the app: offline fallback and local (no cloud) mode. */
+const BUNDLED_PATHWAYS: Record<string, BundledPathway> = {
+  'for-the-king': {
+    pathway: pathwayData as Pathway,
+    leaderGuide: leaderGuideData,
+    challengePool: challengePoolData,
+  },
+  'pc3-focuses': {
+    pathway: pc3PathwayData as Pathway,
+    leaderGuide: null,
+    challengePool: null,
+  },
+};
+
+const DEFAULT_PATHWAY_ID = 'for-the-king';
+
+/** For The King keeps the original `local` id so existing local huddles still resolve. */
+function localVersionId(pathwayId: string) {
+  return pathwayId === DEFAULT_PATHWAY_ID ? 'local' : `local:${pathwayId}`;
+}
+
+export function isLocalVersionId(id: string | null | undefined) {
+  return !id || id === 'local' || id.startsWith('local:');
+}
+
+function isNonEmptyObject(v: unknown): v is Record<string, unknown> {
+  return Boolean(v) && typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length > 0;
+}
 
 export type PathwayOption = {
   pathwayId: string;
@@ -20,8 +59,8 @@ export type PathwayOption = {
 
 export type LoadedPathway = Pathway & {
   pathwayVersionId: string | null;
-  leaderGuide: typeof leaderGuideData;
-  challengePool: typeof challengePoolData;
+  leaderGuide: LeaderGuide | null;
+  challengePool: ChallengePool | null;
   source: 'remote' | 'local';
   theme: RawPathwayTheme | null;
 };
@@ -30,8 +69,8 @@ type PathwayCache = Record<
   string,
   {
     pathway: Pathway;
-    leaderGuide: typeof leaderGuideData;
-    challengePool: typeof challengePoolData;
+    leaderGuide: LeaderGuide | null;
+    challengePool: ChallengePool | null;
     cachedAt: string;
   }
 >;
@@ -40,15 +79,23 @@ type ThemeCache = Record<string, { version: number; theme: RawPathwayTheme }>;
 
 const localPathway = pathwayData as Pathway;
 
-function localFallback(pathwayVersionId: string | null = null): LoadedPathway {
+function pathwayIdFromLocalVersion(pathwayVersionId: string | null) {
+  const id = pathwayVersionId?.startsWith('local:') ? pathwayVersionId.slice(6) : DEFAULT_PATHWAY_ID;
+  return BUNDLED_PATHWAYS[id] ? id : DEFAULT_PATHWAY_ID;
+}
+
+function localFallback(pathwayVersionId: string | null = null, pathwayId?: string): LoadedPathway {
+  const id =
+    pathwayId && BUNDLED_PATHWAYS[pathwayId] ? pathwayId : pathwayIdFromLocalVersion(pathwayVersionId);
+  const bundled = BUNDLED_PATHWAYS[id];
   return {
-    ...localPathway,
-    id: 'for-the-king',
+    ...bundled.pathway,
+    id,
     pathwayVersionId,
-    leaderGuide: leaderGuideData,
-    challengePool: challengePoolData,
+    leaderGuide: bundled.leaderGuide,
+    challengePool: bundled.challengePool,
     source: 'local',
-    theme: BUNDLED_THEMES['for-the-king'] ?? null,
+    theme: BUNDLED_THEMES[id] ?? null,
   };
 }
 
@@ -57,8 +104,22 @@ async function cachedTheme(pathwayId: string): Promise<RawPathwayTheme | null> {
   return cache[pathwayId]?.theme ?? BUNDLED_THEMES[pathwayId] ?? null;
 }
 
-function isNonEmptyTheme(v: unknown): v is RawPathwayTheme {
-  return Boolean(v) && typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length > 0;
+const isNonEmptyTheme = (v: unknown): v is RawPathwayTheme => isNonEmptyObject(v);
+
+/**
+ * `pathway_versions.resources` (migration 003). Missing column or empty → bundled copy for
+ * this pathway, so guide pages still show before the migration runs.
+ */
+async function loadResources(pathwayVersionId: string, pathwayId: string): Promise<PathwayResource[]> {
+  const bundled = BUNDLED_PATHWAYS[pathwayId]?.pathway.resources ?? [];
+  if (!supabase) return bundled;
+  const { data, error } = await supabase
+    .from('pathway_versions')
+    .select('resources')
+    .eq('id', pathwayVersionId)
+    .maybeSingle();
+  if (error || !Array.isArray(data?.resources) || data.resources.length === 0) return bundled;
+  return data.resources as PathwayResource[];
 }
 
 /**
@@ -129,24 +190,24 @@ export async function listAvailablePathways(): Promise<PathwayOption[]> {
     }
   }
 
-  return [
-    {
-      pathwayId: 'for-the-king',
-      pathwayVersionId: 'local',
-      name: localPathway.name,
-      description: localPathway.description,
-      totalWeeks: localPathway.totalWeeks,
-      version: 1,
-    },
-  ];
+  return Object.entries(BUNDLED_PATHWAYS).map(([pathwayId, { pathway }]) => ({
+    pathwayId,
+    pathwayVersionId: localVersionId(pathwayId),
+    name: pathway.name,
+    description: pathway.description,
+    totalWeeks: pathway.totalWeeks,
+    version: 1,
+  }));
 }
 
 export async function loadPathwayByVersionId(
-  pathwayVersionId: string | null | undefined
+  pathwayVersionId: string | null | undefined,
+  pathwayId?: string | null
 ): Promise<LoadedPathway> {
-  if (!pathwayVersionId || pathwayVersionId === 'local') {
+  if (isLocalVersionId(pathwayVersionId)) {
     return localFallback(pathwayVersionId ?? null);
   }
+  if (!pathwayVersionId) return localFallback(null);
 
   // Cache first for offline
   const cache = await readJson<PathwayCache>(CACHE_KEY, {});
@@ -175,15 +236,21 @@ export async function loadPathwayByVersionId(
         .order('week_number', { ascending: true });
       if (wErr) throw wErr;
 
+      const bundled = BUNDLED_PATHWAYS[version.pathway_id];
       const loaded: LoadedPathway = {
         id: version.pathway_id,
         name: pathwayMeta?.name ?? version.pathway_id,
         description: pathwayMeta?.description ?? '',
         totalWeeks: version.total_weeks,
         weeks: (weeks ?? []).map(rowToWeek),
+        resources: await loadResources(pathwayVersionId, version.pathway_id),
         pathwayVersionId,
-        leaderGuide: (version.leader_guide as typeof leaderGuideData) ?? leaderGuideData,
-        challengePool: (version.challenge_pool as typeof challengePoolData) ?? challengePoolData,
+        leaderGuide: isNonEmptyObject(version.leader_guide)
+          ? (version.leader_guide as LeaderGuide)
+          : (bundled?.leaderGuide ?? null),
+        challengePool: isNonEmptyObject(version.challenge_pool)
+          ? (version.challenge_pool as ChallengePool)
+          : (bundled?.challengePool ?? null),
         source: 'remote',
         theme: await loadPathwayTheme(version.pathway_id),
       };
@@ -197,6 +264,7 @@ export async function loadPathwayByVersionId(
             description: loaded.description,
             totalWeeks: loaded.totalWeeks,
             weeks: loaded.weeks,
+            resources: loaded.resources,
           },
           leaderGuide: loaded.leaderGuide,
           challengePool: loaded.challengePool,
@@ -217,7 +285,7 @@ export async function loadPathwayByVersionId(
         };
       }
       console.warn('Remote pathway load failed, using bundled content', e);
-      return localFallback(pathwayVersionId);
+      return localFallback(pathwayVersionId, pathwayId ?? undefined);
     }
   }
 
@@ -232,7 +300,7 @@ export async function loadPathwayByVersionId(
     };
   }
 
-  return localFallback(pathwayVersionId);
+  return localFallback(pathwayVersionId, pathwayId ?? undefined);
 }
 
 export function getWeekFromPathway(pathway: Pathway, weekNumber: number): PathwayWeek {
@@ -256,9 +324,32 @@ export function isStandardWeek(week: PathwayWeek): week is StandardWeek {
 export function progressItemIdsForWeek(week: StandardWeek): string[] {
   return [
     ...week.challenges.map((c) => c.id),
-    ...week.journaling.map((j) => j.id),
-    week.careForTheBody.id,
+    ...(week.soap ?? []).map((s) => s.id),
+    ...(week.journaling ?? []).map((j) => j.id),
+    ...(week.careForTheBody ? [week.careForTheBody.id] : []),
   ];
+}
+
+/** Checkmarks done vs. possible; a `chooseOne` challenge counts once, done if any option is. */
+export function weekCompletion(week: StandardWeek, completedIds: ReadonlySet<string>) {
+  const others = progressItemIdsForWeek(week).filter(
+    (id) => !week.challenges.some((c) => c.id === id)
+  );
+  const challengeDone = week.challenges.filter((c) => completedIds.has(c.id)).length;
+  const challenge =
+    week.challengeMode === 'chooseOne'
+      ? { done: Math.min(challengeDone, 1), total: week.challenges.length ? 1 : 0 }
+      : { done: challengeDone, total: week.challenges.length };
+  return {
+    done: challenge.done + others.filter((id) => completedIds.has(id)).length,
+    total: challenge.total + others.length,
+  };
+}
+
+/** Whether the Study tab has anything to show for this week / pathway. */
+export function hasStudyContent(week: PathwayWeek | null, resources: PathwayResource[] | undefined) {
+  const study = week && isStandardWeek(week) ? week.study : undefined;
+  return Boolean(study?.article?.length || study?.quotes?.length || study?.definition || resources?.length);
 }
 
 /** @deprecated Prefer useContent() — kept for any sync call sites during transition */
@@ -267,7 +358,7 @@ export const challengePool = challengePoolData;
 export const leaderGuide = leaderGuideData;
 export const PATHWAY_OPTIONS = [
   {
-    id: 'for-the-king',
+    id: DEFAULT_PATHWAY_ID,
     name: localPathway.name,
     description: localPathway.description,
     totalWeeks: localPathway.totalWeeks,

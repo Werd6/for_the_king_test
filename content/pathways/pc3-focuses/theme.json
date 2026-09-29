@@ -1,0 +1,36 @@
+{
+  "light": {
+    "bg": "#F4F1EA",
+    "surface": "#FBF9F5",
+    "surfaceStrong": "#E6DFD1",
+    "primary": "#171617",
+    "accent": "#8A7650",
+    "muted": "#A39A88",
+    "mutedText": "#5F584C",
+    "ink": "#171617",
+    "onPrimary": "#F4F1EA",
+    "danger": "#9B2C22",
+    "border": "#DCD4C4",
+    "inputBg": "#FFFFFF"
+  },
+  "dark": {
+    "bg": "#0F0F10",
+    "surface": "#19181A",
+    "surfaceStrong": "#2B2926",
+    "primary": "#B8A07A",
+    "accent": "#B8A07A",
+    "muted": "#6B6457",
+    "mutedText": "#A89F8E",
+    "ink": "#EDE8DE",
+    "onPrimary": "#111111",
+    "danger": "#E0826F",
+    "border": "#2E2B27",
+    "inputBg": "#141415"
+  },
+  "radii": { "sm": 2, "md": 4, "lg": 8 },
+  "spacingScale": 1,
+  "logo": "pc3-logo.png",
+  "logoDark": "pc3-logo.png",
+  "favicon": "pc3-favicon.png",
+  "tabTitle": "Focuses"
+}

@@ -50,6 +50,8 @@ create table if not exists public.pathway_versions (
   -- Optional extras for this version (leader guide, challenge pool, movements)
   leader_guide jsonb not null default '{}'::jsonb,
   challenge_pool jsonb not null default '{}'::jsonb,
+  -- Guide pages shown to every member (migration 003)
+  resources jsonb not null default '[]'::jsonb,
   is_published boolean not null default false,
   published_at timestamptz,
   created_at timestamptz not null default now(),

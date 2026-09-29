@@ -1,3 +1,4 @@
+import { isLocalVersionId } from '@/lib/content';
 import { authRedirectUrl } from '@/lib/siteUrl';
 import {
   generateInviteCode,
@@ -228,7 +229,7 @@ export async function createHuddle(params: {
   };
 
   if (isRemoteConfigured && supabase) {
-    if (params.pathwayVersionId === 'local') {
+    if (isLocalVersionId(params.pathwayVersionId)) {
       throw new Error('No pathway is available yet. Please try again later.');
     }
     const { data, error } = await supabase

@@ -1,7 +1,7 @@
 import { Body, ErrorState, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
 import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { isStandardWeek, progressItemIdsForWeek } from '@/lib/content';
+import { isStandardWeek, weekCompletion } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
@@ -75,8 +75,12 @@ export default function ProgressScreen() {
         label="Leader materials"
         onPress={() => router.push('/(app)/leader-materials')}
       />
-      <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
-      <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
+      {pathway.leaderGuide ? (
+        <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
+      ) : null}
+      {pathway.challengePool ? (
+        <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
+      ) : null}
     </SettingsGroup>
   ) : null;
 
@@ -95,9 +99,6 @@ export default function ProgressScreen() {
     );
   }
 
-  const itemIds = progressItemIdsForWeek(week);
-  const total = itemIds.length;
-
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
@@ -106,11 +107,12 @@ export default function ProgressScreen() {
           Week {week.weekNumber}: {week.title}.
         </Body>
 
-        <Section title="Brothers">
+        <Section title="Members">
           {members.map((m) => {
-            const done = progress.filter(
-              (p) => p.user_id === m.id && itemIds.includes(p.item_id)
-            ).length;
+            const { done, total } = weekCompletion(
+              week,
+              new Set(progress.filter((p) => p.user_id === m.id).map((p) => p.item_id))
+            );
             return (
               <Text
                 key={m.id}

@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 /**
- * Publish content/pathway.json (+ leader guide + challenge pool) to Supabase.
+ * Publish a pathway (+ leader guide, challenge pool, guide pages, theme) to Supabase.
+ *
+ * Pathways:
+ *   for-the-king (default)  → content/
+ *   <id>                    → content/pathways/<id>/   (e.g. --pathway pc3-focuses)
+ * Each folder has pathway.json and optionally theme.json, assets/, leader-guide.json,
+ * challenge-pool.json. Guide pages come from pathway.json "resources".
  *
  * Prerequisites:
  *   1. Run supabase/schema.sql in the Supabase SQL editor
@@ -14,8 +20,9 @@
  *   node --env-file=.env scripts/publish-pathway.mjs --version 1
  *   node --env-file=.env scripts/publish-pathway.mjs --new-version
  *   node --env-file=.env scripts/publish-pathway.mjs --theme-only   (branding only, no new content version)
+ *   node --env-file=.env scripts/publish-pathway.mjs --pathway pc3-focuses
  *
- * Theme: content/theme.json, with logo/favicon files in content/assets/ (embedded as data URIs).
+ * Theme: <folder>/theme.json, with logo/favicon files in <folder>/assets/ (embedded as data URIs).
  *
  * Never put the service_role key in the Expo app or EXPO_PUBLIC_* vars.
  */
@@ -28,14 +35,20 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 
-const PATHWAY_ID = 'for-the-king';
+const DEFAULT_PATHWAY_ID = 'for-the-king';
+/** Catalog order in the "Create huddle" list. */
+const SORT_ORDER = { 'for-the-king': 1, 'pc3-focuses': 2 };
 
 function loadJson(rel) {
   return JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
 }
 
+function loadOptionalJson(rel) {
+  return fs.existsSync(path.join(root, rel)) ? loadJson(rel) : null;
+}
+
 function parseArgs(argv) {
-  const args = { version: null, newVersion: false, themeOnly: false };
+  const args = { version: null, newVersion: false, themeOnly: false, pathway: DEFAULT_PATHWAY_ID };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--version' && argv[i + 1]) {
       args.version = Number(argv[++i]);
@@ -43,17 +56,27 @@ function parseArgs(argv) {
       args.newVersion = true;
     } else if (argv[i] === '--theme-only') {
       args.themeOnly = true;
+    } else if (argv[i] === '--pathway' && argv[i + 1]) {
+      args.pathway = argv[++i];
     }
   }
   return args;
+}
+
+const args = parseArgs(process.argv.slice(2));
+const PATHWAY_ID = args.pathway;
+const CONTENT_DIR = PATHWAY_ID === DEFAULT_PATHWAY_ID ? 'content' : `content/pathways/${PATHWAY_ID}`;
+if (!fs.existsSync(path.join(root, CONTENT_DIR, 'pathway.json'))) {
+  console.error(`No ${CONTENT_DIR}/pathway.json for pathway "${PATHWAY_ID}".`);
+  process.exit(1);
 }
 
 // ---------------------------------------------------------------------------
 // Theme (mirrors the checks in lib/pathwayTheme.ts)
 // ---------------------------------------------------------------------------
 
-const THEME_FILE = 'content/theme.json';
-const THEME_ASSET_DIR = 'content/assets';
+const THEME_FILE = `${CONTENT_DIR}/theme.json`;
+const THEME_ASSET_DIR = `${CONTENT_DIR}/assets`;
 const IMAGE_LIMITS = { logo: 150 * 1024, logoDark: 150 * 1024, favicon: 32 * 1024 };
 const IMAGE_MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -175,6 +198,15 @@ async function publishTheme(supabase, theme) {
   console.log(`Published theme v${nextVersion}.`);
 }
 
+function withMigrationHint(error) {
+  if (/resources/.test(error.message ?? '')) {
+    return new Error(
+      `${error.message}\nRun supabase/migrations/003_pathway_resources.sql in the Supabase SQL Editor first.`
+    );
+  }
+  return error;
+}
+
 function weekToRow(pathwayVersionId, week) {
   const {
     weekNumber,
@@ -210,11 +242,11 @@ async function main() {
     process.exit(1);
   }
 
-  const args = parseArgs(process.argv.slice(2));
   const theme = buildTheme();
-  const pathway = loadJson('content/pathway.json');
-  const leaderGuide = loadJson('content/leader-guide.json');
-  const challengePool = loadJson('content/challenge-pool.json');
+  const pathway = loadJson(`${CONTENT_DIR}/pathway.json`);
+  const leaderGuide = loadOptionalJson(`${CONTENT_DIR}/leader-guide.json`) ?? {};
+  const challengePool = loadOptionalJson(`${CONTENT_DIR}/challenge-pool.json`) ?? {};
+  const resources = pathway.resources ?? [];
 
   const supabase = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -234,7 +266,7 @@ async function main() {
       name: pathway.name,
       description: pathway.description,
       is_published: true,
-      sort_order: 1,
+      sort_order: SORT_ORDER[PATHWAY_ID] ?? 99,
     },
     { onConflict: 'id' }
   );
@@ -277,11 +309,12 @@ async function main() {
         total_weeks: pathway.totalWeeks ?? pathway.weeks.length,
         leader_guide: leaderGuide,
         challenge_pool: challengePool,
+        resources,
         is_published: false,
         published_at: null,
       })
       .eq('id', versionId);
-    if (error) throw error;
+    if (error) throw withMigrationHint(error);
 
     // Clear old weeks for this version so we can reinsert cleanly
     const { error: delErr } = await supabase
@@ -299,11 +332,12 @@ async function main() {
         total_weeks: pathway.totalWeeks ?? pathway.weeks.length,
         leader_guide: leaderGuide,
         challenge_pool: challengePool,
+        resources,
         is_published: false,
       })
       .select('id')
       .single();
-    if (error) throw error;
+    if (error) throw withMigrationHint(error);
     versionId = data.id;
   }
 

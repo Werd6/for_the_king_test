@@ -11,6 +11,7 @@ export default function ChallengePoolScreen() {
   if (loading || !pathway) return <Loading />;
 
   const challengePool = pathway.challengePool;
+  if (!challengePool) return <Redirect href="/(app)/progress" />;
   const categories = challengePool.categories as Record<string, { id: string; text: string }[]>;
 
   return (

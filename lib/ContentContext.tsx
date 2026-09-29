@@ -37,12 +37,12 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const versionId = huddle?.pathway_version_id ?? null;
-      const loaded = await loadPathwayByVersionId(versionId);
+      const loaded = await loadPathwayByVersionId(versionId, huddle?.pathway_id);
       setPathway(loaded);
     } finally {
       setLoading(false);
     }
-  }, [huddle?.pathway_version_id]);
+  }, [huddle?.pathway_version_id, huddle?.pathway_id]);
 
   useEffect(() => {
     refreshOptions();

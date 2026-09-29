@@ -7,10 +7,12 @@ import {
   Loading,
   PrimaryButton,
   Screen,
+  SecondaryButton,
   Subtitle,
   Title,
 } from '@/components/ui';
 import { PathwayLogo } from '@/components/PathwayLogo';
+import { StudyBlocks } from '@/components/StudyBlocks';
 import { getProgressForWeek, getWeekPick, setProgress, setWeekPick } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
@@ -179,6 +181,9 @@ export default function WeekHomeScreen() {
 
   if (!isStandardWeek(week)) return <Loading />;
 
+  const chooseOne = week.challengeMode === 'chooseOne';
+  const howToSoap = pathway.resources?.find((r) => r.id === 'how-to-soap');
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
@@ -194,45 +199,86 @@ export default function WeekHomeScreen() {
             onPress={() => router.push('/(app)/leader-materials')}
           />
         ) : null}
-
-        <Card title="Talking to God">
-          <BulletList items={week.talkingToGod} />
-        </Card>
-
-        <Card title="Journaling">
-          {week.journaling.map((j) => (
-            <CheckboxRow
-              key={j.id}
-              label={savingId === j.id ? `${j.text} (saving…)` : j.text}
-              checked={myCompleted.has(j.id)}
-              onToggle={(next) => toggle(j.id, next)}
-            />
-          ))}
-        </Card>
-
-        <Card title="Week's Challenge">
-          {week.challenges.map((c) => (
-            <CheckboxRow
-              key={c.id}
-              label={savingId === c.id ? `${c.text} (saving…)` : c.text}
-              checked={myCompleted.has(c.id)}
-              onToggle={(next) => toggle(c.id, next)}
-            />
-          ))}
-        </Card>
-
-        <Card title="Care for the Body">
-          <Body>{week.careForTheBody.text}</Body>
-          <CheckboxRow
-            label={
-              savingId === week.careForTheBody.id
-                ? 'Completed care for the body (saving…)'
-                : 'Completed care for the body'
-            }
-            checked={myCompleted.has(week.careForTheBody.id)}
-            onToggle={(next) => toggle(week.careForTheBody.id, next)}
+        {week.study ? (
+          <SecondaryButton
+            title="Read this week’s article"
+            onPress={() => router.push('/(app)/study')}
           />
+        ) : null}
+
+        {week.talkingToGod?.length ? (
+          <Card title="Talking to God">
+            <BulletList items={week.talkingToGod} />
+          </Card>
+        ) : null}
+
+        {week.soap?.length ? (
+          <Card title="SOAP">
+            <Body>Study each passage this week: Scripture, Observations, Application, Prayer.</Body>
+            {week.soap.map((s) => (
+              <CheckboxRow
+                key={s.id}
+                label={savingId === s.id ? `${s.text} (saving…)` : s.text}
+                checked={myCompleted.has(s.id)}
+                onToggle={(next) => toggle(s.id, next)}
+              />
+            ))}
+            {howToSoap ? (
+              <SecondaryButton
+                title="How to SOAP"
+                onPress={() =>
+                  router.push({ pathname: '/(app)/guide', params: { id: howToSoap.id } })
+                }
+              />
+            ) : null}
+          </Card>
+        ) : null}
+
+        {week.journaling?.length ? (
+          <Card title="Journaling">
+            {week.journaling.map((j) => (
+              <CheckboxRow
+                key={j.id}
+                label={savingId === j.id ? `${j.text} (saving…)` : j.text}
+                checked={myCompleted.has(j.id)}
+                onToggle={(next) => toggle(j.id, next)}
+              />
+            ))}
+          </Card>
+        ) : null}
+
+        <Card title={chooseOne ? 'Challenge Options' : "Week's Challenge"}>
+          {chooseOne ? <Body>Choose one option to complete this week.</Body> : null}
+          {week.challenges.map((c) => (
+            <View key={c.id} style={{ gap: 4 }}>
+              <CheckboxRow
+                label={savingId === c.id ? `${c.text} (saving…)` : c.text}
+                checked={myCompleted.has(c.id)}
+                onToggle={(next) => toggle(c.id, next)}
+              />
+              {c.details?.length ? (
+                <View style={{ marginLeft: 32, marginBottom: 8 }}>
+                  <StudyBlocks blocks={c.details} />
+                </View>
+              ) : null}
+            </View>
+          ))}
         </Card>
+
+        {week.careForTheBody ? (
+          <Card title="Care for the Body">
+            <Body>{week.careForTheBody.text}</Body>
+            <CheckboxRow
+              label={
+                savingId === week.careForTheBody.id
+                  ? 'Completed care for the body (saving…)'
+                  : 'Completed care for the body'
+              }
+              checked={myCompleted.has(week.careForTheBody.id)}
+              onToggle={(next) => toggle(week.careForTheBody!.id, next)}
+            />
+          </Card>
+        ) : null}
       </ScrollView>
     </Screen>
   );

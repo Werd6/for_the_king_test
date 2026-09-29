@@ -29,8 +29,10 @@ export default function LeaderMaterialsScreen() {
           Week {week.weekNumber}: {week.title}
         </Subtitle>
         <Text style={{ fontWeight: '600', color: colors.ink }}>{week.movement}</Text>
-        <Body>For the in-person huddle meeting — not shown on the brothers’ personal week screen.</Body>
-        <PrimaryButton title="Open Leader Guide" onPress={() => router.push('/(app)/leader-guide')} />
+        <Body>For the in-person huddle meeting — not shown on members’ personal week screens.</Body>
+        {pathway.leaderGuide ? (
+          <PrimaryButton title="Open Leader Guide" onPress={() => router.push('/(app)/leader-guide')} />
+        ) : null}
 
         {isStandardWeek(week) ? (
           <>
@@ -38,13 +40,20 @@ export default function LeaderMaterialsScreen() {
               <Body>{week.intro}</Body>
             </Card>
 
-            <Card title="Reading">
+            <Card title={week.soap?.length ? 'SOAP passages' : 'Reading'}>
               <Body>{week.reading}</Body>
             </Card>
 
             <Card title="Discuss">
               <BulletList items={week.discuss} />
             </Card>
+
+            {week.challengeReview?.length ? (
+              <Card title="Challenge review">
+                <Body>When you gather again, share which option each person chose and how it went.</Body>
+                <BulletList items={week.challengeReview} />
+              </Card>
+            ) : null}
           </>
         ) : null}
 

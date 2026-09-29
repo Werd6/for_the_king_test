@@ -141,6 +141,23 @@ Each pathway brings its own look; the platform default ("For The King") is the f
 - [x] Tab bar icons — book / checkmark / gear (SF Symbols on iOS, Material Symbols on web + Android)
 - [x] Platform default logo — crown shows on sign-in and for pathways without their own logo
 
+---
+
+## Feature — Focuses pathway (PC3) + weekly Study tab
+
+Second pathway from Providence Church. Adds weekly quotes/article reading and pathway guide pages.
+
+- [x] Formatted source: `content/pathways/pc3-focuses/source.md` → `npm run content:pc3` → `pathway.json`
+- [x] Theme from the PC3 logo (black / warm paper / gold), logo + favicon
+- [x] Schema: optional SOAP passages, choose-one challenges with details, challenge review, weekly `study`, pathway `resources`
+- [x] Study tab (only when the week has study content) — preface, definition, quotes, article, guide pages
+- [x] This Week: SOAP checklist, "Challenge Options" (choose one counts once), link to the article
+- [x] Leader Guide / Challenge Pool hidden for pathways without them; back button on sub-screens
+- [ ] Run `supabase/migrations/003_pathway_resources.sql` in Supabase → SQL Editor
+- [ ] `npm run publish:pathway -- --pathway pc3-focuses`
+- [ ] Confirm permission from Providence Church to adapt the guide into the app
+- [ ] High-res (1024×1024) PC3 logo for a native home-screen icon
+
 
 ---
 

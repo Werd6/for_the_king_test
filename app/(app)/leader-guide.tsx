@@ -11,6 +11,7 @@ export default function LeaderGuideScreen() {
   if (loading || !pathway) return <Loading />;
 
   const leaderGuide = pathway.leaderGuide;
+  if (!leaderGuide) return <Redirect href="/(app)/progress" />;
 
   return (
     <Screen>

@@ -42,6 +42,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "content": "node scripts/convert-content.mjs",
+    "content:pc3": "node scripts/convert-pc3.mjs",
     "publish:pathway": "node --env-file=.env --env-file=.env.publish scripts/publish-pathway.mjs",
     "typecheck": "tsc --noEmit",
     "export:web": "npx expo export --platform web",
