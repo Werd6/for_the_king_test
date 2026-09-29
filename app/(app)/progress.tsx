@@ -1,17 +1,30 @@
-import { Body, ErrorState, FeedbackLink, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
-import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
+import {
+  Body,
+  Card,
+  ErrorState,
+  FeedbackLink,
+  Loading,
+  Screen,
+  Section,
+  SettingsGroup,
+  SettingsRow,
+  Subtitle,
+  Title,
+} from '@/components/ui';
+import { advanceWeek, getHuddleMembers, getProgressForWeek, getWeekPick } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
+import { isGroupChallengeWeek, isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
-import type { Profile, ProgressRow, StandardWeek } from '@/lib/types';
+import type { Profile, ProgressRow, StandardWeek, WeekPick } from '@/lib/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function MemberProgress({
   name,
@@ -129,6 +142,128 @@ function MemberProgress({
   );
 }
 
+function WeekProgressModal({
+  huddleId,
+  weekNumber,
+  members,
+  onClose,
+}: {
+  huddleId: string;
+  weekNumber: number | null;
+  members: Profile[];
+  onClose: () => void;
+}) {
+  const { colors } = useTheme();
+  const { pathway, getWeek } = useContent();
+  const [rows, setRows] = useState<ProgressRow[]>([]);
+  const [pick, setPick] = useState<WeekPick | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Keeps content on screen while the modal animates closed.
+  const [shownWeek, setShownWeek] = useState<number | null>(null);
+
+  const load = useCallback(
+    async (n: number) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [p, wp] = await Promise.all([getProgressForWeek(huddleId, n), getWeekPick(huddleId, n)]);
+        setRows(p);
+        setPick(wp);
+      } catch (e) {
+        setError(friendlyError(e, 'Could not load progress.'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [huddleId]
+  );
+
+  useEffect(() => {
+    if (weekNumber == null) return;
+    setShownWeek(weekNumber);
+    setCollapsed(new Set());
+    load(weekNumber);
+  }, [weekNumber, load]);
+
+  const week = shownWeek != null && pathway ? getWeek(shownWeek) : null;
+
+  function body() {
+    if (!week) return null;
+    if (error) return <ErrorState message={error} onRetry={() => shownWeek != null && load(shownWeek)} />;
+    if (loading) return <Loading />;
+    if (isGroupChallengeWeek(week)) {
+      const selected = week.options.find((o) => o.id === pick?.option_id);
+      return (
+        <Card title="Group activity">
+          <Body>
+            {selected ? `Selected: ${selected.text}` : 'No activity was selected for this week.'}
+          </Body>
+          <Body>Group weeks don’t have individual checkmarks.</Body>
+        </Card>
+      );
+    }
+    if (!isStandardWeek(week)) return null;
+    return members.map((m) => (
+      <MemberProgress
+        key={m.id}
+        name={m.display_name}
+        week={week}
+        completed={new Set(rows.filter((r) => r.user_id === m.id).map((r) => r.item_id))}
+        expanded={!collapsed.has(m.id)}
+        onToggle={() =>
+          setCollapsed((prev) => {
+            const next = new Set(prev);
+            if (next.has(m.id)) next.delete(m.id);
+            else next.add(m.id);
+            return next;
+          })
+        }
+      />
+    ));
+  }
+
+  return (
+    <Modal
+      visible={weekNumber != null}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: colors.bg }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <Text style={{ ...typography.section, color: colors.ink, flex: 1 }} accessibilityRole="header">
+            Week {shownWeek} progress
+          </Text>
+          <Pressable accessibilityRole="button" onPress={onClose} hitSlop={12}>
+            <Text style={{ ...typography.button, color: colors.primary }}>Done</Text>
+          </Pressable>
+        </View>
+        <ScrollView contentContainerStyle={{ gap: 12, padding: 16, paddingBottom: 48 }}>
+          {week ? (
+            <>
+              <Subtitle>{week.title}</Subtitle>
+              {week.movement ? <Body>{week.movement}</Body> : null}
+              <Body>View only. Members can only change their own checkmarks for the current week.</Body>
+            </>
+          ) : null}
+          {body()}
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
 export default function ProgressScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
   const { getWeek, loading: contentLoading, pathway, reloadForHuddle } = useContent();
@@ -138,6 +273,8 @@ export default function ProgressScreen() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [weekMenuOpen, setWeekMenuOpen] = useState(false);
+  const [viewWeek, setViewWeek] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     if (!huddle) return;
@@ -186,20 +323,44 @@ export default function ProgressScreen() {
   if (loading || contentLoading || !pathway) return <Loading />;
 
   const week = getWeek(huddle.current_week);
+  const pastWeeks = pathway.weeks.filter((w) => w.weekNumber <= huddle.current_week);
   const leaderTools = isLeader ? (
-    <SettingsGroup label="Leader">
-      <SettingsRow label="Advance to next week" onPress={onAdvance} />
-      <SettingsRow
-        label="Leader materials"
-        onPress={() => router.push('/(app)/leader-materials')}
+    <>
+      <SettingsGroup label="Leader">
+        <SettingsRow label="Advance to next week" onPress={onAdvance} />
+        <SettingsRow
+          label="Leader materials"
+          onPress={() => router.push('/(app)/leader-materials')}
+        />
+        {pathway.leaderGuide ? (
+          <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
+        ) : null}
+        {pathway.challengePool ? (
+          <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
+        ) : null}
+        <SettingsRow
+          label="View progress"
+          value={weekMenuOpen ? 'Choose a week' : undefined}
+          onPress={() => setWeekMenuOpen((open) => !open)}
+        />
+        {weekMenuOpen
+          ? pastWeeks.map((w) => (
+              <SettingsRow
+                key={w.weekNumber}
+                label={`Week ${w.weekNumber}${w.weekNumber === huddle.current_week ? ' (current)' : ''}`}
+                value={w.title}
+                onPress={() => setViewWeek(w.weekNumber)}
+              />
+            ))
+          : null}
+      </SettingsGroup>
+      <WeekProgressModal
+        huddleId={huddle.id}
+        weekNumber={viewWeek}
+        members={members}
+        onClose={() => setViewWeek(null)}
       />
-      {pathway.leaderGuide ? (
-        <SettingsRow label="Leader guide" onPress={() => router.push('/(app)/leader-guide')} />
-      ) : null}
-      {pathway.challengePool ? (
-        <SettingsRow label="Challenge pool" onPress={() => router.push('/(app)/challenge-pool')} />
-      ) : null}
-    </SettingsGroup>
+    </>
   ) : null;
 
   if (!isStandardWeek(week)) {
