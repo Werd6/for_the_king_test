@@ -8,7 +8,7 @@ Work top to bottom. Each phase should be done before the next unless noted.
 
 SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (already updated)
 
-- [ ] **Run the migration** in Supabase → SQL Editor, then push the app code right after
+- [x] **Run the migration** in Supabase → SQL Editor, then push the app code right after
 - [ ] **Lock down huddle reads**
   - [x] `join_huddle_by_code(code)` function joins server-side
   - [x] Removed `huddles_select_by_invite_for_join` policy
@@ -35,11 +35,13 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **Favicon** for web — replace `assets/images/favicon.png` (48×48)
 - [ ] **Forgot password**
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
-  - [ ] Supabase → Authentication → URL Configuration → Redirect URLs: add `https://for-the-king-test.vercel.app/reset-password`, `http://localhost:8081/reset-password`, `fortheking://reset-password`
+  - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
+  - [ ] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
   - [ ] Test: request reset on the live site, open the email link, set a new password
 - [ ] **Auth emails**
   - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
-  - [ ] Set up custom SMTP (Resend, Postmark, etc.) — built-in sender is rate-limited
+  - [x] Custom SMTP via Resend (`mail.bespokeit.llc`)
+  - [x] Sign-up with an existing email says so instead of "check your email"
 - [x] **Remove dev-only text** — Settings content label, "Run npm run publish:pathway" messages
 - [x] **Error states** — friendly error messages; "Couldn't load / Try again" on week + progress screens
 - [ ] **Content review** — proofread every week in `content/` and `for_the_king_content1.md`
@@ -118,7 +120,7 @@ Each pathway brings its own look; the platform default ("For The King") is the f
 
 **Step 3 — Load + store offline**
 - [x] Migration `supabase/migrations/002_pathway_theme.sql` (`theme`, `theme_version`)
-- [ ] Run the migration in Supabase → SQL Editor
+- [x] Run the migration in Supabase → SQL Editor
 - [x] Theme loads with pathway content and is stored on the device; bundled theme as fallback
 - [x] Last theme applied on launch (no flash); re-downloads only when `theme_version` is newer
 
@@ -128,7 +130,7 @@ Each pathway brings its own look; the platform default ("For The King") is the f
 
 **Step 5 — Publishing**
 - [x] Publish script validates + embeds images, bumps `theme_version` only on change; `--theme-only` flag
-- [ ] Run `npm run publish:pathway -- --theme-only` after the migration
+- [x] Run `npm run publish:pathway -- --theme-only` after the migration (theme v1 live)
 
 **Step 6 — Home-screen app icons**
 - [x] `expo-alternate-app-icons` installed; `ForTheKing` icon registered (verified with a test prebuild)
@@ -136,7 +138,7 @@ Each pathway brings its own look; the platform default ("For The King") is the f
 - [ ] Test on a native build (Phase 3) — Expo Go can't switch icons
 
 **Follow-ups**
-- [ ] Tab bar icons (currently placeholder triangles)
+- [x] Tab bar icons — book / checkmark / gear (SF Symbols on iOS, Material Symbols on web + Android)
 - [x] Platform default logo — crown shows on sign-in and for pathways without their own logo
 
 
