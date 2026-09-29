@@ -1,15 +1,15 @@
-import { useCallback, useState } from 'react';
-import { ScrollView, Text } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
 import { Body, ErrorState, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
 import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { friendlyError } from '@/lib/errors';
-import { useContent } from '@/lib/ContentContext';
 import { isStandardWeek, progressItemIdsForWeek } from '@/lib/content';
+import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
+import { friendlyError } from '@/lib/errors';
 import { useTheme } from '@/lib/ThemeContext';
 import type { Profile, ProgressRow } from '@/lib/types';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ScrollView, Text } from 'react-native';
 
 export default function ProgressScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
@@ -103,7 +103,7 @@ export default function ProgressScreen() {
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
         <Title>Huddle Progress</Title>
         <Body>
-          Week {week.weekNumber}: {week.title}. Shared checkmarks only — no journal or prayer text.
+          Week {week.weekNumber}: {week.title}.
         </Body>
 
         <Section title="Brothers">
