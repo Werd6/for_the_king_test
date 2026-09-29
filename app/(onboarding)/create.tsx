@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   Body,
@@ -18,8 +18,11 @@ import { friendlyError } from '@/lib/errors';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
 import type { PathwayOption } from '@/lib/content';
+import { typography } from '@/lib/theme';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function CreateHuddleScreen() {
+  const { colors, radii } = useTheme();
   const { userId, profile, refresh } = useAuth();
   const { options, refreshOptions } = useContent();
   const router = useRouter();
@@ -82,15 +85,52 @@ export default function CreateHuddleScreen() {
           {options.length === 0 ? (
             <Body>No pathways are available right now. Please try again later.</Body>
           ) : (
-            options.map((p) => (
-              <View key={p.pathwayVersionId} style={{ marginBottom: 8 }}>
-                <PrimaryButton
-                  title={`${selected?.pathwayVersionId === p.pathwayVersionId ? '✓ ' : ''}${p.name} (${p.totalWeeks} weeks)`}
+            options.map((p) => {
+              const isSelected = selected?.pathwayVersionId === p.pathwayVersionId;
+              return (
+                <Pressable
+                  key={p.pathwayVersionId}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: isSelected }}
+                  accessibilityLabel={`${p.name}, ${p.totalWeeks} weeks`}
                   onPress={() => setSelected(p)}
-                />
-                <Body>{p.description}</Body>
-              </View>
-            ))
+                  style={({ pressed }) => ({
+                    flexDirection: 'row',
+                    gap: 12,
+                    padding: 14,
+                    marginBottom: 8,
+                    borderRadius: radii.md,
+                    borderWidth: isSelected ? 2 : 1,
+                    borderColor: isSelected ? colors.primary : colors.border,
+                    backgroundColor: isSelected ? colors.surfaceStrong : colors.surface,
+                    opacity: pressed ? 0.8 : 1,
+                  })}
+                >
+                  <View
+                    style={{
+                      width: 22,
+                      height: 22,
+                      marginTop: 1,
+                      borderRadius: 11,
+                      borderWidth: 2,
+                      borderColor: isSelected ? colors.primary : colors.muted,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {isSelected ? (
+                      <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />
+                    ) : null}
+                  </View>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={{ ...typography.subtitle, color: colors.ink }}>
+                      {p.name} · {p.totalWeeks} weeks
+                    </Text>
+                    <Text style={{ ...typography.body, color: colors.mutedText }}>{p.description}</Text>
+                  </View>
+                </Pressable>
+              );
+            })
           )}
         </Section>
 
