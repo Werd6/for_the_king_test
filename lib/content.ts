@@ -330,6 +330,25 @@ export function progressItemIdsForWeek(week: StandardWeek): string[] {
   ];
 }
 
+export type ChecklistGroup = { title: string; items: { id: string; text: string }[] };
+
+/** Checkable items grouped and ordered as on This Week. */
+export function weekChecklist(week: StandardWeek): ChecklistGroup[] {
+  const groups: ChecklistGroup[] = [
+    { title: 'SOAP', items: week.soap ?? [] },
+    { title: 'Journaling', items: week.journaling ?? [] },
+    {
+      title: week.challengeMode === 'chooseOne' ? 'Challenge (choose one)' : 'Challenge',
+      items: week.challenges,
+    },
+    {
+      title: 'Care for the Body',
+      items: week.careForTheBody ? [{ id: week.careForTheBody.id, text: 'Care for the body' }] : [],
+    },
+  ];
+  return groups.filter((g) => g.items.length > 0);
+}
+
 /** Checkmarks done vs. possible; a `chooseOne` challenge counts once, done if any option is. */
 export function weekCompletion(week: StandardWeek, completedIds: ReadonlySet<string>) {
   const others = progressItemIdsForWeek(week).filter(

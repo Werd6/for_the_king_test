@@ -1,25 +1,143 @@
 import { Body, ErrorState, Loading, Screen, Section, SettingsGroup, SettingsRow, Title } from '@/components/ui';
 import { advanceWeek, getHuddleMembers, getProgressForWeek } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { isStandardWeek, weekCompletion } from '@/lib/content';
+import { isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
+import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
-import type { Profile, ProgressRow } from '@/lib/types';
+import type { Profile, ProgressRow, StandardWeek } from '@/lib/types';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useCallback, useState } from 'react';
-import { ScrollView, Text } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+
+function MemberProgress({
+  name,
+  week,
+  completed,
+  expanded,
+  onToggle,
+}: {
+  name: string;
+  week: StandardWeek;
+  completed: ReadonlySet<string>;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { colors, radii } = useTheme();
+  const { done, total } = weekCompletion(week, completed);
+
+  return (
+    <View
+      style={{
+        marginBottom: 8,
+        borderRadius: radii.md,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.surface,
+        overflow: 'hidden',
+      }}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${name}, ${done} of ${total} done`}
+        onPress={onToggle}
+        style={({ pressed }) => ({
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+          paddingVertical: 12,
+          paddingHorizontal: 14,
+          opacity: pressed ? 0.75 : 1,
+        })}
+      >
+        <Text style={{ ...typography.subtitle, color: colors.ink, flex: 1 }}>{name}</Text>
+        <Text style={{ ...typography.label, color: colors.mutedText }}>
+          {done}/{total}
+        </Text>
+        <SymbolView
+          name={{
+            ios: expanded ? 'chevron.up' : 'chevron.down',
+            android: expanded ? 'expand_less' : 'expand_more',
+            web: expanded ? 'expand_less' : 'expand_more',
+          }}
+          tintColor={colors.mutedText}
+          size={20}
+        />
+      </Pressable>
+
+      {expanded ? (
+        <View
+          style={{
+            gap: 12,
+            paddingHorizontal: 14,
+            paddingTop: 12,
+            paddingBottom: 14,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+          }}
+        >
+          {weekChecklist(week).map((group) => (
+            <View key={group.title} style={{ gap: 6 }}>
+              <Text style={{ ...typography.label, color: colors.mutedText }}>{group.title}</Text>
+              {group.items.map((item) => {
+                const isDone = completed.has(item.id);
+                return (
+                  <View
+                    key={item.id}
+                    accessible
+                    accessibilityLabel={`${item.text}: ${isDone ? 'done' : 'not done'}`}
+                    style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}
+                  >
+                    <View
+                      style={{
+                        width: 20,
+                        height: 20,
+                        marginTop: 1,
+                        borderRadius: radii.sm,
+                        borderWidth: 2,
+                        borderColor: isDone ? colors.primary : colors.muted,
+                        backgroundColor: isDone ? colors.primary : 'transparent',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {isDone ? (
+                        <Text style={{ color: colors.onPrimary, fontSize: 12, fontWeight: '800' }}>✓</Text>
+                      ) : null}
+                    </View>
+                    <Text
+                      style={{
+                        ...typography.body,
+                        flex: 1,
+                        color: isDone ? colors.ink : colors.mutedText,
+                      }}
+                    >
+                      {item.text}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
 
 export default function ProgressScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
   const { getWeek, loading: contentLoading, pathway, reloadForHuddle } = useContent();
-  const { colors } = useTheme();
   const router = useRouter();
   const [members, setMembers] = useState<Profile[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!huddle) return;
@@ -108,20 +226,17 @@ export default function ProgressScreen() {
         </Body>
 
         <Section title="Members">
-          {members.map((m) => {
-            const { done, total } = weekCompletion(
-              week,
-              new Set(progress.filter((p) => p.user_id === m.id).map((p) => p.item_id))
-            );
-            return (
-              <Text
-                key={m.id}
-                style={{ fontSize: 16, marginBottom: 8, color: colors.ink, lineHeight: 22 }}
-              >
-                {m.display_name}: {done}/{total}
-              </Text>
-            );
-          })}
+          <Body>Tap a name to see each item.</Body>
+          {members.map((m) => (
+            <MemberProgress
+              key={m.id}
+              name={m.display_name}
+              week={week}
+              completed={new Set(progress.filter((p) => p.user_id === m.id).map((p) => p.item_id))}
+              expanded={expandedId === m.id}
+              onToggle={() => setExpandedId(expandedId === m.id ? null : m.id)}
+            />
+          ))}
         </Section>
 
         {leaderTools}
