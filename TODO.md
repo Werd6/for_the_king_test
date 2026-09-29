@@ -36,7 +36,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **Forgot password**
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
   - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
-  - [ ] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
+  - [x] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
   - [ ] Test: request reset on the live site, open the email link, set a new password
 - [ ] **Auth emails**
   - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
