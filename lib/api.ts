@@ -1,3 +1,5 @@
+import * as Linking from 'expo-linking';
+
 import {
   generateInviteCode,
   isRemoteConfigured,
@@ -64,9 +66,16 @@ export async function signUpWithEmail(email: string, password: string, displayNa
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName } },
+      options: { data: { display_name: displayName }, emailRedirectTo: Linking.createURL('/') },
     });
     if (error) throw error;
+
+    // Supabase hides existing accounts: no error, no session, no email, and an empty identities list.
+    if (data.user && !data.session && data.user.identities?.length === 0) {
+      throw new Error(
+        'An account with this email already exists. Sign in instead, or use Forgot password.'
+      );
+    }
 
     // Profile row is created by the auth trigger. Only update when we have a session
     // (upsert without a session fails RLS and looked like "nothing happened" on web).
@@ -81,7 +90,7 @@ export async function signUpWithEmail(email: string, password: string, displayNa
 
     if (!data.session) {
       throw new Error(
-        'Account created. Check your email to confirm, then sign in. (Or disable Confirm email in Supabase → Authentication → Providers → Email.)'
+        'Account created. Check your email (and spam folder) for a confirmation link, then sign in.'
       );
     }
     return data;
