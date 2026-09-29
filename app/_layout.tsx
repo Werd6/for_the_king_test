@@ -2,11 +2,21 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvide
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
+import { Platform } from 'react-native';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ContentProvider } from '@/lib/ContentContext';
 import { ThemeProvider, useTheme } from '@/lib/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
+
+// Supabase falls back to the Site URL when the requested redirect isn't allow-listed, so a
+// recovery link can land on "/". Rewrite before the router reads the URL.
+if (Platform.OS === 'web' && typeof window !== 'undefined') {
+  const { pathname, search, hash } = window.location;
+  if (pathname !== '/reset-password' && /(^|[#&?])type=recovery(&|$)/.test(`${search}${hash}`)) {
+    window.history.replaceState(null, '', `/reset-password${search}${hash}`);
+  }
+}
 
 export { ErrorBoundary } from 'expo-router';
 
