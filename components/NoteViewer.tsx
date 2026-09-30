@@ -1,3 +1,4 @@
+import { PhotoViewer } from '@/components/PhotoViewer';
 import { Body } from '@/components/ui';
 import { notePhotoUrls } from '@/lib/api';
 import { typography } from '@/lib/theme';
@@ -31,6 +32,7 @@ export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onC
   const [shown, setShown] = useState<ViewedNote | null>(null);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [photoError, setPhotoError] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!viewed) return;
@@ -43,6 +45,7 @@ export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onC
   }, [viewed]);
 
   const photoWidth = Math.min(width, 700) - 32;
+  const viewablePhotos = (shown?.photos ?? []).filter((p) => urls[p.path]);
 
   return (
     <Modal
@@ -82,20 +85,30 @@ export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onC
                 </Text>
               ) : null}
               {photoError ? <Body>Photos couldn’t be loaded. Try again later.</Body> : null}
+              {viewablePhotos.length ? (
+                <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
+                  Tap a photo to view it full screen.
+                </Text>
+              ) : null}
               {shown.photos.map((p) =>
                 urls[p.path] ? (
-                  <Image
+                  <Pressable
                     key={p.id}
-                    source={{ uri: urls[p.path] }}
-                    style={{
-                      width: photoWidth,
-                      height: photoWidth * 1.3,
-                      borderRadius: radii.md,
-                      backgroundColor: colors.surface,
-                    }}
-                    resizeMode="contain"
-                    accessibilityLabel="Journal photo"
-                  />
+                    accessibilityRole="imagebutton"
+                    accessibilityLabel="View photo full screen"
+                    onPress={() => setViewerIndex(viewablePhotos.findIndex((v) => v.id === p.id))}
+                  >
+                    <Image
+                      source={{ uri: urls[p.path] }}
+                      style={{
+                        width: photoWidth,
+                        height: photoWidth * 1.3,
+                        borderRadius: radii.md,
+                        backgroundColor: colors.surface,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </Pressable>
                 ) : photoError ? null : (
                   <View
                     key={p.id}
@@ -114,6 +127,11 @@ export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onC
             </>
           ) : null}
         </ScrollView>
+        <PhotoViewer
+          uris={viewablePhotos.map((p) => urls[p.path])}
+          index={viewerIndex}
+          onClose={() => setViewerIndex(null)}
+        />
       </SafeAreaView>
     </Modal>
   );

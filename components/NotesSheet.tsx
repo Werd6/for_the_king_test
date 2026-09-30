@@ -1,3 +1,4 @@
+import { PhotoViewer } from '@/components/PhotoViewer';
 import { Body, PrimaryButton, SecondaryButton } from '@/components/ui';
 import {
   addNotePhoto,
@@ -78,6 +79,7 @@ export function NotesSheet({
   const [currentPhotos, setCurrentPhotos] = useState<JournalPhoto[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!item) return;
@@ -174,6 +176,7 @@ export function NotesSheet({
     onFinish({ hasContent: savedHasContent, complete: false });
   }
 
+  const viewablePhotos = currentPhotos.filter((p) => urls[p.path]);
   const shared = visibility === 'shared';
   const visibilityChanged = current != null && current.visibility !== visibility;
   const isWeb = Platform.OS === 'web';
@@ -276,16 +279,21 @@ export function NotesSheet({
               {currentPhotos.map((p) => (
                 <View key={p.id}>
                   {urls[p.path] ? (
-                    <Image
-                      source={{ uri: urls[p.path] }}
-                      style={{ width: 96, height: 128, borderRadius: radii.sm }}
-                      accessibilityLabel="Journal photo"
-                    />
+                    <Pressable
+                      accessibilityRole="imagebutton"
+                      accessibilityLabel="View photo full screen"
+                      onPress={() => setViewerIndex(viewablePhotos.findIndex((v) => v.id === p.id))}
+                    >
+                      <Image
+                        source={{ uri: urls[p.path] }}
+                        style={{ width: 120, height: 160, borderRadius: radii.sm }}
+                      />
+                    </Pressable>
                   ) : (
                     <View
                       style={{
-                        width: 96,
-                        height: 128,
+                        width: 120,
+                        height: 160,
                         borderRadius: radii.sm,
                         backgroundColor: colors.surface,
                         alignItems: 'center',
@@ -317,6 +325,11 @@ export function NotesSheet({
                 </View>
               ))}
             </ScrollView>
+          ) : null}
+          {viewablePhotos.length ? (
+            <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
+              Tap a photo to view it full screen.
+            </Text>
           ) : null}
 
           <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -375,6 +388,11 @@ export function NotesSheet({
             </>
           )}
         </ScrollView>
+        <PhotoViewer
+          uris={viewablePhotos.map((p) => urls[p.path])}
+          index={viewerIndex}
+          onClose={() => setViewerIndex(null)}
+        />
       </SafeAreaView>
     </Modal>
   );
