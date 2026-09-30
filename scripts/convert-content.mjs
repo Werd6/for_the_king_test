@@ -46,6 +46,12 @@ function bullets(section) {
     .filter(Boolean);
 }
 
+/** A trailing `[note]` marks an item that asks the member to write something down. */
+function noteMarker(raw) {
+  const m = raw.match(/^(.*?)\s*\[note\]\s*$/);
+  return m ? { text: m[1], requiresNote: true } : { text: raw, requiresNote: false };
+}
+
 function sectionBody(text, heading) {
   const re = new RegExp(`### ${heading}\\n([\\s\\S]*?)(?=\\n### |\\n---|\n## |$)`);
   const m = text.match(re);
@@ -104,12 +110,13 @@ const weeks = weekBlocks.map((block) => {
   const talkingToGod = bullets(sectionBody(block, 'Talking to God'));
   const journaling = bullets(sectionBody(block, 'Journaling')).map((text, i) => ({
     id: `${weekId}-j${i + 1}`,
-    text,
+    text: noteMarker(text).text,
+    requiresNote: true,
   }));
-  const challenges = bullets(sectionBody(block, "Week's Challenge")).map((text, i) => ({
-    id: `${weekId}-c${i + 1}`,
-    text,
-  }));
+  const challenges = bullets(sectionBody(block, "Week's Challenge")).map((raw, i) => {
+    const { text, requiresNote } = noteMarker(raw);
+    return { id: `${weekId}-c${i + 1}`, text, ...(requiresNote ? { requiresNote } : {}) };
+  });
   const careText = sectionBody(block, 'Care for the Body');
 
   return {

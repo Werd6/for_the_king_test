@@ -10,7 +10,13 @@ import {
   Title,
 } from '@/components/ui';
 import { PathwayLogo } from '@/components/PathwayLogo';
-import { deleteAccount, dissolveHuddle, leaveHuddle, updateDisplayName } from '@/lib/api';
+import {
+  deleteAccount,
+  dissolveHuddle,
+  leaveHuddle,
+  updateDisplayName,
+  updateHuddleSettings,
+} from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
@@ -18,6 +24,7 @@ import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
 import { openFeedbackForm } from '@/lib/feedback';
 import type { ThemePreference } from '@/lib/theme';
+import type { HuddleSettings, NotesVisibility } from '@/lib/types';
 import { useTheme } from '@/lib/ThemeContext';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -125,6 +132,40 @@ export default function SettingsScreen() {
     }
   }
 
+  async function changeJournaling(patch: Partial<HuddleSettings>) {
+    if (patch.notesVisibility === 'shared' && huddle!.settings.notesVisibility !== 'shared') {
+      const ok = await confirmAction(
+        'Share notes with the huddle?',
+        'Notes saved from now on can be read by everyone in the huddle. Notes already saved stay private until their author edits them.',
+        'Share'
+      );
+      if (!ok) return;
+    }
+    if (patch.notesVisibility === 'private' && huddle!.settings.notesVisibility !== 'private') {
+      const ok = await confirmAction(
+        'Make notes private?',
+        'Notes saved from now on are visible only to their author. Notes already shared stay readable by the huddle until their author edits them.',
+        'Make private'
+      );
+      if (!ok) return;
+    }
+    try {
+      await updateHuddleSettings(huddle!.id, userId!, patch);
+      await refresh();
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not update journaling settings'));
+    }
+  }
+
+  const requireOptions: { id: 'off' | 'on'; label: string }[] = [
+    { id: 'off', label: 'Optional' },
+    { id: 'on', label: 'Required' },
+  ];
+  const visibilityOptions: { id: NotesVisibility; label: string }[] = [
+    { id: 'private', label: 'Private' },
+    { id: 'shared', label: 'Shared with huddle' },
+  ];
+
   const appearanceOptions: { id: ThemePreference; label: string }[] = [
     { id: 'system', label: 'System' },
     { id: 'light', label: 'Light' },
@@ -176,6 +217,39 @@ export default function SettingsScreen() {
           <SettingsRow label="Add to device calendar" onPress={onSyncCalendar} />
         </SettingsGroup>
 
+        {isLeader ? (
+          <>
+            <SettingsGroup
+              label="Journal notes"
+              footer={
+                huddle.settings.requireNotes
+                  ? 'Journaling and SOAP items need a written note (a few sentences) or a photo before they can be checked off.'
+                  : 'Members can add notes to journaling and SOAP items, but checking them off doesn’t require it.'
+              }
+            >
+              <SettingsSegmented
+                options={requireOptions}
+                value={huddle.settings.requireNotes ? 'on' : 'off'}
+                onChange={(id) => changeJournaling({ requireNotes: id === 'on' })}
+              />
+            </SettingsGroup>
+            <SettingsGroup
+              label="Notes visibility"
+              footer={
+                huddle.settings.notesVisibility === 'shared'
+                  ? 'Everyone in the huddle can read notes saved from now on, from the Progress tab.'
+                  : 'Only the author can see their notes. Not even the leader can read them.'
+              }
+            >
+              <SettingsSegmented
+                options={visibilityOptions}
+                value={huddle.settings.notesVisibility}
+                onChange={(id) => changeJournaling({ notesVisibility: id })}
+              />
+            </SettingsGroup>
+          </>
+        ) : null}
+
         {!isLeader ? (
           <SettingsGroup label="Membership">
             <SettingsRow label="Leave huddle" onPress={onLeave} destructive />
@@ -188,7 +262,7 @@ export default function SettingsScreen() {
 
         <SettingsGroup
           label="Account"
-          footer="We store account, huddle membership, and checkmarks only — not journal or prayer text."
+          footer="We store your account, huddle membership, checkmarks, and any journal notes or photos you save in the app."
         >
           <SettingsRow label="Sign out" onPress={onSignOut} showChevron={false} />
           <SettingsRow label="Delete account" onPress={onDeleteAccount} destructive />

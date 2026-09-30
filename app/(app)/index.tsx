@@ -12,19 +12,35 @@ import {
   Subtitle,
   Title,
 } from '@/components/ui';
+import {
+  NotesSheet,
+  noteMeetsRequirement,
+  type NotesSheetItem,
+  type NotesSheetResult,
+} from '@/components/NotesSheet';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import { StudyBlocks } from '@/components/StudyBlocks';
-import { getProgressForWeek, getWeekPick, setProgress, setWeekPick } from '@/lib/api';
+import {
+  getNotesForWeek,
+  getProgressForWeek,
+  getWeekPick,
+  setProgress,
+  setWeekPick,
+  type WeekNotes,
+} from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
 import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
+import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
-import type { ProgressRow } from '@/lib/types';
+import type { ChallengeItem, ProgressRow } from '@/lib/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+
+const NO_NOTES: WeekNotes = { notes: [], photos: [] };
 
 export default function WeekHomeScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
@@ -36,6 +52,10 @@ export default function WeekHomeScreen() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
+  const [sheetItem, setSheetItem] = useState<(NotesSheetItem & { requiresNote: boolean }) | null>(
+    null
+  );
 
   const load = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -46,6 +66,8 @@ export default function WeekHomeScreen() {
         setProgressRows(rows);
         const pick = await getWeekPick(huddle.id, huddle.current_week);
         setPickId(pick?.option_id ?? null);
+        // Notes are optional extras; a project without journaling set up still loads the week.
+        setWeekNotes(await getNotesForWeek(huddle.id, huddle.current_week).catch(() => NO_NOTES));
         setLoadError(null);
       } catch (e) {
         if (opts?.silent) throw e;
@@ -72,6 +94,82 @@ export default function WeekHomeScreen() {
   const myCompleted = new Set(
     progress.filter((p) => p.user_id === userId).map((p) => p.item_id)
   );
+  const notesRequired = huddle.settings.requireNotes;
+
+  function myNote(itemId: string) {
+    return weekNotes.notes.find((n) => n.user_id === userId && n.item_id === itemId) ?? null;
+  }
+
+  function myNotePhotos(itemId: string) {
+    const note = myNote(itemId);
+    return note ? weekNotes.photos.filter((p) => p.note_id === note.id) : [];
+  }
+
+  function openNotes(item: ChallengeItem, isSoap: boolean) {
+    setSheetItem({
+      id: item.id,
+      text: item.text,
+      isSoap,
+      requiresNote: Boolean(item.requiresNote),
+    });
+  }
+
+  function onCheck(item: ChallengeItem, next: boolean, isSoap: boolean) {
+    if (next && notesRequired && item.requiresNote) {
+      const note = myNote(item.id);
+      if (!noteMeetsRequirement(note?.body ?? '', myNotePhotos(item.id).length)) {
+        openNotes(item, isSoap);
+        return;
+      }
+    }
+    toggle(item.id, next);
+  }
+
+  async function onNotesFinished(result: NotesSheetResult) {
+    const item = sheetItem;
+    setSheetItem(null);
+    if (!item) return;
+    const checked = myCompleted.has(item.id);
+    if (result.complete && !checked) {
+      await toggle(item.id, true);
+    } else if (!result.hasContent && checked && notesRequired && item.requiresNote) {
+      await toggle(item.id, false);
+    } else {
+      await load({ silent: true }).catch(() => {});
+    }
+  }
+
+  function itemRow(item: ChallengeItem, opts?: { label?: string; isSoap?: boolean }) {
+    const label = opts?.label ?? item.text;
+    const isSoap = Boolean(opts?.isSoap);
+    const note = myNote(item.id);
+    const hasNote = Boolean(note && (note.body.trim() || myNotePhotos(item.id).length));
+    return (
+      <>
+        <CheckboxRow
+          label={savingId === item.id ? `${label} (saving…)` : label}
+          checked={myCompleted.has(item.id)}
+          onToggle={(next) => onCheck(item, next, isSoap)}
+        />
+        {item.requiresNote ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => openNotes(item, isSoap)}
+            hitSlop={6}
+            style={{ marginLeft: 32, marginTop: -2, marginBottom: 6 }}
+          >
+            <Text style={{ ...typography.label, color: colors.primary }}>
+              {hasNote
+                ? '📝 Notes attached · Edit'
+                : notesRequired
+                  ? 'Notes required · Add notes'
+                  : 'Add notes (optional)'}
+            </Text>
+          </Pressable>
+        ) : null}
+      </>
+    );
+  }
 
   async function toggle(itemId: string, next: boolean) {
     if (!huddle || !userId) return;
@@ -107,6 +205,10 @@ export default function WeekHomeScreen() {
       await load({ silent: true });
     } catch (e) {
       await load({ silent: true });
+      // The leader may have turned on required notes since this screen loaded.
+      if (/NOTE_REQUIRED/.test(String((e as { message?: unknown })?.message ?? ''))) {
+        await refresh();
+      }
       showAlert('Error', friendlyError(e, 'Could not update'));
     } finally {
       setSavingId(null);
@@ -218,12 +320,7 @@ export default function WeekHomeScreen() {
           <Card title="SOAP">
             <Body>Study each passage this week: Scripture, Observations, Application, Prayer.</Body>
             {week.soap.map((s) => (
-              <CheckboxRow
-                key={s.id}
-                label={savingId === s.id ? `${s.text} (saving…)` : s.text}
-                checked={myCompleted.has(s.id)}
-                onToggle={(next) => toggle(s.id, next)}
-              />
+              <View key={s.id}>{itemRow(s, { isSoap: true })}</View>
             ))}
             {howToSoap ? (
               <SecondaryButton
@@ -239,12 +336,7 @@ export default function WeekHomeScreen() {
         {week.journaling?.length ? (
           <Card title="Journaling">
             {week.journaling.map((j) => (
-              <CheckboxRow
-                key={j.id}
-                label={savingId === j.id ? `${j.text} (saving…)` : j.text}
-                checked={myCompleted.has(j.id)}
-                onToggle={(next) => toggle(j.id, next)}
-              />
+              <View key={j.id}>{itemRow(j)}</View>
             ))}
           </Card>
         ) : null}
@@ -253,11 +345,7 @@ export default function WeekHomeScreen() {
           {chooseOne ? <Body>Choose one option to complete this week.</Body> : null}
           {week.challenges.map((c) => (
             <View key={c.id} style={{ gap: 4 }}>
-              <CheckboxRow
-                label={savingId === c.id ? `${c.text} (saving…)` : c.text}
-                checked={myCompleted.has(c.id)}
-                onToggle={(next) => toggle(c.id, next)}
-              />
+              {itemRow(c)}
               {c.details?.length ? (
                 <View style={{ marginLeft: 32, marginBottom: 8 }}>
                   <StudyBlocks blocks={c.details} />
@@ -270,19 +358,23 @@ export default function WeekHomeScreen() {
         {week.careForTheBody ? (
           <Card title="Care for the Body">
             <Body>{week.careForTheBody.text}</Body>
-            <CheckboxRow
-              label={
-                savingId === week.careForTheBody.id
-                  ? 'Completed care for the body (saving…)'
-                  : 'Completed care for the body'
-              }
-              checked={myCompleted.has(week.careForTheBody.id)}
-              onToggle={(next) => toggle(week.careForTheBody!.id, next)}
-            />
+            {itemRow(week.careForTheBody, { label: 'Completed care for the body' })}
           </Card>
         ) : null}
         <FeedbackLink />
       </ScrollView>
+      <NotesSheet
+        item={sheetItem}
+        huddleId={huddle.id}
+        userId={userId}
+        week={huddle.current_week}
+        visibility={huddle.settings.notesVisibility}
+        required={notesRequired && Boolean(sheetItem?.requiresNote)}
+        completed={sheetItem ? myCompleted.has(sheetItem.id) : false}
+        note={sheetItem ? myNote(sheetItem.id) : null}
+        photos={sheetItem ? myNotePhotos(sheetItem.id) : []}
+        onFinish={onNotesFinished}
+      />
     </Screen>
   );
 }

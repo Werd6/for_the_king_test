@@ -32,7 +32,7 @@ Jesus does not call us to produce fruit by trying harder. He calls us to remain 
 - [ ] Pray for 5–10 minutes each day
 - [ ] Memorize John 15:5
 - [ ] Share one place where you need to depend on Jesus with a brother
-- [ ] Complete journaling
+- [ ] Complete journaling [note]
 
 ### Care for the Body
 
@@ -64,7 +64,7 @@ Our culture teaches men to prove themselves. The gospel teaches men to receive t
 
 ### Week's Challenge
 
-- [ ] Write three truths about your identity in Christ
+- [ ] Write three truths about your identity in Christ [note]
 - [ ] Read Romans 8 twice this week
 - [ ] Tell one brother where you struggle with performance
 - [ ] Pray before one major task each day

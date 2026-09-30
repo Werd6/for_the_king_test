@@ -11,7 +11,15 @@ import {
   Subtitle,
   Title,
 } from '@/components/ui';
-import { advanceWeek, getHuddleMembers, getProgressForWeek, getWeekPick } from '@/lib/api';
+import { NoteViewer, type ViewedNote } from '@/components/NoteViewer';
+import {
+  advanceWeek,
+  getHuddleMembers,
+  getNotesForWeek,
+  getProgressForWeek,
+  getWeekPick,
+  type WeekNotes,
+} from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { isGroupChallengeWeek, isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
@@ -19,12 +27,33 @@ import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
-import type { Profile, ProgressRow, StandardWeek, WeekPick } from '@/lib/types';
+import type {
+  JournalNote,
+  JournalPhoto,
+  Profile,
+  ProgressRow,
+  StandardWeek,
+  WeekPick,
+} from '@/lib/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const NO_NOTES: WeekNotes = { notes: [], photos: [] };
+
+/** Other members' shared notes that have text or photos, keyed by `${userId}:${itemId}`. */
+function sharedNotesByItem(weekNotes: WeekNotes, viewerId: string | null) {
+  const map = new Map<string, { note: JournalNote; photos: JournalPhoto[] }>();
+  for (const note of weekNotes.notes) {
+    if (note.visibility !== 'shared' || note.user_id === viewerId) continue;
+    const photos = weekNotes.photos.filter((p) => p.note_id === note.id);
+    if (!note.body.trim() && !photos.length) continue;
+    map.set(`${note.user_id}:${note.item_id}`, { note, photos });
+  }
+  return map;
+}
 
 function MemberProgress({
   name,
@@ -32,12 +61,16 @@ function MemberProgress({
   completed,
   expanded,
   onToggle,
+  sharedNote,
+  onViewNote,
 }: {
   name: string;
   week: StandardWeek;
   completed: ReadonlySet<string>;
   expanded: boolean;
   onToggle: () => void;
+  sharedNote?: (itemId: string) => { note: JournalNote; photos: JournalPhoto[] } | undefined;
+  onViewNote?: (viewed: ViewedNote) => void;
 }) {
   const { colors, radii } = useTheme();
   const { done, total } = weekCompletion(week, completed);
@@ -98,39 +131,54 @@ function MemberProgress({
               <Text style={{ ...typography.label, color: colors.mutedText }}>{group.title}</Text>
               {group.items.map((item) => {
                 const isDone = completed.has(item.id);
+                const shared = sharedNote?.(item.id);
                 return (
-                  <View
-                    key={item.id}
-                    accessible
-                    accessibilityLabel={`${item.text}: ${isDone ? 'done' : 'not done'}`}
-                    style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}
-                  >
+                  <View key={item.id} style={{ gap: 2 }}>
                     <View
-                      style={{
-                        width: 20,
-                        height: 20,
-                        marginTop: 1,
-                        borderRadius: radii.sm,
-                        borderWidth: 2,
-                        borderColor: isDone ? colors.primary : colors.muted,
-                        backgroundColor: isDone ? colors.primary : 'transparent',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
+                      accessible
+                      accessibilityLabel={`${item.text}: ${isDone ? 'done' : 'not done'}`}
+                      style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}
                     >
-                      {isDone ? (
-                        <Text style={{ color: colors.onPrimary, fontSize: 12, fontWeight: '800' }}>✓</Text>
-                      ) : null}
+                      <View
+                        style={{
+                          width: 20,
+                          height: 20,
+                          marginTop: 1,
+                          borderRadius: radii.sm,
+                          borderWidth: 2,
+                          borderColor: isDone ? colors.primary : colors.muted,
+                          backgroundColor: isDone ? colors.primary : 'transparent',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {isDone ? (
+                          <Text style={{ color: colors.onPrimary, fontSize: 12, fontWeight: '800' }}>✓</Text>
+                        ) : null}
+                      </View>
+                      <Text
+                        style={{
+                          ...typography.body,
+                          flex: 1,
+                          color: isDone ? colors.ink : colors.mutedText,
+                        }}
+                      >
+                        {item.text}
+                      </Text>
                     </View>
-                    <Text
-                      style={{
-                        ...typography.body,
-                        flex: 1,
-                        color: isDone ? colors.ink : colors.mutedText,
-                      }}
-                    >
-                      {item.text}
-                    </Text>
+                    {shared && onViewNote ? (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`View ${name}’s notes for ${item.text}`}
+                        onPress={() =>
+                          onViewNote({ ...shared, authorName: name, itemText: item.text })
+                        }
+                        hitSlop={6}
+                        style={{ marginLeft: 30 }}
+                      >
+                        <Text style={{ ...typography.label, color: colors.primary }}>📝 View notes</Text>
+                      </Pressable>
+                    ) : null}
                   </View>
                 );
               })}
@@ -144,11 +192,13 @@ function MemberProgress({
 
 function WeekProgressModal({
   huddleId,
+  viewerId,
   weekNumber,
   members,
   onClose,
 }: {
   huddleId: string;
+  viewerId: string | null;
   weekNumber: number | null;
   members: Profile[];
   onClose: () => void;
@@ -157,6 +207,8 @@ function WeekProgressModal({
   const { pathway, getWeek } = useContent();
   const [rows, setRows] = useState<ProgressRow[]>([]);
   const [pick, setPick] = useState<WeekPick | null>(null);
+  const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
+  const [viewed, setViewed] = useState<ViewedNote | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -168,9 +220,14 @@ function WeekProgressModal({
       setLoading(true);
       setError(null);
       try {
-        const [p, wp] = await Promise.all([getProgressForWeek(huddleId, n), getWeekPick(huddleId, n)]);
+        const [p, wp, notes] = await Promise.all([
+          getProgressForWeek(huddleId, n),
+          getWeekPick(huddleId, n),
+          getNotesForWeek(huddleId, n).catch(() => NO_NOTES),
+        ]);
         setRows(p);
         setPick(wp);
+        setWeekNotes(notes);
       } catch (e) {
         setError(friendlyError(e, 'Could not load progress.'));
       } finally {
@@ -205,12 +262,15 @@ function WeekProgressModal({
       );
     }
     if (!isStandardWeek(week)) return null;
+    const shared = sharedNotesByItem(weekNotes, viewerId);
     return members.map((m) => (
       <MemberProgress
         key={m.id}
         name={m.display_name}
         week={week}
         completed={new Set(rows.filter((r) => r.user_id === m.id).map((r) => r.item_id))}
+        sharedNote={(itemId) => shared.get(`${m.id}:${itemId}`)}
+        onViewNote={setViewed}
         expanded={!collapsed.has(m.id)}
         onToggle={() =>
           setCollapsed((prev) => {
@@ -259,6 +319,7 @@ function WeekProgressModal({
           ) : null}
           {body()}
         </ScrollView>
+        <NoteViewer viewed={viewed} onClose={() => setViewed(null)} />
       </SafeAreaView>
     </Modal>
   );
@@ -275,17 +336,21 @@ export default function ProgressScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [weekMenuOpen, setWeekMenuOpen] = useState(false);
   const [viewWeek, setViewWeek] = useState<number | null>(null);
+  const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
+  const [viewed, setViewed] = useState<ViewedNote | null>(null);
 
   const load = useCallback(async () => {
     if (!huddle) return;
     setLoading(true);
     try {
-      const [m, p] = await Promise.all([
+      const [m, p, notes] = await Promise.all([
         getHuddleMembers(huddle.id),
         getProgressForWeek(huddle.id, huddle.current_week),
+        getNotesForWeek(huddle.id, huddle.current_week).catch(() => NO_NOTES),
       ]);
       setMembers(m);
       setProgress(p);
+      setWeekNotes(notes);
       setLoadError(null);
     } catch (e) {
       setLoadError(friendlyError(e, 'Could not load progress.'));
@@ -356,6 +421,7 @@ export default function ProgressScreen() {
       </SettingsGroup>
       <WeekProgressModal
         huddleId={huddle.id}
+        viewerId={userId}
         weekNumber={viewWeek}
         members={members}
         onClose={() => setViewWeek(null)}
@@ -379,6 +445,8 @@ export default function ProgressScreen() {
     );
   }
 
+  const shared = sharedNotesByItem(weekNotes, userId);
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
@@ -395,6 +463,8 @@ export default function ProgressScreen() {
               name={m.display_name}
               week={week}
               completed={new Set(progress.filter((p) => p.user_id === m.id).map((p) => p.item_id))}
+              sharedNote={(itemId) => shared.get(`${m.id}:${itemId}`)}
+              onViewNote={setViewed}
               expanded={expandedId === m.id}
               onToggle={() => setExpandedId(expandedId === m.id ? null : m.id)}
             />
@@ -404,6 +474,7 @@ export default function ProgressScreen() {
         {leaderTools}
         <FeedbackLink />
       </ScrollView>
+      <NoteViewer viewed={viewed} onClose={() => setViewed(null)} />
     </Screen>
   );
 }

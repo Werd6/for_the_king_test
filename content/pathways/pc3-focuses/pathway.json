@@ -24,19 +24,23 @@
       "soap": [
         {
           "id": "pc3-w01-s1",
-          "text": "John 3:1–21"
+          "text": "John 3:1–21",
+          "requiresNote": true
         },
         {
           "id": "pc3-w01-s2",
-          "text": "Ephesians 2:1–10"
+          "text": "Ephesians 2:1–10",
+          "requiresNote": true
         },
         {
           "id": "pc3-w01-s3",
-          "text": "Titus 3:3–7"
+          "text": "Titus 3:3–7",
+          "requiresNote": true
         },
         {
           "id": "pc3-w01-s4",
-          "text": "John 10:1–18"
+          "text": "John 10:1–18",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -47,7 +51,8 @@
         },
         {
           "id": "pc3-w01-c2",
-          "text": "Write one to two paragraphs describing what the Gospel is and how it has impacted your life. If you do not think it has yet, write about how you have seen it impact others around you."
+          "text": "Write one to two paragraphs describing what the Gospel is and how it has impacted your life. If you do not think it has yet, write about how you have seen it impact others around you.",
+          "requiresNote": true
         }
       ],
       "challengeReview": [
@@ -164,19 +169,23 @@
       "soap": [
         {
           "id": "pc3-w02-s1",
-          "text": "1 Corinthians 15:1–11"
+          "text": "1 Corinthians 15:1–11",
+          "requiresNote": true
         },
         {
           "id": "pc3-w02-s2",
-          "text": "Romans 3:21–26"
+          "text": "Romans 3:21–26",
+          "requiresNote": true
         },
         {
           "id": "pc3-w02-s3",
-          "text": "2 Corinthians 5:17–21"
+          "text": "2 Corinthians 5:17–21",
+          "requiresNote": true
         },
         {
           "id": "pc3-w02-s4",
-          "text": "Acts 17:16–34"
+          "text": "Acts 17:16–34",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -187,7 +196,8 @@
         },
         {
           "id": "pc3-w02-c2",
-          "text": "Write your Gospel explanation in your own words. Bring it to your next Huddle and practice sharing it with one another."
+          "text": "Write your Gospel explanation in your own words. Bring it to your next Huddle and practice sharing it with one another.",
+          "requiresNote": true
         }
       ],
       "challengeReview": [
@@ -276,19 +286,23 @@
       "soap": [
         {
           "id": "pc3-w03-s1",
-          "text": "Romans 8:1–17"
+          "text": "Romans 8:1–17",
+          "requiresNote": true
         },
         {
           "id": "pc3-w03-s2",
-          "text": "Psalm 51"
+          "text": "Psalm 51",
+          "requiresNote": true
         },
         {
           "id": "pc3-w03-s3",
-          "text": "1 John 1:5–2:2"
+          "text": "1 John 1:5–2:2",
+          "requiresNote": true
         },
         {
           "id": "pc3-w03-s4",
-          "text": "Galatians 2:15–21"
+          "text": "Galatians 2:15–21",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -300,6 +314,7 @@
         {
           "id": "pc3-w03-c2",
           "text": "This week, pay attention to how you respond when you sin. Do you tend to minimize your sin, maximize your sin, hide your sin, or bring your sin to Jesus?",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -399,19 +414,23 @@
       "soap": [
         {
           "id": "pc3-w04-s1",
-          "text": "2 Timothy 3:14–17"
+          "text": "2 Timothy 3:14–17",
+          "requiresNote": true
         },
         {
           "id": "pc3-w04-s2",
-          "text": "Psalm 119:9–16"
+          "text": "Psalm 119:9–16",
+          "requiresNote": true
         },
         {
           "id": "pc3-w04-s3",
-          "text": "Hebrews 4:11–13"
+          "text": "Hebrews 4:11–13",
+          "requiresNote": true
         },
         {
           "id": "pc3-w04-s4",
-          "text": "Luke 24:36–49"
+          "text": "Luke 24:36–49",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -438,7 +457,8 @@
         },
         {
           "id": "pc3-w04-c2",
-          "text": "Pick a fifth chapter of Scripture to SOAP this week. If you need inspiration, try Psalm 1."
+          "text": "Pick a fifth chapter of Scripture to SOAP this week. If you need inspiration, try Psalm 1.",
+          "requiresNote": true
         }
       ],
       "challengeReview": [
@@ -542,19 +562,23 @@
       "soap": [
         {
           "id": "pc3-w05-s1",
-          "text": "Matthew 6:5–13"
+          "text": "Matthew 6:5–13",
+          "requiresNote": true
         },
         {
           "id": "pc3-w05-s2",
-          "text": "Luke 11:1–13"
+          "text": "Luke 11:1–13",
+          "requiresNote": true
         },
         {
           "id": "pc3-w05-s3",
-          "text": "Ephesians 3:14–21"
+          "text": "Ephesians 3:14–21",
+          "requiresNote": true
         },
         {
           "id": "pc3-w05-s4",
-          "text": "Hebrews 4:14–16"
+          "text": "Hebrews 4:14–16",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -572,7 +596,8 @@
         },
         {
           "id": "pc3-w05-c2",
-          "text": "Make a list of prayer requests. Use the ACTS acronym to pray through your list three times this week. (Adoration, Confession, Thanksgiving, Supplication)"
+          "text": "Make a list of prayer requests. Use the ACTS acronym to pray through your list three times this week. (Adoration, Confession, Thanksgiving, Supplication)",
+          "requiresNote": true
         }
       ],
       "challengeReview": [
@@ -652,19 +677,23 @@
       "soap": [
         {
           "id": "pc3-w06-s1",
-          "text": "Psalm 95"
+          "text": "Psalm 95",
+          "requiresNote": true
         },
         {
           "id": "pc3-w06-s2",
-          "text": "Psalm 100"
+          "text": "Psalm 100",
+          "requiresNote": true
         },
         {
           "id": "pc3-w06-s3",
-          "text": "Colossians 3:12–17"
+          "text": "Colossians 3:12–17",
+          "requiresNote": true
         },
         {
           "id": "pc3-w06-s4",
-          "text": "Revelation 4:8–11"
+          "text": "Revelation 4:8–11",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -676,6 +705,7 @@
         {
           "id": "pc3-w06-c2",
           "text": "This week, pay attention to how you engage in corporate worship. Before gathering with the church, pray and ask God to help you come ready to receive from Him and encourage His people.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -776,19 +806,23 @@
       "soap": [
         {
           "id": "pc3-w07-s1",
-          "text": "John 13:31–35"
+          "text": "John 13:31–35",
+          "requiresNote": true
         },
         {
           "id": "pc3-w07-s2",
-          "text": "1 Corinthians 13:1–7"
+          "text": "1 Corinthians 13:1–7",
+          "requiresNote": true
         },
         {
           "id": "pc3-w07-s3",
-          "text": "Romans 12:9–21"
+          "text": "Romans 12:9–21",
+          "requiresNote": true
         },
         {
           "id": "pc3-w07-s4",
-          "text": "Acts 2:42–47"
+          "text": "Acts 2:42–47",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -921,19 +955,23 @@
       "soap": [
         {
           "id": "pc3-w08-s1",
-          "text": "James 5:13–20"
+          "text": "James 5:13–20",
+          "requiresNote": true
         },
         {
           "id": "pc3-w08-s2",
-          "text": "Psalm 32"
+          "text": "Psalm 32",
+          "requiresNote": true
         },
         {
           "id": "pc3-w08-s3",
-          "text": "Proverbs 28:13"
+          "text": "Proverbs 28:13",
+          "requiresNote": true
         },
         {
           "id": "pc3-w08-s4",
-          "text": "Galatians 6:1–10"
+          "text": "Galatians 6:1–10",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -945,6 +983,7 @@
         {
           "id": "pc3-w08-c2",
           "text": "This week, spend time asking the Holy Spirit to reveal any sin you have been hiding, minimizing, or carrying in shame and then confess it to another believer.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -1077,19 +1116,23 @@
       "soap": [
         {
           "id": "pc3-w09-s1",
-          "text": "Hebrews 10:19–25"
+          "text": "Hebrews 10:19–25",
+          "requiresNote": true
         },
         {
           "id": "pc3-w09-s2",
-          "text": "1 Thessalonians 5:1–11"
+          "text": "1 Thessalonians 5:1–11",
+          "requiresNote": true
         },
         {
           "id": "pc3-w09-s3",
-          "text": "Ephesians 4:25–32"
+          "text": "Ephesians 4:25–32",
+          "requiresNote": true
         },
         {
           "id": "pc3-w09-s4",
-          "text": "Philippians 1:3–11"
+          "text": "Philippians 1:3–11",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -1097,6 +1140,7 @@
         {
           "id": "pc3-w09-c1",
           "text": "This week, intentionally encourage three people.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -1199,19 +1243,23 @@
       "soap": [
         {
           "id": "pc3-w10-s1",
-          "text": "Romans 10:5–17"
+          "text": "Romans 10:5–17",
+          "requiresNote": true
         },
         {
           "id": "pc3-w10-s2",
-          "text": "Acts 1:1–11"
+          "text": "Acts 1:1–11",
+          "requiresNote": true
         },
         {
           "id": "pc3-w10-s3",
-          "text": "1 Peter 3:13–17"
+          "text": "1 Peter 3:13–17",
+          "requiresNote": true
         },
         {
           "id": "pc3-w10-s4",
-          "text": "Acts 8:26–40"
+          "text": "Acts 8:26–40",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -1223,6 +1271,7 @@
         {
           "id": "pc3-w10-c2",
           "text": "This week, pray for an opportunity to have a spiritual conversation with someone who does not yet know Jesus.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -1352,19 +1401,23 @@
       "soap": [
         {
           "id": "pc3-w11-s1",
-          "text": "2 Timothy 2:1–10"
+          "text": "2 Timothy 2:1–10",
+          "requiresNote": true
         },
         {
           "id": "pc3-w11-s2",
-          "text": "Matthew 28:16–20"
+          "text": "Matthew 28:16–20",
+          "requiresNote": true
         },
         {
           "id": "pc3-w11-s3",
-          "text": "Acts 11:19–26"
+          "text": "Acts 11:19–26",
+          "requiresNote": true
         },
         {
           "id": "pc3-w11-s4",
-          "text": "Titus 2:1–8"
+          "text": "Titus 2:1–8",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -1376,6 +1429,7 @@
         {
           "id": "pc3-w11-c2",
           "text": "This week, pray and ask God to show you one person you could intentionally help follow Jesus. Ask them to grab coffee, and consider what mentoring them could look like. This could be someone younger in the faith, someone newer to PC3, someone in your Huddle, someone in your City Group, or someone God has already placed in your life.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",
@@ -1475,19 +1529,23 @@
       "soap": [
         {
           "id": "pc3-w12-s1",
-          "text": "Mark 10:35–45"
+          "text": "Mark 10:35–45",
+          "requiresNote": true
         },
         {
           "id": "pc3-w12-s2",
-          "text": "1 Peter 4:7–11"
+          "text": "1 Peter 4:7–11",
+          "requiresNote": true
         },
         {
           "id": "pc3-w12-s3",
-          "text": "1 Corinthians 12:12–27"
+          "text": "1 Corinthians 12:12–27",
+          "requiresNote": true
         },
         {
           "id": "pc3-w12-s4",
-          "text": "Philippians 2:1–11"
+          "text": "Philippians 2:1–11",
+          "requiresNote": true
         }
       ],
       "challengeMode": "chooseOne",
@@ -1499,6 +1557,7 @@
         {
           "id": "pc3-w12-c2",
           "text": "This week, take one practical step to serve the church or someone around you.",
+          "requiresNote": true,
           "details": [
             {
               "type": "paragraph",

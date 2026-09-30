@@ -72,7 +72,20 @@
           }
         ]
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "For The King lets you attach photos of your journal pages to your notes.",
+          "cameraPermission": "For The King uses the camera to photograph your journal pages."
+        }
+      ],
+      [
+        "react-native-document-scanner-plugin",
+        {
+          "cameraPermission": "For The King uses the camera to scan your journal pages."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -23,11 +23,13 @@
       "journaling": [
         {
           "id": "w01-j1",
-          "text": "What usually pulls your attention away from Jesus?"
+          "text": "What usually pulls your attention away from Jesus?",
+          "requiresNote": true
         },
         {
           "id": "w01-j2",
-          "text": "What would a more abiding week look like in your actual schedule?"
+          "text": "What would a more abiding week look like in your actual schedule?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -49,7 +51,8 @@
         },
         {
           "id": "w01-c5",
-          "text": "Complete journaling"
+          "text": "Complete journaling",
+          "requiresNote": true
         }
       ],
       "careForTheBody": {
@@ -76,17 +79,20 @@
       "journaling": [
         {
           "id": "w02-j1",
-          "text": "Where do you feel pressure to prove yourself?"
+          "text": "Where do you feel pressure to prove yourself?",
+          "requiresNote": true
         },
         {
           "id": "w02-j2",
-          "text": "What truth about your identity in Christ do you most need to remember?"
+          "text": "What truth about your identity in Christ do you most need to remember?",
+          "requiresNote": true
         }
       ],
       "challenges": [
         {
           "id": "w02-c1",
-          "text": "Write three truths about your identity in Christ"
+          "text": "Write three truths about your identity in Christ",
+          "requiresNote": true
         },
         {
           "id": "w02-c2",
@@ -125,11 +131,13 @@
       "journaling": [
         {
           "id": "w03-j1",
-          "text": "What habit currently gets more of your attention than it deserves?"
+          "text": "What habit currently gets more of your attention than it deserves?",
+          "requiresNote": true
         },
         {
           "id": "w03-j2",
-          "text": "What specific change would make faithfulness easier this week?"
+          "text": "What specific change would make faithfulness easier this week?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -174,11 +182,13 @@
       "journaling": [
         {
           "id": "w04-j1",
-          "text": "Where is your life most compartmentalized?"
+          "text": "Where is your life most compartmentalized?",
+          "requiresNote": true
         },
         {
           "id": "w04-j2",
-          "text": "What would it look like to practice the presence of Christ in one ordinary responsibility?"
+          "text": "What would it look like to practice the presence of Christ in one ordinary responsibility?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -259,11 +269,13 @@
       "journaling": [
         {
           "id": "w06-j1",
-          "text": "Where are you most isolated right now?"
+          "text": "Where are you most isolated right now?",
+          "requiresNote": true
         },
         {
           "id": "w06-j2",
-          "text": "What is one step toward deeper brotherhood you can take?"
+          "text": "What is one step toward deeper brotherhood you can take?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -308,11 +320,13 @@
       "journaling": [
         {
           "id": "w07-j1",
-          "text": "What are you most tempted to hide?"
+          "text": "What are you most tempted to hide?",
+          "requiresNote": true
         },
         {
           "id": "w07-j2",
-          "text": "What would honest, appropriate confession look like this week?"
+          "text": "What would honest, appropriate confession look like this week?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -357,11 +371,13 @@
       "journaling": [
         {
           "id": "w08-j1",
-          "text": "How do you normally respond when someone corrects you?"
+          "text": "How do you normally respond when someone corrects you?",
+          "requiresNote": true
         },
         {
           "id": "w08-j2",
-          "text": "What blind spot would you be willing to ask a brother about?"
+          "text": "What blind spot would you be willing to ask a brother about?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -406,11 +422,13 @@
       "journaling": [
         {
           "id": "w09-j1",
-          "text": "What do your wife or children experience from you when you are stressed?"
+          "text": "What do your wife or children experience from you when you are stressed?",
+          "requiresNote": true
         },
         {
           "id": "w09-j2",
-          "text": "What is one small way you can love your family intentionally this week?"
+          "text": "What is one small way you can love your family intentionally this week?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -487,11 +505,13 @@
       "journaling": [
         {
           "id": "w11-j1",
-          "text": "What does your work reveal about what you value?"
+          "text": "What does your work reveal about what you value?",
+          "requiresNote": true
         },
         {
           "id": "w11-j2",
-          "text": "What one work habit needs to change?"
+          "text": "What one work habit needs to change?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -536,11 +556,13 @@
       "journaling": [
         {
           "id": "w12-j1",
-          "text": "What physical habit most affects your spiritual life?"
+          "text": "What physical habit most affects your spiritual life?",
+          "requiresNote": true
         },
         {
           "id": "w12-j2",
-          "text": "What is one realistic change you can sustain?"
+          "text": "What is one realistic change you can sustain?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -585,11 +607,13 @@
       "journaling": [
         {
           "id": "w13-j1",
-          "text": "Where are your predictable moments of vulnerability?"
+          "text": "Where are your predictable moments of vulnerability?",
+          "requiresNote": true
         },
         {
           "id": "w13-j2",
-          "text": "What boundary or replacement habit would make faithfulness easier?"
+          "text": "What boundary or replacement habit would make faithfulness easier?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -634,11 +658,13 @@
       "journaling": [
         {
           "id": "w14-j1",
-          "text": "Where are you most tempted to act like an owner rather than a steward?"
+          "text": "Where are you most tempted to act like an owner rather than a steward?",
+          "requiresNote": true
         },
         {
           "id": "w14-j2",
-          "text": "What one resource can you steward more faithfully this week?"
+          "text": "What one resource can you steward more faithfully this week?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -719,11 +745,13 @@
       "journaling": [
         {
           "id": "w16-j1",
-          "text": "Who has God already placed around you?"
+          "text": "Who has God already placed around you?",
+          "requiresNote": true
         },
         {
           "id": "w16-j2",
-          "text": "Which man could benefit from a regular relationship with you?"
+          "text": "Which man could benefit from a regular relationship with you?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -768,11 +796,13 @@
       "journaling": [
         {
           "id": "w17-j1",
-          "text": "Who discipled you most effectively, and what did they actually do?"
+          "text": "Who discipled you most effectively, and what did they actually do?",
+          "requiresNote": true
         },
         {
           "id": "w17-j2",
-          "text": "What is one rhythm you could reproduce with another man?"
+          "text": "What is one rhythm you could reproduce with another man?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -817,11 +847,13 @@
       "journaling": [
         {
           "id": "w18-j1",
-          "text": "What kind of man do you hope another man becomes because of your investment?"
+          "text": "What kind of man do you hope another man becomes because of your investment?",
+          "requiresNote": true
         },
         {
           "id": "w18-j2",
-          "text": "What would multiplication look like beyond this one relationship?"
+          "text": "What would multiplication look like beyond this one relationship?",
+          "requiresNote": true
         }
       ],
       "challenges": [
@@ -866,11 +898,13 @@
       "journaling": [
         {
           "id": "w19-j1",
-          "text": "Where are you most vulnerable to drifting?"
+          "text": "Where are you most vulnerable to drifting?",
+          "requiresNote": true
         },
         {
           "id": "w19-j2",
-          "text": "What relationship or rhythm will help you remain faithful?"
+          "text": "What relationship or rhythm will help you remain faithful?",
+          "requiresNote": true
         }
       ],
       "challenges": [

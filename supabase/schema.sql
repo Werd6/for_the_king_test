@@ -133,7 +133,7 @@ create table if not exists public.memberships (
 
 create index if not exists memberships_huddle_id_idx on public.memberships (huddle_id);
 
--- Checkmarks only (no journal / prayer text)
+-- Checkmarks only. Journal notes live in journal_notes / journal_photos (see the end of this file).
 create table if not exists public.progress (
   id uuid primary key default gen_random_uuid(),
   huddle_id uuid not null references public.huddles (id) on delete cascade,

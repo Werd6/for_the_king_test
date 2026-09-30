@@ -59,6 +59,8 @@ export const STORAGE_KEYS = {
   memberships: 'ftk.memberships',
   progress: 'ftk.progress',
   picks: 'ftk.picks',
+  journalNotes: 'ftk.journalNotes',
+  journalPhotos: 'ftk.journalPhotos',
 };
 
 export async function readJson<T>(key: string, fallback: T): Promise<T> {

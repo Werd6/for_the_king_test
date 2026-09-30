@@ -51,6 +51,17 @@ Other pathways live in `content/pathways/<id>/` (`pathway.json`, `theme.json`, `
 
 Weeks with `study` content (quotes, article) and pathways with `resources` (guide pages) get a **Study** tab. Guide pages need `supabase/migrations/003_pathway_resources.sql`.
 
+Items that take journal notes have `requiresNote: true`. The converters tag For The King journaling items and Focuses SOAP passages automatically; tag any other item by ending its line in the markdown with `[note]`. After changing tags on a pathway that huddles already use, republish into the same version (item ids don't change), e.g. `npm run publish:pathway -- --version 1`.
+
+## Journal notes
+
+Members can attach typed notes and photos (or scans, in native builds) to tagged items. Leaders control two huddle settings in Settings → Journal notes:
+
+- **Optional / Required** (default Optional). When required, tagged items can't be checked off without 10+ non-space characters or a photo. The database enforces this too.
+- **Private / Shared with huddle** (default Private). Each note keeps the setting from when it was last saved. Shared notes can be read from the Progress tab.
+
+Needs `supabase/migrations/004_journaling.sql` (tables, row-level security, the private `journal` storage bucket, and the check-off rule). Until it's run, the app works as before without notes.
+
 ## Pathway theme
 
 Each pathway's look lives in `content/theme.json` (light + dark colors, corner radii, spacing scale, logos, browser tab icon/title, home-screen icon key). Image files go in `content/assets/`.
@@ -64,7 +75,7 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).
 - **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
-- **Leader:** advance week, Leader Materials / Guide / pool, dissolve, meeting time & location.
+- **Leader:** advance week, view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
 
 ## Store checklist

@@ -282,7 +282,7 @@ That’s why we must begin here. Before we articulate the Gospel, apply the Gosp
 *(Choose one option to complete this week)*
 
 - Memorize Ephesians 2:4–5.
-- Write one to two paragraphs describing what the Gospel is and how it has impacted your life. If you do not think it has yet, write about how you have seen it impact others around you.
+- Write one to two paragraphs describing what the Gospel is and how it has impacted your life. If you do not think it has yet, write about how you have seen it impact others around you. [note]
 
 #### Discipleship Questions
 
@@ -359,7 +359,7 @@ The Gospel is too precious to leave blurry. God has given us good news worth und
 *(Choose one option to complete this week)*
 
 - Practice articulating the Gospel out loud using one clear framework: Ruler, Rebellion, Rescue, Response.
-- Write your Gospel explanation in your own words. Bring it to your next Huddle and practice sharing it with one another.
+- Write your Gospel explanation in your own words. Bring it to your next Huddle and practice sharing it with one another. [note]
 
 #### Discipleship Questions
 
@@ -432,7 +432,7 @@ The Gospel is not just what we believe. It is what we apply. In our guilt, shame
 *(Choose one option to complete this week)*
 
 - Memorize Romans 8:1.
-- This week, pay attention to how you respond when you sin. Do you tend to minimize your sin, maximize your sin, hide your sin, or bring your sin to Jesus?
+- This week, pay attention to how you respond when you sin. Do you tend to minimize your sin, maximize your sin, hide your sin, or bring your sin to Jesus? [note]
 
   Choose one specific sin or struggle and journal through the following questions:
 
@@ -540,7 +540,7 @@ The Gospel keeps us from reading Scripture as a way to prove ourselves. We do no
   3. SOAP through the passage.
   4. Pray: Thank God for the truth of His Word, pray for retention of the truth, and ask the Lord how to apply what you have learned.
 
-- Pick a fifth chapter of Scripture to SOAP this week. If you need inspiration, try Psalm 1.
+- Pick a fifth chapter of Scripture to SOAP this week. If you need inspiration, try Psalm 1. [note]
 
 #### Discipleship Questions
 
@@ -626,7 +626,7 @@ The Gospel keeps prayer from becoming either prideful or hopeless. We do not pra
   >
   > (Matthew 6:9–13, ESV)
 
-- Make a list of prayer requests. Use the ACTS acronym to pray through your list three times this week. (Adoration, Confession, Thanksgiving, Supplication)
+- Make a list of prayer requests. Use the ACTS acronym to pray through your list three times this week. (Adoration, Confession, Thanksgiving, Supplication) [note]
 
 #### Discipleship Questions
 
@@ -699,7 +699,7 @@ Corporate worship trains us to see God as worthy. Week after week, we gather, li
 *(Choose one option to complete this week)*
 
 - Memorize Colossians 3:16.
-- This week, pay attention to how you engage in corporate worship. Before gathering with the church, pray and ask God to help you come ready to receive from Him and encourage His people.
+- This week, pay attention to how you engage in corporate worship. Before gathering with the church, pray and ask God to help you come ready to receive from Him and encourage His people. [note]
 
   Take notes during the sermon. How does this impact what you take away?
 
@@ -897,7 +897,7 @@ In a community shaped by the Gospel, confession can become regular and normal. W
 *(Choose one option to complete this week)*
 
 - Memorize James 5:16.
-- This week, spend time asking the Holy Spirit to reveal any sin you have been hiding, minimizing, or carrying in shame and then confess it to another believer.
+- This week, spend time asking the Holy Spirit to reveal any sin you have been hiding, minimizing, or carrying in shame and then confess it to another believer. [note]
 
   Journal through the following questions:
 
@@ -980,7 +980,7 @@ A community shaped by the Gospel is filled with words that give life. We want to
 
 *(Choose one option to complete this week)*
 
-- This week, intentionally encourage three people.
+- This week, intentionally encourage three people. [note]
 
   Try to make each encouragement specific, Christ-centered, and sincere.
 
@@ -1079,7 +1079,7 @@ A healthy disciple looks for opportunities to move toward others with the Gospel
 *(Choose one option to complete this week)*
 
 - Text a friend who does not yet follow Jesus. Ask about their thoughts on spirituality. If the opportunity comes up, invite them to coffee or a church gathering.
-- This week, pray for an opportunity to have a spiritual conversation with someone who does not yet know Jesus.
+- This week, pray for an opportunity to have a spiritual conversation with someone who does not yet know Jesus. [note]
 
   Before the conversation, pray that God would give you love, courage, clarity, and dependence on the Holy Spirit.
 
@@ -1166,7 +1166,7 @@ Do not wait until you feel like an expert. Ask God to place one person on your h
 *(Choose one option to complete this week)*
 
 - Memorize Matthew 28:18–20.
-- This week, pray and ask God to show you one person you could intentionally help follow Jesus. Ask them to grab coffee, and consider what mentoring them could look like. This could be someone younger in the faith, someone newer to PC3, someone in your Huddle, someone in your City Group, or someone God has already placed in your life.
+- This week, pray and ask God to show you one person you could intentionally help follow Jesus. Ask them to grab coffee, and consider what mentoring them could look like. This could be someone younger in the faith, someone newer to PC3, someone in your Huddle, someone in your City Group, or someone God has already placed in your life. [note]
 
   Journal through the following questions:
 
@@ -1249,7 +1249,7 @@ Finally, the Gospel frees us to serve without needing to be noticed. In Christ, 
 *(Choose one option to complete this week)*
 
 - Memorize Mark 10:45.
-- This week, take one practical step to serve the church or someone around you.
+- This week, take one practical step to serve the church or someone around you. [note]
 
   Choose one of the following:
 

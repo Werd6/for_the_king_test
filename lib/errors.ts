@@ -8,6 +8,7 @@ const FRIENDLY: [RegExp, string][] = [
   [/user already registered/i, 'An account with this email already exists. Try signing in.'],
   [/rate limit|too many requests/i, 'Too many attempts. Please wait a minute and try again.'],
   [/jwt expired|invalid jwt|refresh token/i, 'Your session expired. Please sign in again.'],
+  [/NOTE_REQUIRED/, 'Add your notes before checking this off.'],
   [
     /new password should be different/i,
     'Your new password must be different from your old one.',

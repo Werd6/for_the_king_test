@@ -158,6 +158,24 @@ Second pathway from Providence Church. Adds weekly quotes/article reading and pa
 - [ ] Confirm permission from Providence Church to adapt the guide into the app
 - [ ] High-res (1024×1024) PC3 logo for a native home-screen icon
 
+---
+
+## Feature — On-platform journaling
+
+Typed notes and journal photos/scans on journaling and SOAP items, with leader settings.
+
+- [x] `requiresNote` tag on items (auto for journaling / SOAP, `[note]` marker for others); both pathways regenerated
+- [x] Migration `supabase/migrations/004_journaling.sql` — huddle `settings`, `journal_notes`, `journal_photos`, RLS, private `journal` bucket, check-off rule
+- [x] Notes sheet on This Week (text, photos, scanner in native builds) with the privacy notice
+- [x] Leader settings: notes Optional / Required (default Optional), Private / Shared with huddle (default Private)
+- [x] Shared notes viewable from Progress (this week and past weeks)
+- [x] Photo cleanup on account deletion and huddle dissolve
+- [ ] Run `supabase/migrations/004_journaling.sql` in Supabase → SQL Editor
+- [ ] Republish both pathways into their current version so pinned huddles get the tags:
+  `npm run publish:pathway -- --version 1` and `npm run publish:pathway -- --pathway pc3-focuses --version 1`
+- [ ] Native build to try the document scanner (Expo Go falls back to the camera)
+- [ ] Update the App Privacy / Data Safety forms for journal text and photos
+
 
 ---
 

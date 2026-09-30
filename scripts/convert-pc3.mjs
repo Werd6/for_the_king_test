@@ -163,12 +163,20 @@ function parseOptions(lines, weekNo) {
   }
   return items.map((it, idx) => {
     const details = parseBlocks(it.body);
+    const { text, requiresNote } = noteMarker(it.text);
     return {
       id: `pc3-w${String(weekNo).padStart(2, '0')}-c${idx + 1}`,
-      text: it.text,
+      text,
+      ...(requiresNote ? { requiresNote } : {}),
       ...(details.length ? { details } : {}),
     };
   });
+}
+
+/** A trailing `[note]` marks an item that asks the member to write something down. */
+function noteMarker(raw) {
+  const m = raw.match(/^(.*?)\s*\[note\]\s*$/);
+  return m ? { text: m[1], requiresNote: true } : { text: raw, requiresNote: false };
 }
 
 const listItems = (lines) =>
@@ -240,7 +248,7 @@ for (const section of sections) {
         intro: definition,
         reading: soapPassages.join('; '),
         discuss: listItems(sub('Discipleship Questions')),
-        soap: soapPassages.map((p, n) => ({ id: `pc3-w${pad}-s${n + 1}`, text: p })),
+        soap: soapPassages.map((p, n) => ({ id: `pc3-w${pad}-s${n + 1}`, text: p, requiresNote: true })),
         challengeMode: 'chooseOne',
         challenges: parseOptions(sub('Discipleship Challenge Options'), weekNumber),
         challengeReview: listItems(sub('Discipleship Challenge Review')),
