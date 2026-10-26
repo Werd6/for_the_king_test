@@ -77,7 +77,8 @@
         "expo-image-picker",
         {
           "photosPermission": "For The King lets you attach photos of your journal pages to your notes.",
-          "cameraPermission": "For The King uses the camera to photograph your journal pages."
+          "cameraPermission": "For The King uses the camera to photograph your journal pages.",
+          "microphonePermission": false
         }
       ],
       [
@@ -92,8 +93,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "replace-with-eas-project-id"
+        "projectId": "04d773b3-0680-4fe5-956d-2854cb832f01"
       }
-    }
+    },
+    "owner": "bespoketechnical"
   }
 }
