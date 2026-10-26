@@ -2,6 +2,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
 import type { ComponentProps } from 'react';
 import { Pressable, type ColorValue } from 'react-native';
+import { LeaderTourProvider } from '@/components/LeaderTour';
 import { useAuth } from '@/lib/AuthContext';
 import { hasStudyContent } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
@@ -50,51 +51,53 @@ export default function AppLayout() {
   const hidden = { href: null, headerLeft: () => <BackButton color={colors.ink} /> } as const;
 
   return (
-    <Tabs
-      backBehavior="history"
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.ink,
-        headerTitleStyle: { fontWeight: '700', color: colors.ink },
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.muted,
-        },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.mutedText,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'This Week',
-          tabBarIcon: tabIcon('calendar', 'calendar', 'calendar_today'),
+    <LeaderTourProvider>
+      <Tabs
+        backBehavior="history"
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.bg },
+          headerTintColor: colors.ink,
+          headerTitleStyle: { fontWeight: '700', color: colors.ink },
+          tabBarStyle: {
+            backgroundColor: colors.surface,
+            borderTopColor: colors.muted,
+          },
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.mutedText,
         }}
-      />
-      <Tabs.Screen
-        name="study"
-        options={{
-          title: 'Study',
-          href: showStudy ? undefined : null,
-          tabBarIcon: tabIcon('book', 'book.fill', 'menu_book'),
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: 'Progress',
-          tabBarIcon: tabIcon('checkmark.circle', 'checkmark.circle.fill', 'task_alt'),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{ title: 'Settings', tabBarIcon: tabIcon('gearshape', 'gearshape.fill', 'settings') }}
-      />
-      <Tabs.Screen name="guide" options={{ title: 'Guide', ...hidden }} />
-      <Tabs.Screen name="leader-guide" options={{ title: 'Leader Guide', ...hidden }} />
-      <Tabs.Screen name="leader-materials" options={{ title: 'Leader Materials', ...hidden }} />
-      <Tabs.Screen name="challenge-pool" options={{ title: 'Challenge Pool', ...hidden }} />
-      <Tabs.Screen name="meetings" options={{ title: 'Meetings', ...hidden }} />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'This Week',
+            tabBarIcon: tabIcon('calendar', 'calendar', 'calendar_today'),
+          }}
+        />
+        <Tabs.Screen
+          name="study"
+          options={{
+            title: 'Study',
+            href: showStudy ? undefined : null,
+            tabBarIcon: tabIcon('book', 'book.fill', 'menu_book'),
+          }}
+        />
+        <Tabs.Screen
+          name="progress"
+          options={{
+            title: 'Progress',
+            tabBarIcon: tabIcon('checkmark.circle', 'checkmark.circle.fill', 'task_alt'),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{ title: 'Settings', tabBarIcon: tabIcon('gearshape', 'gearshape.fill', 'settings') }}
+        />
+        <Tabs.Screen name="guide" options={{ title: 'Guide', ...hidden }} />
+        <Tabs.Screen name="leader-guide" options={{ title: 'Leader Guide', ...hidden }} />
+        <Tabs.Screen name="leader-materials" options={{ title: 'Leader Materials', ...hidden }} />
+        <Tabs.Screen name="challenge-pool" options={{ title: 'Challenge Pool', ...hidden }} />
+        <Tabs.Screen name="meetings" options={{ title: 'Meetings', ...hidden }} />
+      </Tabs>
+    </LeaderTourProvider>
   );
 }

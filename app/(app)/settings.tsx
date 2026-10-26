@@ -9,6 +9,7 @@ import {
   SettingsSegmented,
   Title,
 } from '@/components/ui';
+import { useLeaderTour } from '@/components/LeaderTour';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import {
   deleteAccount,
@@ -34,6 +35,7 @@ export default function SettingsScreen() {
   const { userId, profile, huddle, isLeader, refresh, signOut } = useAuth();
   const { pathway } = useContent();
   const { preference, setPreference } = useTheme();
+  const { openTour } = useLeaderTour();
   const router = useRouter();
   const [name, setName] = useState(profile?.display_name ?? '');
   const [busy, setBusy] = useState(false);
@@ -219,6 +221,12 @@ export default function SettingsScreen() {
 
         {isLeader ? (
           <>
+            <SettingsGroup
+              label="Leader tour"
+              footer="A quick walkthrough of inviting brothers, Leader Materials, Progress, and advancing the week."
+            >
+              <SettingsRow label="Replay leader tour" onPress={openTour} />
+            </SettingsGroup>
             <SettingsGroup
               label="Journal notes"
               footer={
