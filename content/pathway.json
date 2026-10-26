@@ -35,11 +35,13 @@
       "challenges": [
         {
           "id": "w01-c1",
-          "text": "Read John 15 each day"
+          "text": "Read John 15 each day",
+          "days": 7
         },
         {
           "id": "w01-c2",
-          "text": "Pray for 5–10 minutes each day"
+          "text": "Pray for 5–10 minutes each day",
+          "days": 7
         },
         {
           "id": "w01-c3",
@@ -57,7 +59,8 @@
       ],
       "careForTheBody": {
         "id": "w01-body",
-        "text": "Get outside for 15–20 minutes of morning or midday sunlight at least 4 days this week. Treat your body as something entrusted to you, not something separate from discipleship."
+        "text": "Get outside for 15–20 minutes of morning or midday sunlight at least 4 days this week. Treat your body as something entrusted to you, not something separate from discipleship.",
+        "days": 4
       }
     },
     {
@@ -104,7 +107,8 @@
         },
         {
           "id": "w02-c4",
-          "text": "Pray before one major task each day"
+          "text": "Pray before one major task each day",
+          "days": 7
         }
       ],
       "careForTheBody": {
@@ -194,7 +198,8 @@
       "challenges": [
         {
           "id": "w04-c1",
-          "text": "Pray over one life area each day"
+          "text": "Pray over one life area each day",
+          "days": 7
         },
         {
           "id": "w04-c2",
@@ -211,7 +216,8 @@
       ],
       "careForTheBody": {
         "id": "w04-body",
-        "text": "Set a consistent bedtime and wake time for at least 5 nights. Protect 7+ hours of sleep if your season allows."
+        "text": "Set a consistent bedtime and wake time for at least 5 nights. Protect 7+ hours of sleep if your season allows.",
+        "days": 5
       }
     },
     {
@@ -400,7 +406,8 @@
       ],
       "careForTheBody": {
         "id": "w08-body",
-        "text": "Do a simple mobility routine for 10 minutes on at least 5 days. Include hips, shoulders, back, and ankles. The goal is caring for the body you will steward for decades."
+        "text": "Do a simple mobility routine for 10 minutes on at least 5 days. Include hips, shoulders, back, and ankles. The goal is caring for the body you will steward for decades.",
+        "days": 5
       }
     },
     {
@@ -636,7 +643,8 @@
       ],
       "careForTheBody": {
         "id": "w13-body",
-        "text": "Prioritize sleep and remove screens 30–60 minutes before bed on at least 4 nights. Use that time for prayer, reading, or conversation."
+        "text": "Prioritize sleep and remove screens 30–60 minutes before bed on at least 4 nights. Use that time for prayer, reading, or conversation.",
+        "days": 4
       }
     },
     {

@@ -18,6 +18,7 @@ import {
   type NotesSheetItem,
   type NotesSheetResult,
 } from '@/components/NotesSheet';
+import { DayCheckboxes } from '@/components/DayCheckboxes';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import { StudyBlocks } from '@/components/StudyBlocks';
 import {
@@ -30,7 +31,7 @@ import {
 } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
-import { isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
+import { dayItemId, isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
 import { typography } from '@/lib/theme';
@@ -53,9 +54,9 @@ export default function WeekHomeScreen() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
-  const [sheetItem, setSheetItem] = useState<(NotesSheetItem & { requiresNote: boolean }) | null>(
-    null
-  );
+  const [sheetItem, setSheetItem] = useState<
+    (NotesSheetItem & { requiresNote: boolean; days?: number; pendingDay?: number }) | null
+  >(null);
 
   const load = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -105,30 +106,75 @@ export default function WeekHomeScreen() {
     return note ? weekNotes.photos.filter((p) => p.note_id === note.id) : [];
   }
 
-  function openNotes(item: ChallengeItem, isSoap: boolean) {
+  function openNotes(item: ChallengeItem, isSoap: boolean, pendingDay?: number) {
     setSheetItem({
       id: item.id,
       text: item.text,
       isSoap,
       requiresNote: Boolean(item.requiresNote),
+      days: item.days,
+      pendingDay,
     });
   }
 
+  function needsNoteFirst(item: ChallengeItem) {
+    if (!notesRequired || !item.requiresNote) return false;
+    const note = myNote(item.id);
+    return !noteMeetsRequirement(note?.body ?? '', myNotePhotos(item.id).length);
+  }
+
   function onCheck(item: ChallengeItem, next: boolean, isSoap: boolean) {
-    if (next && notesRequired && item.requiresNote) {
-      const note = myNote(item.id);
-      if (!noteMeetsRequirement(note?.body ?? '', myNotePhotos(item.id).length)) {
-        openNotes(item, isSoap);
-        return;
-      }
+    if (next && needsNoteFirst(item)) {
+      openNotes(item, isSoap);
+      return;
     }
     toggle(item.id, next);
+  }
+
+  function onCheckDay(item: ChallengeItem, day: number, next: boolean, isSoap: boolean) {
+    if (next && needsNoteFirst(item)) {
+      openNotes(item, isSoap, day);
+      return;
+    }
+    toggleDay(item, day, next);
+  }
+
+  /** Daily items save one row per day. A whole-item check from before is split into days first. */
+  async function toggleDay(item: ChallengeItem, day: number, next: boolean) {
+    if (!huddle || !userId || !item.days) return;
+    if (!myCompleted.has(item.id)) {
+      await toggle(dayItemId(item.id, day), next);
+      return;
+    }
+    setSavingId(item.id);
+    try {
+      const base = { huddleId: huddle.id, userId, week: huddle.current_week };
+      for (let d = 1; d <= item.days; d++) {
+        if (d !== day || next) {
+          await setProgress({ ...base, itemId: dayItemId(item.id, d), completed: true });
+        }
+      }
+      await setProgress({ ...base, itemId: item.id, completed: false });
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not update'));
+    } finally {
+      await load({ silent: true }).catch(() => {});
+      setSavingId(null);
+    }
   }
 
   async function onNotesFinished(result: NotesSheetResult) {
     const item = sheetItem;
     setSheetItem(null);
     if (!item) return;
+    if (item.days) {
+      if (result.complete && item.pendingDay != null) {
+        await toggleDay(item, item.pendingDay, true);
+      } else {
+        await load({ silent: true }).catch(() => {});
+      }
+      return;
+    }
     const checked = myCompleted.has(item.id);
     if (result.complete && !checked) {
       await toggle(item.id, true);
@@ -144,13 +190,26 @@ export default function WeekHomeScreen() {
     const isSoap = Boolean(opts?.isSoap);
     const note = myNote(item.id);
     const hasNote = Boolean(note && (note.body.trim() || myNotePhotos(item.id).length));
+    const days = item.days;
     return (
       <>
-        <CheckboxRow
-          label={savingId === item.id ? `${label} (saving…)` : label}
-          checked={myCompleted.has(item.id)}
-          onToggle={(next) => onCheck(item, next, isSoap)}
-        />
+        {days ? (
+          <DayCheckboxes
+            label={label}
+            days={days}
+            isChecked={(day) =>
+              myCompleted.has(item.id) || myCompleted.has(dayItemId(item.id, day))
+            }
+            onToggleDay={(day, next) => onCheckDay(item, day, next, isSoap)}
+            saving={savingId === item.id || Boolean(savingId?.startsWith(`${item.id}@d`))}
+          />
+        ) : (
+          <CheckboxRow
+            label={savingId === item.id ? `${label} (saving…)` : label}
+            checked={myCompleted.has(item.id)}
+            onToggle={(next) => onCheck(item, next, isSoap)}
+          />
+        )}
         {item.requiresNote ? (
           <Pressable
             accessibilityRole="button"
@@ -358,7 +417,9 @@ export default function WeekHomeScreen() {
         {week.careForTheBody ? (
           <Card title="Care for the Body">
             <Body>{week.careForTheBody.text}</Body>
-            {itemRow(week.careForTheBody, { label: 'Completed care for the body' })}
+            {itemRow(week.careForTheBody, {
+              label: week.careForTheBody.days ? 'Care for the body' : 'Completed care for the body',
+            })}
           </Card>
         ) : null}
         <FeedbackLink />
@@ -370,7 +431,13 @@ export default function WeekHomeScreen() {
         week={huddle.current_week}
         visibility={huddle.settings.notesVisibility}
         required={notesRequired && Boolean(sheetItem?.requiresNote)}
-        completed={sheetItem ? myCompleted.has(sheetItem.id) : false}
+        completed={
+          sheetItem
+            ? sheetItem.days
+              ? sheetItem.pendingDay == null
+              : myCompleted.has(sheetItem.id)
+            : false
+        }
         note={sheetItem ? myNote(sheetItem.id) : null}
         photos={sheetItem ? myNotePhotos(sheetItem.id) : []}
         onFinish={onNotesFinished}

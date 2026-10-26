@@ -46,10 +46,32 @@ function bullets(section) {
     .filter(Boolean);
 }
 
-/** A trailing `[note]` marks an item that asks the member to write something down. */
-function noteMarker(raw) {
-  const m = raw.match(/^(.*?)\s*\[note\]\s*$/);
-  return m ? { text: m[1], requiresNote: true } : { text: raw, requiresNote: false };
+/**
+ * Trailing markers on an item: `[note]` asks the member to write something down;
+ * `[days N]` gives it N daily check boxes (`[days 0]` turns off detection).
+ * Without `[days N]`, wording like "each day" (7), "at least 4 days", "at least 5 nights", or "for 7 days" sets it.
+ */
+function itemMarkers(raw) {
+  let text = raw;
+  let requiresNote = false;
+  let days;
+  for (;;) {
+    const m = text.match(/^([\s\S]*?)\s*\[(note|days \d+)\]\s*$/);
+    if (!m) break;
+    text = m[1];
+    if (m[2] === 'note') requiresNote = true;
+    else days = Number(m[2].slice(5));
+  }
+  return { text, requiresNote, days: days ?? dayCount(text) };
+}
+
+function dayCount(text) {
+  const n =
+    text.match(/\bat least (\d+) (?:days|nights)\b/i) ??
+    text.match(/\bfor (\d+) (?:days|nights)\b/i) ??
+    text.match(/\b(\d+) (?:days|nights) (?:this|a) week\b/i);
+  if (n) return Math.min(Math.max(Number(n[1]), 0), 7) || undefined;
+  return /\b(each|every) day\b/i.test(text) ? 7 : undefined;
 }
 
 function sectionBody(text, heading) {
@@ -110,14 +132,19 @@ const weeks = weekBlocks.map((block) => {
   const talkingToGod = bullets(sectionBody(block, 'Talking to God'));
   const journaling = bullets(sectionBody(block, 'Journaling')).map((text, i) => ({
     id: `${weekId}-j${i + 1}`,
-    text: noteMarker(text).text,
+    text: itemMarkers(text).text,
     requiresNote: true,
   }));
   const challenges = bullets(sectionBody(block, "Week's Challenge")).map((raw, i) => {
-    const { text, requiresNote } = noteMarker(raw);
-    return { id: `${weekId}-c${i + 1}`, text, ...(requiresNote ? { requiresNote } : {}) };
+    const { text, requiresNote, days } = itemMarkers(raw);
+    return {
+      id: `${weekId}-c${i + 1}`,
+      text,
+      ...(requiresNote ? { requiresNote } : {}),
+      ...(days ? { days } : {}),
+    };
   });
-  const careText = sectionBody(block, 'Care for the Body');
+  const care = itemMarkers(sectionBody(block, 'Care for the Body'));
 
   return {
     weekNumber,
@@ -132,7 +159,8 @@ const weeks = weekBlocks.map((block) => {
     challenges,
     careForTheBody: {
       id: `${weekId}-body`,
-      text: careText,
+      text: care.text,
+      ...(care.days ? { days: care.days } : {}),
     },
   };
 });

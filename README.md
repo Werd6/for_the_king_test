@@ -51,7 +51,9 @@ Other pathways live in `content/pathways/<id>/` (`pathway.json`, `theme.json`, `
 
 Weeks with `study` content (quotes, article) and pathways with `resources` (guide pages) get a **Study** tab. Guide pages need `supabase/migrations/003_pathway_resources.sql`.
 
-Items that take journal notes have `requiresNote: true`. The converters tag For The King journaling items and Focuses SOAP passages automatically; tag any other item by ending its line in the markdown with `[note]`. After changing tags on a pathway that huddles already use, republish into the same version (item ids don't change), e.g. `npm run publish:pathway -- --version 1`.
+Items that take journal notes have `requiresNote: true`. The converters tag For The King journaling items and Focuses SOAP passages automatically; tag any other item by ending its line in the markdown with `[note]`.
+
+Daily items get one check box per day (Day 1…N), and each day counts as 1/N of the item in Progress. The converters set N from the wording ("each day" / "every day" → 7, "at least 4 days", "at least 5 nights", "for 7 days"); override with a trailing `[days N]` (or `[days 0]` to turn it off). After changing tags on a pathway that huddles already use, republish into the same version (item ids don't change), e.g. `npm run publish:pathway -- --version 1`.
 
 ## Journal notes
 

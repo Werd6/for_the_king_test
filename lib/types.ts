@@ -5,6 +5,8 @@ export type ChallengeItem = {
   text: string;
   /** Member writes something down for this item; huddles can require a note before checking it off. */
   requiresNote?: boolean;
+  /** Daily item: one check box per day (Day 1…N); each day earns 1/N of the item. */
+  days?: number;
   /** Follow-up steps shown under the item (e.g. journaling prompts for a challenge option). */
   details?: StudyBlock[];
 };

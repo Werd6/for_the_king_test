@@ -21,7 +21,15 @@ import {
   type WeekNotes,
 } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
-import { isGroupChallengeWeek, isStandardWeek, weekChecklist, weekCompletion } from '@/lib/content';
+import {
+  daysDone,
+  formatCount,
+  isGroupChallengeWeek,
+  isStandardWeek,
+  itemProgress,
+  weekChecklist,
+  weekCompletion,
+} from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
@@ -89,7 +97,7 @@ function MemberProgress({
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded }}
-        accessibilityLabel={`${name}, ${done} of ${total} done`}
+        accessibilityLabel={`${name}, ${formatCount(done)} of ${total} done`}
         onPress={onToggle}
         style={({ pressed }) => ({
           flexDirection: 'row',
@@ -102,7 +110,7 @@ function MemberProgress({
       >
         <Text style={{ ...typography.subtitle, color: colors.ink, flex: 1 }}>{name}</Text>
         <Text style={{ ...typography.label, color: colors.mutedText }}>
-          {done}/{total}
+          {formatCount(done)}/{total}
         </Text>
         <SymbolView
           name={{
@@ -130,13 +138,16 @@ function MemberProgress({
             <View key={group.title} style={{ gap: 6 }}>
               <Text style={{ ...typography.label, color: colors.mutedText }}>{group.title}</Text>
               {group.items.map((item) => {
-                const isDone = completed.has(item.id);
+                const fraction = itemProgress(item, completed);
+                const isDone = fraction >= 1;
+                const started = fraction > 0;
+                const dayCount = item.days ? `${daysDone(item, completed)}/${item.days} days` : null;
                 const shared = sharedNote?.(item.id);
                 return (
                   <View key={item.id} style={{ gap: 2 }}>
                     <View
                       accessible
-                      accessibilityLabel={`${item.text}: ${isDone ? 'done' : 'not done'}`}
+                      accessibilityLabel={`${item.text}: ${dayCount ?? (isDone ? 'done' : 'not done')}`}
                       style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}
                     >
                       <View
@@ -146,25 +157,48 @@ function MemberProgress({
                           marginTop: 1,
                           borderRadius: radii.sm,
                           borderWidth: 2,
-                          borderColor: isDone ? colors.primary : colors.muted,
+                          borderColor: started ? colors.primary : colors.muted,
                           backgroundColor: isDone ? colors.primary : 'transparent',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          overflow: 'hidden',
                         }}
                       >
                         {isDone ? (
                           <Text style={{ color: colors.onPrimary, fontSize: 12, fontWeight: '800' }}>✓</Text>
+                        ) : started ? (
+                          <View
+                            style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              height: `${Math.round(fraction * 100)}%`,
+                              backgroundColor: colors.primary,
+                            }}
+                          />
                         ) : null}
                       </View>
                       <Text
                         style={{
                           ...typography.body,
                           flex: 1,
-                          color: isDone ? colors.ink : colors.mutedText,
+                          color: started ? colors.ink : colors.mutedText,
                         }}
                       >
                         {item.text}
                       </Text>
+                      {dayCount ? (
+                        <Text
+                          style={{
+                            ...typography.label,
+                            color: isDone ? colors.primary : colors.mutedText,
+                            marginTop: 2,
+                          }}
+                        >
+                          {dayCount}
+                        </Text>
+                      ) : null}
                     </View>
                     {shared && onViewNote ? (
                       <Pressable

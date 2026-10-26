@@ -321,19 +321,12 @@ export function isStandardWeek(week: PathwayWeek): week is StandardWeek {
   return week.type === 'standard';
 }
 
-export function progressItemIdsForWeek(week: StandardWeek): string[] {
-  return [
-    ...week.challenges.map((c) => c.id),
-    ...(week.soap ?? []).map((s) => s.id),
-    ...(week.journaling ?? []).map((j) => j.id),
-    ...(week.careForTheBody ? [week.careForTheBody.id] : []),
-  ];
-}
-
-export type ChecklistGroup = { title: string; items: { id: string; text: string }[] };
+export type ChecklistItem = { id: string; text: string; days?: number };
+export type ChecklistGroup = { title: string; items: ChecklistItem[] };
 
 /** Checkable items grouped and ordered as on This Week. */
 export function weekChecklist(week: StandardWeek): ChecklistGroup[] {
+  const care = week.careForTheBody;
   const groups: ChecklistGroup[] = [
     { title: 'SOAP', items: week.soap ?? [] },
     { title: 'Journaling', items: week.journaling ?? [] },
@@ -343,26 +336,54 @@ export function weekChecklist(week: StandardWeek): ChecklistGroup[] {
     },
     {
       title: 'Care for the Body',
-      items: week.careForTheBody ? [{ id: week.careForTheBody.id, text: 'Care for the body' }] : [],
+      items: care ? [{ id: care.id, text: 'Care for the body', days: care.days }] : [],
     },
   ];
   return groups.filter((g) => g.items.length > 0);
 }
 
-/** Checkmarks done vs. possible; a `chooseOne` challenge counts once, done if any option is. */
+/** Progress row id for one day of a daily item. */
+export function dayItemId(itemId: string, day: number) {
+  return `${itemId}@d${day}`;
+}
+
+/** Days checked for a daily item. A single whole-item check (saved before it was daily) counts as every day. */
+export function daysDone(item: ChecklistItem, completedIds: ReadonlySet<string>) {
+  const days = item.days ?? 0;
+  if (completedIds.has(item.id)) return days;
+  let n = 0;
+  for (let d = 1; d <= days; d++) if (completedIds.has(dayItemId(item.id, d))) n++;
+  return n;
+}
+
+/** How much of an item is done, 0–1. Daily items earn 1/N per checked day. */
+export function itemProgress(item: ChecklistItem, completedIds: ReadonlySet<string>) {
+  if (completedIds.has(item.id)) return 1;
+  return item.days ? daysDone(item, completedIds) / item.days : 0;
+}
+
+/** Items done vs. possible (fractional for daily items); a `chooseOne` challenge counts once, scored by its best option. */
 export function weekCompletion(week: StandardWeek, completedIds: ReadonlySet<string>) {
-  const others = progressItemIdsForWeek(week).filter(
-    (id) => !week.challenges.some((c) => c.id === id)
-  );
-  const challengeDone = week.challenges.filter((c) => completedIds.has(c.id)).length;
+  const others: ChecklistItem[] = [
+    ...(week.soap ?? []),
+    ...(week.journaling ?? []),
+    ...(week.careForTheBody ? [week.careForTheBody] : []),
+  ];
+  const scores = week.challenges.map((c) => itemProgress(c, completedIds));
   const challenge =
     week.challengeMode === 'chooseOne'
-      ? { done: Math.min(challengeDone, 1), total: week.challenges.length ? 1 : 0 }
-      : { done: challengeDone, total: week.challenges.length };
+      ? { done: Math.max(0, ...scores), total: week.challenges.length ? 1 : 0 }
+      : { done: scores.reduce((a, b) => a + b, 0), total: week.challenges.length };
   return {
-    done: challenge.done + others.filter((id) => completedIds.has(id)).length,
+    done: challenge.done + others.reduce((sum, item) => sum + itemProgress(item, completedIds), 0),
     total: challenge.total + others.length,
   };
+}
+
+/** Whole numbers as-is, otherwise one decimal (e.g. 5.4). */
+export function formatCount(n: number) {
+  const rounded = Math.round(n * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
 /** Whether the Study tab has anything to show for this week / pathway. */
