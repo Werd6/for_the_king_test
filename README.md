@@ -72,7 +72,7 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 - `"fonts"`: `"system"` (the default for pathways, so existing themes keep their look) or `"go-and-make"` (Instrument Serif titles and quotes, DM Sans interface). Components read `fonts` and `typography` from `useTheme()`.
 - Themes are stored on the device with the content, so they work offline.
 - `npm run publish:pathway -- --theme-only` publishes just the theme (validates colors/contrast, embeds images, bumps `theme_version`). Requires `supabase/migrations/002_pathway_theme.sql`.
-- Home-screen icons: add a 1024×1024 icon + Android foreground to `assets/images/`, register it in the `expo-alternate-app-icons` plugin in `app.json`, add its name to `BUNDLED_ICONS` in `lib/appIcon.native.ts`, and set `iconKey` in the theme. Takes effect in the next native build.
+- Home-screen icons: add a 1024×1024 icon + Android foreground to `assets/images/`, register it in the `expo-alternate-app-icons` plugin in `app.json`, add its name to `BUNDLED_ICONS` in `lib/appIcon.native.ts`, and set `iconKey` in the theme. Takes effect in the next native build. On Android the icon changes once the user leaves the app, because Android closes an app whose launcher icon is switched while it's open.
 - Android notification icons: add a 96×96 white-on-transparent PNG to `assets/images/` and list it under the pathway id in the `./plugins/withPathwayNotificationIcons` entry in `app.json`. Takes effect in the next native build; until then that pathway's pushes use the default Go and Make icon.
 
 ## Notifications
