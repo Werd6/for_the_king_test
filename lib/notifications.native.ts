@@ -80,9 +80,12 @@ export async function disablePushNotifications() {
 
 /**
  * "Huddle is tomorrow at …", every week, 24 hours before the weekly meeting time.
- * `color` tints it on Android to match the pathway; the icon is always the build's default.
+ * On Android it uses the pathway's icon (plugins/withPathwayNotificationIcons.js) and `color`.
  */
-export async function scheduleMeetingReminder(meetings: MeetingInfo, color?: string) {
+export async function scheduleMeetingReminder(
+  meetings: MeetingInfo,
+  { pathwayId, color }: { pathwayId?: string; color?: string } = {}
+) {
   await cancelMeetingReminder();
   if (!meetings.time || !(await hasPermission())) return;
 
@@ -94,7 +97,11 @@ export async function scheduleMeetingReminder(meetings: MeetingInfo, color?: str
       title: `Huddle is tomorrow at ${time}`,
       body: meetings.location ?? undefined,
       color,
-      data: { url: '/meetings' },
+      // Read by our expo-notifications patch (patches/); falls back to the default icon.
+      data: {
+        url: '/meetings',
+        ...(pathwayId && { icon: `notification_icon_${pathwayId.replace(/-/g, '_')}` }),
+      },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.WEEKLY,

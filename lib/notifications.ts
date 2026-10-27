@@ -8,6 +8,9 @@ export async function enablePushNotifications(): Promise<void> {}
 
 export async function disablePushNotifications(): Promise<void> {}
 
-export async function scheduleMeetingReminder(_meetings: MeetingInfo, _color?: string): Promise<void> {}
+export async function scheduleMeetingReminder(
+  _meetings: MeetingInfo,
+  _options?: { pathwayId?: string; color?: string }
+): Promise<void> {}
 
 export async function cancelMeetingReminder(): Promise<void> {}

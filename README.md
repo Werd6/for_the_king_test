@@ -82,7 +82,7 @@ Native builds only (not the browser). Members get:
 - **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (every day, for daily items). Tapping it opens his progress.
 - **Huddle is tomorrow at {time}**, 24 hours before the weekly meeting. Scheduled on the device, so it works without Firebase.
 
-The first two are sent from the database through Expo's push service and use the huddle's pathway: week titles and item text come from its pinned content, and on Android the icon comes from its pathway. The reminder is tinted with the pathway's accent color.
+The first two are sent from the database through Expo's push service and use the huddle's pathway: week titles and item text come from its pinned content, and on Android the icon comes from its pathway. The reminder uses the pathway's icon and accent color. expo-notifications only applies a per-notification icon while the app is open because of `patches/expo-notifications+57.0.24.patch` (applied by `patch-package` on install); when upgrading expo-notifications, regenerate it with `npx patch-package expo-notifications` or drop it.
 
 Setup:
 

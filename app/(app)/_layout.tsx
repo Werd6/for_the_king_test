@@ -19,6 +19,7 @@ function Notifications() {
   const { colors } = useTheme();
   const accent = colors.accent;
   const huddleId = huddle?.id;
+  const pathwayId = huddle?.pathway_id;
   const meetingTime = huddle?.meetings.time ?? null;
   const meetingLocation = huddle?.meetings.location ?? null;
 
@@ -31,10 +32,11 @@ function Notifications() {
 
   useEffect(() => {
     if (!userId || !huddleId) return;
-    scheduleMeetingReminder({ time: meetingTime, location: meetingLocation }, accent).catch((e) =>
-      console.warn('Could not schedule the meeting reminder:', e)
-    );
-  }, [userId, huddleId, meetingTime, meetingLocation, accent]);
+    scheduleMeetingReminder(
+      { time: meetingTime, location: meetingLocation },
+      { pathwayId, color: accent }
+    ).catch((e) => console.warn('Could not schedule the meeting reminder:', e));
+  }, [userId, huddleId, pathwayId, meetingTime, meetingLocation, accent]);
 
   useEffect(
     () => () => {
