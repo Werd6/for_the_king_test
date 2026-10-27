@@ -104,8 +104,20 @@ export type Huddle = {
   current_week: number;
   meetings: MeetingInfo;
   settings: HuddleSettings;
+  /** Huddle Pass: when the leader started Week 1. The access window starts here. */
+  started_at?: string | null;
+  /** Weeks of access from `started_at`: ceil(pathway weeks x 1.2). */
+  access_weeks?: number | null;
+  /** Free huddle (grandfathered or comped); no passes needed. */
+  billing_exempt?: boolean;
   created_at: string;
 };
+
+/**
+ * The signed-in user's Huddle Pass status (`huddle_access` in the database).
+ * Only `active` and `exempt` can check off items, write notes or advance weeks.
+ */
+export type HuddleAccess = 'active' | 'exempt' | 'not_started' | 'unpaid' | 'expired' | 'none';
 
 export type NotesVisibility = 'private' | 'shared';
 

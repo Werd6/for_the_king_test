@@ -404,19 +404,26 @@ export function CheckboxRow({
   label,
   checked,
   onToggle,
+  disabled,
 }: {
   label: string;
   checked: boolean;
   onToggle: (next: boolean) => void;
+  disabled?: boolean;
 }) {
   const { styles } = useUiStyles();
   return (
     <Pressable
       accessibilityRole="checkbox"
       accessibilityLabel={label}
-      accessibilityState={{ checked }}
+      accessibilityState={{ checked, disabled: Boolean(disabled) }}
+      disabled={disabled}
       onPress={() => onToggle(!checked)}
-      style={({ pressed }) => [styles.checkRow, pressed && { opacity: 0.75 }]}
+      style={({ pressed }) => [
+        styles.checkRow,
+        pressed && { opacity: 0.75 },
+        disabled && { opacity: 0.55 },
+      ]}
     >
       <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
         {checked ? <Text style={styles.checkboxMark}>✓</Text> : null}

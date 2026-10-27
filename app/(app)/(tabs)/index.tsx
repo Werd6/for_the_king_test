@@ -19,6 +19,7 @@ import {
   type NotesSheetResult,
 } from '@/components/NotesSheet';
 import { DayCheckboxes } from '@/components/DayCheckboxes';
+import { HuddlePassCard } from '@/components/HuddlePassCard';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import { StudyBlocks } from '@/components/StudyBlocks';
 import {
@@ -43,7 +44,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 const NO_NOTES: WeekNotes = { notes: [], photos: [] };
 
 export default function WeekHomeScreen() {
-  const { huddle, userId, isLeader, refresh } = useAuth();
+  const { huddle, userId, isLeader, canEdit, refresh } = useAuth();
   const { getWeek, pathway, loading: contentLoading } = useContent();
   const { colors, fonts, typography } = useTheme();
   const router = useRouter();
@@ -165,7 +166,7 @@ export default function WeekHomeScreen() {
   async function onNotesFinished(result: NotesSheetResult) {
     const item = sheetItem;
     setSheetItem(null);
-    if (!item) return;
+    if (!item || !canEdit) return;
     if (item.days) {
       if (result.complete && item.pendingDay != null) {
         await toggleDay(item, item.pendingDay, true);
@@ -201,15 +202,17 @@ export default function WeekHomeScreen() {
             }
             onToggleDay={(day, next) => onCheckDay(item, day, next, isSoap)}
             saving={savingId === item.id || Boolean(savingId?.startsWith(`${item.id}@d`))}
+            disabled={!canEdit}
           />
         ) : (
           <CheckboxRow
             label={savingId === item.id ? `${label} (saving…)` : label}
             checked={myCompleted.has(item.id)}
             onToggle={(next) => onCheck(item, next, isSoap)}
+            disabled={!canEdit}
           />
         )}
-        {item.requiresNote ? (
+        {item.requiresNote && (canEdit || hasNote) ? (
           <Pressable
             accessibilityRole="button"
             onPress={() => openNotes(item, isSoap)}
@@ -218,7 +221,7 @@ export default function WeekHomeScreen() {
           >
             <Text style={{ ...typography.label, color: colors.primary }}>
               {hasNote
-                ? '📝 Notes attached · Edit'
+                ? `📝 Notes attached · ${canEdit ? 'Edit' : 'View'}`
                 : notesRequired
                   ? 'Notes required · Add notes'
                   : 'Add notes (optional)'}
@@ -295,6 +298,7 @@ export default function WeekHomeScreen() {
       <Screen>
         <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
           <PathwayLogo />
+          <HuddlePassCard />
           <Title>
             Week {week.weekNumber} of {totalWeeks}
           </Title>
@@ -320,6 +324,7 @@ export default function WeekHomeScreen() {
                   <PrimaryButton
                     title={`${pickId === opt.id ? '✓ ' : ''}${opt.text}`}
                     onPress={() => pickOption(opt.id)}
+                    disabled={!canEdit}
                   />
                 ) : (
                   <Body>
@@ -350,6 +355,7 @@ export default function WeekHomeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
         <PathwayLogo />
+        <HuddlePassCard />
         <Title>
           Week {week.weekNumber} of {totalWeeks}
         </Title>
@@ -440,6 +446,7 @@ export default function WeekHomeScreen() {
         note={sheetItem ? myNote(sheetItem.id) : null}
         photos={sheetItem ? myNotePhotos(sheetItem.id) : []}
         onFinish={onNotesFinished}
+        readOnly={!canEdit}
       />
     </Screen>
   );

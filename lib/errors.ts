@@ -9,6 +9,7 @@ const FRIENDLY: [RegExp, string][] = [
   [/rate limit|too many requests/i, 'Too many attempts. Please wait a minute and try again.'],
   [/jwt expired|invalid jwt|refresh token/i, 'Your session expired. Please sign in again.'],
   [/NOTE_REQUIRED/, 'Add your notes before checking this off.'],
+  [/row-level security/i, "Your Huddle Pass isn't active."],
   [
     /_user_id_fkey/,
     "Your account isn't fully set up. Sign out, sign back in, and try again.",
@@ -26,6 +27,9 @@ export function friendlyError(e: unknown, fallback = 'Something went wrong. Plea
       ? e.message
       : '';
   if (!message) return fallback;
+  // Database Huddle Pass errors are already written for users.
+  const pass = message.match(/HUDDLE_PASS: (.+)/);
+  if (pass) return pass[1];
   for (const [pattern, friendly] of FRIENDLY) {
     if (pattern.test(message)) return friendly;
   }

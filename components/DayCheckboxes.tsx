@@ -8,12 +8,14 @@ export function DayCheckboxes({
   isChecked,
   onToggleDay,
   saving,
+  disabled,
 }: {
   label: string;
   days: number;
   isChecked: (day: number) => boolean;
   onToggleDay: (day: number, next: boolean) => void;
   saving?: boolean;
+  disabled?: boolean;
 }) {
   const { colors, radii, spacing, fonts, typography } = useTheme();
   const dayNumbers = Array.from({ length: days }, (_, i) => i + 1);
@@ -43,7 +45,8 @@ export function DayCheckboxes({
               key={day}
               accessibilityRole="checkbox"
               accessibilityLabel={`Day ${day}, ${label}`}
-              accessibilityState={{ checked }}
+              accessibilityState={{ checked, disabled: Boolean(disabled) }}
+              disabled={disabled}
               onPress={() => onToggleDay(day, !checked)}
               style={({ pressed }) => ({
                 flex: 1,
@@ -55,7 +58,7 @@ export function DayCheckboxes({
                 backgroundColor: checked ? colors.primary : colors.inputBg,
                 alignItems: 'center',
                 justifyContent: 'center',
-                opacity: pressed ? 0.75 : 1,
+                opacity: disabled ? 0.55 : pressed ? 0.75 : 1,
               })}
             >
               <Text

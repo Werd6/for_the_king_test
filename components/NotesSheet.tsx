@@ -56,6 +56,7 @@ export function NotesSheet({
   note,
   photos,
   onFinish,
+  readOnly,
 }: {
   /** The item being journaled; null hides the sheet. */
   item: NotesSheetItem | null;
@@ -69,6 +70,8 @@ export function NotesSheet({
   note: JournalNote | null;
   photos: JournalPhoto[];
   onFinish: (result: NotesSheetResult) => void;
+  /** View only: the Huddle Pass isn't active. */
+  readOnly?: boolean;
 }) {
   const { colors, radii, spacing, fonts, typography } = useTheme();
   // Keeps content on screen while the modal animates closed.
@@ -162,6 +165,10 @@ export function NotesSheet({
 
   async function cancel() {
     if (busy) return;
+    if (readOnly) {
+      onFinish({ hasContent: savedHasContent, complete: false });
+      return;
+    }
     // A note created only to hold photos that were then removed is left empty.
     if (current && !current.body.trim() && !currentPhotos.length) {
       try {
@@ -200,7 +207,9 @@ export function NotesSheet({
           }}
         >
           <Pressable accessibilityRole="button" onPress={cancel} hitSlop={12}>
-            <Text style={{ ...typography.button, color: colors.primary }}>Cancel</Text>
+            <Text style={{ ...typography.button, color: colors.primary }}>
+              {readOnly ? 'Close' : 'Cancel'}
+            </Text>
           </Pressable>
           <Text
             style={{ ...typography.section, color: colors.ink, flex: 1, textAlign: 'center' }}
@@ -245,7 +254,9 @@ export function NotesSheet({
             </View>
           </View>
 
-          {required && !completed ? (
+          {readOnly ? (
+            <Body>Your Huddle Pass isn&apos;t active, so these notes are view only.</Body>
+          ) : required && !completed ? (
             <Body>
               Your huddle requires notes for this item. Write a few sentences or add a photo of your
               journal to check it off.
@@ -255,6 +266,7 @@ export function NotesSheet({
           <TextInput
             accessibilityLabel="Notes"
             multiline
+            editable={!readOnly}
             value={body}
             onChangeText={setBody}
             placeholder={shown?.isSoap ? SOAP_PLACEHOLDER : 'Write your thoughts…'}
@@ -303,25 +315,27 @@ export function NotesSheet({
                       <ActivityIndicator color={colors.primary} />
                     </View>
                   )}
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Remove photo"
-                    onPress={() => removePhoto(p)}
-                    hitSlop={8}
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 4,
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
-                      backgroundColor: 'rgba(0,0,0,0.6)',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text style={{ color: '#fff', ...fonts.bold }}>✕</Text>
-                  </Pressable>
+                  {readOnly ? null : (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Remove photo"
+                      onPress={() => removePhoto(p)}
+                      hitSlop={8}
+                      style={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        width: 24,
+                        height: 24,
+                        borderRadius: 12,
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ color: '#fff', ...fonts.bold }}>✕</Text>
+                    </Pressable>
+                  )}
                 </View>
               ))}
             </ScrollView>
@@ -332,59 +346,64 @@ export function NotesSheet({
             </Text>
           ) : null}
 
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {isWeb ? (
-              <View style={{ flex: 1 }}>
-                <SecondaryButton
-                  title="Add photo"
-                  onPress={() => attach('library')}
+          {readOnly ? null : (
+            <>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                {isWeb ? (
+                  <View style={{ flex: 1 }}>
+                    <SecondaryButton
+                      title="Add photo"
+                      onPress={() => attach('library')}
+                      disabled={busy != null}
+                    />
+                  </View>
+                ) : (
+                  <>
+                    <View style={{ flex: 1 }}>
+                      <SecondaryButton
+                        title={canScan ? 'Scan page' : 'Take photo'}
+                        onPress={() => attach(canScan ? 'scan' : 'camera')}
+                        disabled={busy != null}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <SecondaryButton
+                        title="Choose photo"
+                        onPress={() => attach('library')}
+                        disabled={busy != null}
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
+              {busy === 'photo' ? <Body>Working on your photo…</Body> : null}
+
+              {completed ? (
+                <PrimaryButton
+                  title={busy === 'save' ? 'Saving…' : 'Save'}
+                  onPress={() => save(false)}
                   disabled={busy != null}
                 />
-              </View>
-            ) : (
-              <>
-                <View style={{ flex: 1 }}>
+              ) : (
+                <>
+                  <PrimaryButton
+                    title={busy === 'complete' ? 'Saving…' : 'Save & complete'}
+                    onPress={() => save(true)}
+                    disabled={busy != null || !canComplete}
+                  />
+                  {!canComplete ? (
+                    <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
+                      Write at least {MIN_NOTE_CHARS} characters or add a photo to complete this
+                      item.
+                    </Text>
+                  ) : null}
                   <SecondaryButton
-                    title={canScan ? 'Scan page' : 'Take photo'}
-                    onPress={() => attach(canScan ? 'scan' : 'camera')}
+                    title={busy === 'save' ? 'Saving…' : 'Save for later'}
+                    onPress={() => save(false)}
                     disabled={busy != null}
                   />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <SecondaryButton
-                    title="Choose photo"
-                    onPress={() => attach('library')}
-                    disabled={busy != null}
-                  />
-                </View>
-              </>
-            )}
-          </View>
-          {busy === 'photo' ? <Body>Working on your photo…</Body> : null}
-
-          {completed ? (
-            <PrimaryButton
-              title={busy === 'save' ? 'Saving…' : 'Save'}
-              onPress={() => save(false)}
-              disabled={busy != null}
-            />
-          ) : (
-            <>
-              <PrimaryButton
-                title={busy === 'complete' ? 'Saving…' : 'Save & complete'}
-                onPress={() => save(true)}
-                disabled={busy != null || !canComplete}
-              />
-              {!canComplete ? (
-                <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
-                  Write at least {MIN_NOTE_CHARS} characters or add a photo to complete this item.
-                </Text>
-              ) : null}
-              <SecondaryButton
-                title={busy === 'save' ? 'Saving…' : 'Save for later'}
-                onPress={() => save(false)}
-                disabled={busy != null}
-              />
+                </>
+              )}
             </>
           )}
         </ScrollView>

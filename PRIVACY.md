@@ -14,10 +14,12 @@ Go and Make (“the App”) is a discipleship companion for huddles, offering co
 - Optional meeting dates for the huddle calendar
 - Leader-selected group-challenge activity for certain weeks
 - If you allow notifications in the native app: a push token for your device, so the App can notify you about your huddle
+- If you buy a Huddle Pass on our website: a record of the pass (which huddle, leader or member pass, amount, date, and Stripe payment references)
 
 ## Data we do not collect
 
 - Journal text or photos you don’t save in the App (writing in a paper journal stays on paper)
+- Card or bank details. Payments are processed by Stripe, which handles your payment information under its own privacy policy (stripe.com/privacy)
 - Location, contacts, or health metrics beyond optional calendar event creation you initiate
 
 ## How we use data
@@ -27,6 +29,8 @@ To run huddles, show shared progress to brothers in the same huddle, keep the jo
 ## Sharing
 
 We do not sell personal data. Progress is visible only to members of your huddle.
+
+When you buy a Huddle Pass, your email address and the purchase go to Stripe to process the payment. Your huddle leader can see whether you have a pass, but not payment details.
 
 Notifications tell members of your huddle when the week advances and when someone finishes a checklist item (with his display name and the item). They are delivered through Expo’s push service and Apple or Google’s notification services. Meeting reminders are scheduled on your device. Signing out stops notifications to that device, and you can turn them off in your device settings.
 
@@ -39,7 +43,7 @@ The notes screen always tells you which setting applies before you save. Changin
 
 ## Deletion
 
-You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Leaders who dissolve a huddle remove that huddle’s membership, progress, journal notes, and photos. You can delete an individual note by clearing its text and photos.
+You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Huddle Pass records are kept without your account, for accounting and refunds. Leaders who dissolve a huddle remove that huddle’s membership, progress, journal notes, and photos. You can delete an individual note by clearing its text and photos.
 
 ## Contact
 

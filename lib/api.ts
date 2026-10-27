@@ -13,6 +13,7 @@ import { isAuthApiError } from '@supabase/supabase-js';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type {
   Huddle,
+  HuddleAccess,
   HuddleSettings,
   JournalNote,
   JournalPhoto,
@@ -403,6 +404,62 @@ export async function getHuddle(huddleId: string): Promise<Huddle | null> {
   const huddles = await readJson<Huddle[]>(STORAGE_KEYS.huddles, []);
   const found = huddles.find((h) => h.id === huddleId);
   return found ? normalizeHuddle(found) : null;
+}
+
+/** PostgREST codes for a function or table that doesn't exist yet (migration 006 not run). */
+const MISSING_OBJECT = new Set(['PGRST202', 'PGRST205', '42883', '42P01']);
+
+/** The signed-in user's Huddle Pass status. Local mode and databases without passes are free. */
+export async function getHuddleAccess(huddleId: string): Promise<HuddleAccess> {
+  if (!isRemoteConfigured || !supabase) return 'exempt';
+  const { data, error } = await supabase.rpc('huddle_access', { hid: huddleId });
+  if (error) {
+    if (MISSING_OBJECT.has(error.code)) return 'exempt';
+    throw error;
+  }
+  return data as HuddleAccess;
+}
+
+/** Ids of huddle members with a current pass (visible to the leader), or null if unavailable. */
+export async function getHuddlePassHolders(huddleId: string): Promise<Set<string> | null> {
+  if (!isRemoteConfigured || !supabase) return null;
+  const { data, error } = await supabase
+    .from('huddle_passes')
+    .select('user_id')
+    .eq('huddle_id', huddleId)
+    .is('refunded_at', null);
+  if (error) {
+    if (MISSING_OBJECT.has(error.code)) return null;
+    throw error;
+  }
+  return new Set((data ?? []).map((p) => p.user_id as string));
+}
+
+/** Leader starts Week 1, which starts the huddle's access window. */
+export async function startHuddle(huddleId: string): Promise<Huddle> {
+  if (!isRemoteConfigured || !supabase) throw new Error('Huddle Passes need an online account.');
+  const { data, error } = await supabase.rpc('start_huddle', { hid: huddleId }).single();
+  if (error) throw new Error(error.message);
+  return normalizeHuddle(data as Huddle);
+}
+
+/** Web only: opens Stripe Checkout for the caller's Huddle Pass. */
+export async function startCheckout(huddleId: string): Promise<void> {
+  if (!supabase || typeof window === 'undefined') {
+    throw new Error('Huddle Passes are available on the website.');
+  }
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(
+    'create-checkout',
+    { body: { huddleId, returnUrl: window.location.origin } }
+  );
+  if (error) {
+    const context = (error as { context?: unknown }).context;
+    const body =
+      context instanceof Response ? await context.json().catch(() => null) : null;
+    throw new Error(body?.error ?? error.message);
+  }
+  if (!data?.url) throw new Error(data?.error ?? 'Could not start checkout. Try again.');
+  window.location.assign(data.url);
 }
 
 export async function getHuddleMembers(huddleId: string): Promise<Profile[]> {

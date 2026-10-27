@@ -198,10 +198,27 @@ Go and Make is the platform; For The King is the first content pathway.
 - [x] Name, scheme `goandmake`, IDs `com.goandmake.app`; winding-road icon, splash, favicon and notification icon
 - [x] Default theme: Paper `#F7F5F0`, Stone `#E6E2D9`, Ink `#292C29`, Sage `#607666`, Clay `#AE7757`
 - [x] Fonts: Instrument Serif (titles, Scripture quotes), DM Sans (interface)
-- [ ] Firebase: add Android app `com.goandmake.app`, update the EAS file variable `GOOGLE_SERVICES_JSON`
-- [ ] FCM V1 key for `com.goandmake.app` via `eas credentials`
+- [x] Firebase: add Android app `com.goandmake.app`, update the EAS file variable `GOOGLE_SERVICES_JSON`
+- [x] FCM V1 key for `com.goandmake.app` via `eas credentials`
 - [ ] Supabase redirect URL `goandmake://**`
 - [ ] New EAS build; uninstall the old For The King app (different package)
+
+---
+
+## Feature — Huddle Pass (payments)
+
+Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Website checkout only. See README → Huddle Pass.
+
+- [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
+- [x] Edge Functions `create-checkout` and `stripe-webhook`
+- [x] Huddle Pass card (web checkout, neutral message in the apps, Start Week 1, expired), read-only UI, "Pass pending" in Progress
+- [ ] Stripe account (test mode first)
+- [ ] Run migration 006 in Supabase → SQL Editor
+- [ ] Supabase CLI: link, set secrets, deploy both functions
+- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
+- [ ] Test: leader pays, starts Week 1, member pays and checks in; refund removes access; expired window (edit `started_at`); exempt huddle
+- [ ] Switch to live keys and a live webhook
+- [ ] Store review notes: the apps don't sell anything; passes are bought on the website
 
 ---
 
