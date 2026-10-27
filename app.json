@@ -82,6 +82,21 @@
         }
       ],
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#A8874F",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "./plugins/withPathwayNotificationIcons",
+        {
+          "for-the-king": "./assets/images/notification-icon.png",
+          "pc3-focuses": "./assets/images/notification-icon-pc3.png"
+        }
+      ],
+      [
         "react-native-document-scanner-plugin",
         {
           "cameraPermission": "For The King uses the camera to scan your journal pages."

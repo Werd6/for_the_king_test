@@ -8,6 +8,7 @@ import {
   signOut as apiSignOut,
   signUpWithEmail,
 } from '@/lib/api';
+import { disablePushNotifications } from '@/lib/notifications';
 import { isRemoteConfigured, supabase } from '@/lib/supabase';
 import type { Huddle, Profile } from '@/lib/types';
 
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await refresh();
       },
       signOut: async () => {
+        await disablePushNotifications().catch(() => {});
         await apiSignOut();
         await refresh();
       },

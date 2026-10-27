@@ -43,7 +43,7 @@ import type {
   StandardWeek,
   WeekPick,
 } from '@/lib/types';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
@@ -372,6 +372,11 @@ export default function ProgressScreen() {
   const [viewWeek, setViewWeek] = useState<number | null>(null);
   const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
   const [viewed, setViewed] = useState<ViewedNote | null>(null);
+  const { member } = useLocalSearchParams<{ member?: string }>();
+
+  useEffect(() => {
+    if (member) setExpandedId(member);
+  }, [member]);
 
   const load = useCallback(async () => {
     if (!huddle) return;

@@ -72,6 +72,24 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 - Themes are stored on the device with the content, so they work offline.
 - `npm run publish:pathway -- --theme-only` publishes just the theme (validates colors/contrast, embeds images, bumps `theme_version`). Requires `supabase/migrations/002_pathway_theme.sql`.
 - Home-screen icons: add a 1024×1024 icon + Android foreground to `assets/images/`, register it in the `expo-alternate-app-icons` plugin in `app.json`, add its name to `BUNDLED_ICONS` in `lib/appIcon.native.ts`, and set `iconKey` in the theme. Takes effect in the next native build.
+- Android notification icons: add a 96×96 white-on-transparent PNG to `assets/images/` and list it under the pathway id in the `./plugins/withPathwayNotificationIcons` entry in `app.json`. Takes effect in the next native build; until then that pathway's pushes use the default (crown) icon.
+
+## Notifications
+
+Native builds only (not the browser). Members get:
+
+- **Huddle has started the next week** when the leader advances the week.
+- **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (every day, for daily items). Tapping it opens his progress.
+- **Huddle is tomorrow at {time}**, 24 hours before the weekly meeting. Scheduled on the device, so it works without Firebase.
+
+The first two are sent from the database through Expo's push service and use the huddle's pathway: week titles and item text come from its pinned content, and on Android the icon comes from its pathway. The reminder is tinted with the pathway's accent color.
+
+Setup:
+
+1. Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor.
+2. Android push needs Firebase: create a Firebase project, add an Android app with package `com.fortheking.app`, put its `google-services.json` in the project root, set `"googleServicesFile": "./google-services.json"` under `android` in `app.json`, and upload an FCM V1 service account key with `eas credentials` → Android → Push Notifications.
+3. iOS push needs an Apple push key, which `eas build` offers to create.
+4. Rebuild the native app.
 
 ## Flows
 
@@ -79,6 +97,7 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 - **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
 - **Leader:** advance week, view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
+- **Notifications:** native iOS/Android only; see Notifications above.
 
 ## Store checklist
 

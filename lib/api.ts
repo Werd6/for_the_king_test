@@ -180,6 +180,19 @@ export async function signOut() {
   await setLocalSession(null);
 }
 
+/** Saves this device's push token for the signed-in user. No-op in local mode. */
+export async function registerPushToken(token: string, platform: 'ios' | 'android') {
+  if (!isRemoteConfigured || !supabase) return;
+  const { error } = await supabase.rpc('register_push_token', { p_token: token, p_platform: platform });
+  if (error) throw error;
+}
+
+export async function unregisterPushToken(token: string) {
+  if (!isRemoteConfigured || !supabase) return;
+  const { error } = await supabase.rpc('unregister_push_token', { p_token: token });
+  if (error) throw error;
+}
+
 export async function getProfile(userId: string): Promise<Profile | null> {
   if (isRemoteConfigured && supabase) {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();

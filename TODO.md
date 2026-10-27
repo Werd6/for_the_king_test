@@ -94,7 +94,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **Automated tests** — E2E happy path: sign up → create huddle → join → check in → advance week
 - [ ] **CI** — typecheck + tests on every push (GitHub Actions)
 - [ ] **Analytics** (optional, privacy-respecting) — weekly active huddles, retention
-- [ ] **Push notifications** (optional) — meeting reminders, weekly check-in nudges
+- [x] **Push notifications** — see "Feature — Notifications" below
 
 ---
 
@@ -175,6 +175,18 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
   `npm run publish:pathway -- --version 1` and `npm run publish:pathway -- --pathway pc3-focuses --version 1`
 - [ ] Native build to try the document scanner (Expo Go falls back to the camera)
 - [ ] Update the App Privacy / Data Safety forms for journal text and photos
+
+---
+
+## Feature — Notifications
+
+- [x] Week started, item finished (opens his progress), and meeting reminder 24 hours before
+- [x] Migration `supabase/migrations/005_push_notifications.sql` — push tokens, triggers, Expo push via `pg_net`
+- [x] Branded per pathway: content from the huddle's pinned version, Android icon per pathway, reminder tinted with the pathway accent
+- [ ] Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor
+- [ ] Firebase project + `google-services.json` + FCM V1 key via `eas credentials` (Android push)
+- [ ] Rebuild the Android app and test all three notifications
+- [ ] Add push tokens to the App Privacy / Data Safety forms
 
 
 ---
