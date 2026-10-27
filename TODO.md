@@ -27,12 +27,12 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 
 ## Phase 2 — Polish & branding
 
-- [ ] **App icon** — replace `assets/images/icon.png` (1024×1024, no transparency)
-- [ ] **Android adaptive icon** — replace foreground/background/monochrome PNGs
+- [x] **App icon** — replace `assets/images/icon.png` (1024×1024, no transparency)
+- [x] **Android adaptive icon** — replace foreground/background/monochrome PNGs
   - [x] Background color set to palette `#DEE5E5`
-- [ ] **Splash screen** — replace `splash-icon.png`
+- [x] **Splash screen** — replace `splash-icon.png`
   - [x] Background `#DEE5E5` light / `#082D0F` dark
-- [ ] **Favicon** for web — replace `assets/images/favicon.png` (48×48)
+- [x] **Favicon** for web — replace `assets/images/favicon.png` (48×48)
 - [ ] **Forgot password**
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
   - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
@@ -59,10 +59,10 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
   - [ ] Apple Developer Program ($99/yr)
   - [ ] Google Play Console ($25 one-time)
 - [x] **Bundle ID** — `com.goandmake.app` (iOS + Android), scheme `goandmake`
-- [ ] **EAS setup**
-  - [ ] `npm i -g eas-cli && eas login`
-  - [ ] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
-  - [ ] Add `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` as EAS env vars
+- [x] **EAS setup**
+  - [x] `npm i -g eas-cli && eas login`
+  - [x] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
+  - [x] Add `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` as EAS env vars
 - [ ] **Preview build** — `eas build --profile preview --platform ios` (and android)
 - [ ] **Test native-only features** — Apple sign-in, calendar sync, date picker, share sheet
 - [ ] **Beta**
@@ -184,8 +184,8 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Week started, item finished (opens his progress), and meeting reminder 24 hours before
 - [x] Migration `supabase/migrations/005_push_notifications.sql` — push tokens, triggers, Expo push via `pg_net`
 - [x] Branded per pathway: content from the huddle's pinned version, Android icon per pathway, reminder tinted with the pathway accent
-- [ ] Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor
-- [ ] Firebase project + `google-services.json` + FCM V1 key via `eas credentials` (Android push)
+- [x] Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor
+- [x] Firebase project + `google-services.json` + FCM V1 key via `eas credentials` (Android push; redo for `com.goandmake.app`, see rebrand)
 - [ ] Rebuild the Android app and test all three notifications
 - [ ] Add push tokens to the App Privacy / Data Safety forms
 
