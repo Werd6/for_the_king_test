@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Body, FeedbackLink, Field, PrimaryButton, Screen, Title } from '@/components/ui';
 import { joinHuddleByCode } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 
 export default function JoinHuddleScreen() {
@@ -18,10 +18,12 @@ export default function JoinHuddleScreen() {
     try {
       const huddle = await joinHuddleByCode(userId, code);
       await refresh();
-      Alert.alert('Joined', `You are in ${huddle.name}`);
+      showAlert('Joined', `You are in ${huddle.name}`);
+      // Drop the onboarding screens so Back can't return to them from the huddle.
+      if (router.canDismiss()) router.dismissAll();
       router.replace('/');
     } catch (e) {
-      Alert.alert('Could not join', friendlyError(e, 'Error'));
+      showAlert('Could not join', friendlyError(e, 'Error'));
     } finally {
       setBusy(false);
     }

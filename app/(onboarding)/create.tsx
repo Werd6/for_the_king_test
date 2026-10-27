@@ -66,6 +66,8 @@ export default function CreateHuddleScreen() {
       });
       await refresh();
       showAlert('Huddle created', `Invite code: ${huddle.invite_code}`);
+      // Drop the onboarding screens so Back can't return to them from the huddle.
+      if (router.canDismiss()) router.dismissAll();
       router.replace('/');
     } catch (e) {
       showAlert('Could not create', friendlyError(e, 'Error'));
