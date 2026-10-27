@@ -3,47 +3,34 @@ import { useEffect } from 'react';
 import { LeaderTourProvider } from '@/components/LeaderTour';
 import { Loading } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
-import {
-  cancelMeetingReminder,
-  enablePushNotifications,
-  scheduleMeetingReminder,
-  useNotificationTaps,
-} from '@/lib/notifications';
+import { scheduleMeetingReminder } from '@/lib/notifications';
 import { useTheme } from '@/lib/ThemeContext';
 
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
-/** Push registration, the weekly meeting reminder, and opening screens from notification taps. */
-function Notifications() {
-  const { userId, huddle } = useAuth();
+/**
+ * The current account's weekly meeting reminder. Each signed-in account keeps its own, so
+ * swapping accounts doesn't cancel the others (signing out of an account does).
+ */
+function MeetingReminder() {
+  const { userId, huddle, savedAccounts } = useAuth();
   const { colors } = useTheme();
   const accent = colors.accent;
   const huddleId = huddle?.id;
+  const huddleName = huddle?.name ?? '';
   const pathwayId = huddle?.pathway_id;
   const meetingTime = huddle?.meetings.time ?? null;
   const meetingLocation = huddle?.meetings.location ?? null;
-
-  useNotificationTaps();
-
-  useEffect(() => {
-    if (!userId || !huddleId) return;
-    enablePushNotifications().catch((e) => console.warn('Push notifications unavailable:', e));
-  }, [userId, huddleId]);
+  // Scheduling needs the account saved with this huddle, which can land just after sign-in.
+  const saved = savedAccounts.some((a) => a.userId === userId && a.huddleId === huddleId);
 
   useEffect(() => {
-    if (!userId || !huddleId) return;
+    if (!userId || !huddleId || !saved) return;
     scheduleMeetingReminder(
       { time: meetingTime, location: meetingLocation },
-      { pathwayId, color: accent }
+      { userId, huddleId, huddleName, pathwayId, color: accent }
     ).catch((e) => console.warn('Could not schedule the meeting reminder:', e));
-  }, [userId, huddleId, pathwayId, meetingTime, meetingLocation, accent]);
-
-  useEffect(
-    () => () => {
-      cancelMeetingReminder().catch(() => {});
-    },
-    []
-  );
+  }, [userId, huddleId, huddleName, saved, pathwayId, meetingTime, meetingLocation, accent]);
 
   return null;
 }
@@ -74,7 +61,7 @@ export default function AppLayout() {
         <Stack.Screen name="challenge-pool" options={{ title: 'Challenge Pool' }} />
         <Stack.Screen name="meetings" options={{ title: 'Meetings' }} />
       </Stack>
-      <Notifications />
+      <MeetingReminder />
     </LeaderTourProvider>
   );
 }

@@ -12,7 +12,6 @@ import {
 import { useLeaderTour } from '@/components/LeaderTour';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import {
-  deleteAccount,
   dissolveHuddle,
   leaveHuddle,
   updateDisplayName,
@@ -32,13 +31,16 @@ import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
-  const { userId, profile, huddle, isLeader, refresh, signOut } = useAuth();
+  const { userId, profile, huddle, isLeader, refresh, signOut, deleteCurrentAccount, loading } =
+    useAuth();
   const { pathway } = useContent();
   const { preference, setPreference } = useTheme();
   const { openTour } = useLeaderTour();
   const router = useRouter();
   const [name, setName] = useState(profile?.display_name ?? '');
   const [busy, setBusy] = useState(false);
+  const [accountAction, setAccountAction] = useState<'signOut' | 'delete' | null>(null);
+  const accountBusy = loading || accountAction !== null;
 
   // Profile can arrive after first render (e.g. opening /settings directly).
   useEffect(() => {
@@ -110,23 +112,34 @@ export default function SettingsScreen() {
   }
 
   async function onSignOut() {
-    await signOut();
+    if (accountBusy) return;
+    setAccountAction('signOut');
+    try {
+      await signOut();
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not sign out'));
+    } finally {
+      setAccountAction(null);
+    }
   }
 
   async function onDeleteAccount() {
-    const ok = await confirmAction(
-      'Delete account?',
-      isLeader
-        ? 'This permanently deletes your account and dissolves your huddle for everyone.'
-        : 'This permanently deletes your account and your check-ins.',
-      'Delete'
-    );
-    if (!ok) return;
+    if (accountBusy) return;
+    setAccountAction('delete');
     try {
-      await deleteAccount(userId!);
-      await refresh();
+      const ok = await confirmAction(
+        'Delete account?',
+        isLeader
+          ? 'This permanently deletes your account and dissolves your huddle for everyone.'
+          : 'This permanently deletes your account and your check-ins.',
+        'Delete'
+      );
+      if (!ok) return;
+      await deleteCurrentAccount();
     } catch (e) {
       showAlert('Error', friendlyError(e, 'Could not delete'));
+    } finally {
+      setAccountAction(null);
     }
   }
 
@@ -268,8 +281,20 @@ export default function SettingsScreen() {
           label="Account"
           footer="We store your account, huddle membership, checkmarks, Huddle Pass records, and any journal notes or photos you save in the app."
         >
-          <SettingsRow label="Sign out" onPress={onSignOut} showChevron={false} />
-          <SettingsRow label="Delete account" onPress={onDeleteAccount} destructive />
+          <SettingsRow
+            label={accountAction === 'signOut' ? 'Signing out…' : 'Sign out'}
+            onPress={accountBusy ? undefined : onSignOut}
+            showChevron={false}
+          />
+          <SettingsRow
+            label="Swap account"
+            onPress={accountBusy ? undefined : () => router.push('/(auth)/accounts')}
+          />
+          <SettingsRow
+            label={accountAction === 'delete' ? 'Deleting account…' : 'Delete account'}
+            onPress={accountBusy ? undefined : onDeleteAccount}
+            destructive
+          />
         </SettingsGroup>
 
         {isLeader ? (

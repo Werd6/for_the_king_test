@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, Text } from 'react-native';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Body, FeedbackLink, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
 import { requestPasswordReset } from '@/lib/api';
 import { PathwayLogo } from '@/components/PathwayLogo';
@@ -19,24 +19,33 @@ function showMessage(title: string, message: string) {
 }
 
 export default function SignInScreen() {
-  const { signIn, signUp, usingLocalMode, userId, huddle, refresh } = useAuth();
+  const { signIn, signUp, usingLocalMode, userId, huddle, refresh, savedAccounts } = useAuth();
   const { colors, fonts } = useTheme();
   const router = useRouter();
-  const [mode, setMode] = useState<'in' | 'up'>('up');
-  const [email, setEmail] = useState('');
+  // Swap account → Add account: sign in to another account while staying signed in.
+  const params = useLocalSearchParams<{ addAccount?: string; email?: string }>();
+  const addingAccount = params.addAccount === '1';
+  const [mode, setMode] = useState<'in' | 'up'>(addingAccount ? 'in' : 'up');
+  const [email, setEmail] = useState(params.email ?? '');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (userId) {
+    if (userId && !addingAccount) {
       router.replace('/');
     }
-  }, [userId, router]);
+  }, [userId, addingAccount, router]);
 
-  if (userId && huddle) return <Redirect href="/(app)/(tabs)" />;
-  if (userId) return <Redirect href="/(onboarding)/join-create" />;
+  if (!addingAccount && userId && huddle) return <Redirect href="/(app)/(tabs)" />;
+  if (!addingAccount && userId) return <Redirect href="/(onboarding)/join-create" />;
+
+  /** Drops the previous account's screens when adding an account. */
+  function goHome() {
+    if (router.canDismiss()) router.dismissAll();
+    router.replace('/');
+  }
 
   async function submit() {
     setError(null);
@@ -59,7 +68,7 @@ export default function SignInScreen() {
       } else {
         await signIn(email.trim(), password);
       }
-      router.replace('/');
+      goHome();
     } catch (e) {
       const msg = friendlyError(e, 'Something went wrong');
       setError(msg);
@@ -103,7 +112,7 @@ export default function SignInScreen() {
     try {
       await signInWithApple();
       await refresh();
-      router.replace('/');
+      goHome();
     } catch (e) {
       const msg = friendlyError(e, 'Something went wrong');
       setError(msg);
@@ -117,9 +126,16 @@ export default function SignInScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
         <PathwayLogo height={64} />
-        <Title>Go and Make</Title>
-        <Body>Your discipleship huddle companion.</Body>
-        {usingLocalMode ? (
+        <Title>{addingAccount ? 'Add account' : 'Go and Make'}</Title>
+        {addingAccount ? (
+          <Body>
+            Sign in to another account. Your other accounts stay signed in on this device, and you can
+            swap between them in Settings.
+          </Body>
+        ) : (
+          <Body>Your discipleship huddle companion.</Body>
+        )}
+        {addingAccount ? null : usingLocalMode ? (
           <Body>Sign up or sign in to get started. Data stays on this device until cloud sync is configured.</Body>
         ) : (
           <Body>Sign up or sign in with email to sync your huddle across devices.</Body>
@@ -188,6 +204,16 @@ export default function SignInScreen() {
 
         {!usingLocalMode && Platform.OS === 'ios' ? (
           <PrimaryButton title="Sign in with Apple" onPress={socialApple} disabled={busy} />
+        ) : null}
+
+        {addingAccount ? (
+          <SecondaryButton title="Cancel" onPress={() => router.back()} disabled={busy} />
+        ) : savedAccounts.length ? (
+          <SecondaryButton
+            title="Choose a saved account"
+            onPress={() => router.push('/(auth)/accounts')}
+            disabled={busy}
+          />
         ) : null}
 
         <FeedbackLink />

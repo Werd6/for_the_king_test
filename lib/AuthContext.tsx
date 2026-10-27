@@ -1,6 +1,15 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import {
+  activateSavedAccount,
+  forgetAccount,
+  readSavedAccounts,
+  rememberCurrentAccount,
+  rememberSession,
+  type SavedAccount,
+} from '@/lib/accounts';
+import {
+  deleteAccount,
   getCurrentUserId,
   getHuddle,
   getHuddleAccess,
@@ -11,7 +20,7 @@ import {
   signOut as apiSignOut,
   signUpWithEmail,
 } from '@/lib/api';
-import { disablePushNotifications } from '@/lib/notifications';
+import { cancelMeetingReminder, disablePushNotifications } from '@/lib/notifications';
 import { isRemoteConfigured, supabase } from '@/lib/supabase';
 import type { Huddle, HuddleAccess, Profile } from '@/lib/types';
 
@@ -30,12 +39,38 @@ type AuthState = {
   canEdit: boolean;
   checkoutReturn: CheckoutReturn;
   dismissCheckoutReturn: () => void;
+  /** Accounts signed in on this device, for Swap account. Includes the current one. */
+  savedAccounts: SavedAccount[];
+  /** Makes a saved account the current one; the others stay signed in. */
+  switchAccount: (userId: string) => Promise<void>;
   refresh: () => Promise<void>;
+  /** Signing in or up while signed in adds the account; the previous one stays saved. */
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
+  /** Signs out the current account and opens the next saved one, if any. */
   signOut: () => Promise<void>;
+  deleteCurrentAccount: () => Promise<void>;
   usingLocalMode: boolean;
 };
+
+/** Saves the latest tokens of the current account before another account takes over. */
+async function snapshotSession() {
+  if (!supabase) return;
+  const { data } = await supabase.auth.getSession();
+  if (data.session) await rememberSession(data.session);
+}
+
+/** After the current account is gone, opens the next saved account if there is one. */
+async function openNextAccount(removedId: string | null) {
+  const next = (await readSavedAccounts().catch(() => [])).find((a) => a.userId !== removedId);
+  if (!next) return;
+  try {
+    await activateSavedAccount(next.userId);
+  } catch (e) {
+    // Its sign-in expired; it stays listed under Swap account with "Sign in again".
+    console.warn('Could not open the next saved account', e);
+  }
+}
 
 const AuthContext = createContext<AuthState | null>(null);
 
@@ -57,36 +92,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [huddle, setHuddle] = useState<Huddle | null>(null);
   const [access, setAccess] = useState<HuddleAccess>('none');
   const [checkoutReturn, setCheckoutReturn] = useState<CheckoutReturn>(null);
+  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
   const accessRef = useRef<HuddleAccess>('none');
+  const huddleIdRef = useRef<string | null>(null);
+  const refreshSeq = useRef(0);
+  /** Set while swapping or signing out, so intermediate auth events don't flash other screens. */
+  const changingAccount = useRef(false);
 
-  const loadAccess = useCallback(async (huddleId: string | null) => {
-    const next = huddleId ? await getHuddleAccess(huddleId).catch(() => accessRef.current) : 'none';
-    accessRef.current = next;
-    setAccess(next);
-    return next;
+  const changeAccount = useCallback(async (work: () => Promise<void>) => {
+    changingAccount.current = true;
+    refreshSeq.current++;
+    try {
+      await work();
+    } finally {
+      changingAccount.current = false;
+    }
   }, []);
 
+  // Loads everything first and commits it together, so screens never see one account's id
+  // with another account's huddle. A newer refresh (e.g. after a swap) wins.
   const refresh = useCallback(async () => {
+    const seq = ++refreshSeq.current;
     const uid = await getCurrentUserId();
+    let p: Profile | null = null;
+    let h: Huddle | null = null;
+    let a: HuddleAccess = 'none';
+    if (uid) {
+      p = (await getProfile(uid)) ?? (await restoreMissingProfile());
+      if (p || !isRemoteConfigured) {
+        const membership = await getMembershipForUser(uid);
+        h = membership ? await getHuddle(membership.huddle_id) : null;
+      }
+      if (h) {
+        const hid = h.id;
+        a = await getHuddleAccess(hid).catch(() =>
+          huddleIdRef.current === hid ? accessRef.current : 'none'
+        );
+      }
+    }
+    if (seq !== refreshSeq.current) return;
+
     setUserId(uid);
-    if (!uid) {
-      setProfile(null);
-      setHuddle(null);
-      await loadAccess(null);
-      return;
-    }
-    const p = (await getProfile(uid)) ?? (await restoreMissingProfile());
     setProfile((prev) => (JSON.stringify(prev) === JSON.stringify(p) ? prev : p));
-    if (!p && isRemoteConfigured) {
-      setHuddle(null);
-      await loadAccess(null);
-      return;
-    }
-    const membership = await getMembershipForUser(uid);
-    const h = membership ? await getHuddle(membership.huddle_id) : null;
     setHuddle((prev) => (JSON.stringify(prev) === JSON.stringify(h) ? prev : h));
-    await loadAccess(h?.id ?? null);
-  }, [loadAccess]);
+    huddleIdRef.current = h?.id ?? null;
+    accessRef.current = a;
+    setAccess(a);
+
+    if (p) await rememberCurrentAccount(p, h).catch((e) => console.warn('Could not save account', e));
+    const accounts = await readSavedAccounts().catch(() => []);
+    if (seq === refreshSeq.current) {
+      setSavedAccounts((prev) => (JSON.stringify(prev) === JSON.stringify(accounts) ? prev : accounts));
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -99,8 +157,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
 
     if (isRemoteConfigured && supabase) {
-      const { data } = supabase.auth.onAuthStateChange(() => {
-        refresh();
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        // Keeps saved accounts' tokens current; never re-adds a signed-out account.
+        if (session) rememberSession(session).catch(() => {});
+        if (!changingAccount.current) refresh();
       });
       return () => {
         mounted = false;
@@ -170,23 +230,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canEdit: access === 'active' || access === 'exempt',
       checkoutReturn,
       dismissCheckoutReturn,
+      savedAccounts,
+      switchAccount: async (id) => {
+        await changeAccount(() => activateSavedAccount(id));
+        await refresh();
+      },
       refresh,
       usingLocalMode: !isRemoteConfigured,
       signIn: async (email, password) => {
+        await snapshotSession();
         await signInWithEmail(email, password);
         await refresh();
       },
       signUp: async (email, password, displayName) => {
+        await snapshotSession();
         await signUpWithEmail(email, password, displayName);
         await refresh();
       },
       signOut: async () => {
-        await disablePushNotifications().catch(() => {});
-        await apiSignOut();
-        await refresh();
+        const id = userId;
+        try {
+          await changeAccount(async () => {
+            if (id) {
+              // Stops this account's notifications on this device; other accounts keep theirs.
+              await disablePushNotifications(id, () => forgetAccount(id)).catch(async (e) => {
+                console.warn('Could not turn off notifications for this account', e);
+                await forgetAccount(id);
+              });
+            }
+            await apiSignOut();
+            await openNextAccount(id);
+          });
+        } finally {
+          await refresh();
+        }
+      },
+      deleteCurrentAccount: async () => {
+        const id = userId;
+        if (!id) return;
+        try {
+          await changeAccount(async () => {
+            await deleteAccount(id);
+            await cancelMeetingReminder(id).catch(() => {});
+            await forgetAccount(id);
+            await openNextAccount(id);
+          });
+        } finally {
+          await refresh();
+        }
       },
     }),
-    [loading, userId, profile, huddle, access, checkoutReturn, dismissCheckoutReturn, refresh]
+    [
+      loading,
+      userId,
+      profile,
+      huddle,
+      access,
+      checkoutReturn,
+      dismissCheckoutReturn,
+      savedAccounts,
+      changeAccount,
+      refresh,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

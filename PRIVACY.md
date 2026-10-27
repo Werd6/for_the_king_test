@@ -13,7 +13,7 @@ Go and Make (“the App”) is a discipleship companion for huddles, offering co
 - Huddle journaling settings chosen by the leader (whether notes are required, and whether notes are private or shared)
 - Optional meeting dates for the huddle calendar
 - Leader-selected group-challenge activity for certain weeks
-- If you allow notifications in the native app: a push token for your device, so the App can notify you about your huddle
+- If you allow notifications in the native app: a push token for your device, so the App can notify you about your huddle (one for each account signed in on the device)
 - If you buy a Huddle Pass on our website: a record of the pass (which huddle, leader or member pass, amount, date, and Stripe payment references)
 
 ## Data we do not collect
@@ -32,7 +32,9 @@ We do not sell personal data. Progress is visible only to members of your huddle
 
 When you buy a Huddle Pass, your email address and the purchase go to Stripe to process the payment. Your huddle leader can see whether you have a pass, but not payment details.
 
-Notifications tell members of your huddle when the week advances and when someone finishes a checklist item (with his display name and the item). They are delivered through Expo’s push service and Apple or Google’s notification services. Meeting reminders are scheduled on your device. Signing out stops notifications to that device, and you can turn them off in your device settings.
+Notifications tell members of your huddle when the week advances and when someone finishes a checklist item (with his display name and the item). They are delivered through Expo’s push service and Apple or Google’s notification services. Meeting reminders are scheduled on your device. If you are signed in to more than one account (Settings → Swap account), each account gets its own notifications. Signing out of an account stops its notifications to that device, and you can turn them off in your device settings.
+
+If you use Swap account, the App keeps a sign-in for each account on your device so you can switch without your password: in the device’s secure keychain on iPhone and Android, or in your browser on the web. Signing out of an account removes its sign-in.
 
 Journal notes follow the huddle’s notes setting at the time you save them:
 

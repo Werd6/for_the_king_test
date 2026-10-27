@@ -83,11 +83,13 @@ Native builds only (not the browser). Members get:
 - **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (every day, for daily items). Tapping it opens his progress.
 - **Huddle is tomorrow at {time}**, 24 hours before the weekly meeting. Scheduled on the device, so it works without Firebase.
 
+Someone signed in to several accounts (Settings → Swap account, e.g. a leader who is also a member of another huddle) gets notifications for all of them. Tapping one switches to the account it was sent to. Each account keeps its own meeting reminder, and signing out of one account stops only that account's notifications. Saved sign-ins are kept in the device keychain/keystore (`lib/authStorage.ts`); on the web they stay in the browser.
+
 The first two are sent from the database through Expo's push service and use the huddle's pathway: week titles and item text come from its pinned content, and on Android the icon comes from its pathway. The reminder uses the pathway's icon and accent color. expo-notifications only applies a per-notification icon while the app is open because of `patches/expo-notifications+57.0.24.patch` (applied by `patch-package` on install); when upgrading expo-notifications, regenerate it with `npx patch-package expo-notifications` or drop it.
 
 Setup:
 
-1. Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor.
+1. Run `supabase/migrations/005_push_notifications.sql`, then `007_multi_account_notifications.sql`, in Supabase → SQL Editor.
 2. Android push needs Firebase: create a Firebase project, add an Android app with package `com.goandmake.app`, and put its `google-services.json` in the project root (gitignored; [`app.config.js`](app.config.js) picks it up). EAS builds read it from the secret file variable `GOOGLE_SERVICES_JSON` instead. Then upload an FCM V1 service account key with `eas credentials` → Android → Push Notifications.
 3. iOS push needs an Apple push key, which `eas build` offers to create.
 4. Rebuild the native app.

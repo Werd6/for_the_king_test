@@ -188,6 +188,10 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Firebase project + `google-services.json` + FCM V1 key via `eas credentials` (Android push; redo for `com.goandmake.app`, see rebrand)
 - [ ] Rebuild the Android app and test all three notifications
 - [ ] Add push tokens to the App Privacy / Data Safety forms
+- [x] Settings → Swap account: stay signed in to several accounts and switch between them
+- [x] Migration `supabase/migrations/007_multi_account_notifications.sql` — one device token can belong to several accounts; pushes say which account and huddle they're for
+- [x] Run `supabase/migrations/007_multi_account_notifications.sql` in Supabase → SQL Editor
+- [ ] On a phone: sign in to two accounts, then check that both get notifications and that tapping one opens the right account
 
 ---
 
