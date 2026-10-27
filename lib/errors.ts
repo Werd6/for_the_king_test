@@ -10,6 +10,10 @@ const FRIENDLY: [RegExp, string][] = [
   [/jwt expired|invalid jwt|refresh token/i, 'Your session expired. Please sign in again.'],
   [/NOTE_REQUIRED/, 'Add your notes before checking this off.'],
   [
+    /_user_id_fkey/,
+    "Your account isn't fully set up. Sign out, sign back in, and try again.",
+  ],
+  [
     /new password should be different/i,
     'Your new password must be different from your old one.',
   ],

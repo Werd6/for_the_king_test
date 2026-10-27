@@ -9,6 +9,7 @@ import {
   supabase,
   writeJson,
 } from '@/lib/supabase';
+import { isAuthApiError } from '@supabase/supabase-js';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type {
   Huddle,
@@ -201,6 +202,32 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   }
   const profiles = await readJson<Profile[]>(STORAGE_KEYS.profiles, []);
   return profiles.find((p) => p.id === userId) ?? null;
+}
+
+/**
+ * Recreates a missing profile row for the signed-in account (e.g. one made before the
+ * sign-up trigger existed). If the account itself no longer exists, signs out and returns null.
+ */
+export async function restoreMissingProfile(): Promise<Profile | null> {
+  if (!isRemoteConfigured || !supabase) return null;
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    // Offline or server trouble isn't proof the account is gone; keep the session.
+    if (isAuthApiError(error)) await supabase.auth.signOut();
+    return null;
+  }
+  const { user } = data;
+  const { data: profile, error: upsertErr } = await supabase
+    .from('profiles')
+    .upsert({
+      id: user.id,
+      display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || 'Brother',
+      email: user.email ?? null,
+    })
+    .select()
+    .single();
+  if (upsertErr) throw upsertErr;
+  return profile;
 }
 
 export async function updateDisplayName(userId: string, displayName: string) {

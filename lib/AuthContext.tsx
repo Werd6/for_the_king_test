@@ -4,6 +4,7 @@ import {
   getHuddle,
   getMembershipForUser,
   getProfile,
+  restoreMissingProfile,
   signInWithEmail,
   signOut as apiSignOut,
   signUpWithEmail,
@@ -41,8 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setHuddle(null);
       return;
     }
-    const p = await getProfile(uid);
+    const p = (await getProfile(uid)) ?? (await restoreMissingProfile());
     setProfile(p);
+    if (!p && isRemoteConfigured) {
+      setHuddle(null);
+      return;
+    }
     const membership = await getMembershipForUser(uid);
     if (membership) {
       const h = await getHuddle(membership.huddle_id);
