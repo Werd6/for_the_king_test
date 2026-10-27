@@ -35,7 +35,7 @@ export default function SignInScreen() {
     }
   }, [userId, router]);
 
-  if (userId && huddle) return <Redirect href="/(app)" />;
+  if (userId && huddle) return <Redirect href="/(app)/(tabs)" />;
   if (userId) return <Redirect href="/(onboarding)/join-create" />;
 
   async function submit() {

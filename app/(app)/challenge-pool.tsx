@@ -7,11 +7,11 @@ import { useContent } from '@/lib/ContentContext';
 export default function ChallengePoolScreen() {
   const { isLeader } = useAuth();
   const { pathway, loading } = useContent();
-  if (!isLeader) return <Redirect href="/(app)/settings" />;
+  if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
   if (loading || !pathway) return <Loading />;
 
   const challengePool = pathway.challengePool;
-  if (!challengePool) return <Redirect href="/(app)/progress" />;
+  if (!challengePool) return <Redirect href="/(app)/(tabs)/progress" />;
   const categories = challengePool.categories as Record<string, { id: string; text: string }[]>;
 
   return (

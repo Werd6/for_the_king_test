@@ -7,7 +7,7 @@ export default function JoinCreateScreen() {
   const { profile, signOut, userId, huddle } = useAuth();
 
   if (!userId) return <Redirect href="/(auth)/sign-in" />;
-  if (huddle) return <Redirect href="/(app)" />;
+  if (huddle) return <Redirect href="/(app)/(tabs)" />;
 
   return (
     <Screen>

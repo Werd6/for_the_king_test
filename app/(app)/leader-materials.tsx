@@ -16,7 +16,7 @@ export default function LeaderMaterialsScreen() {
   const { colors } = useTheme();
   const router = useRouter();
 
-  if (!isLeader) return <Redirect href="/(app)/settings" />;
+  if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
   if (!huddle || contentLoading || !pathway) return <Loading />;
 
   const week = getWeek(huddle.current_week);

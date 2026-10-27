@@ -1,103 +1,35 @@
-import { Tabs, useRouter } from 'expo-router';
-import { SymbolView, type SFSymbol } from 'expo-symbols';
-import type { ComponentProps } from 'react';
-import { Pressable, type ColorValue } from 'react-native';
+import { Stack } from 'expo-router';
 import { LeaderTourProvider } from '@/components/LeaderTour';
+import { Loading } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
-import { hasStudyContent } from '@/lib/content';
-import { useContent } from '@/lib/ContentContext';
 import { useTheme } from '@/lib/ThemeContext';
 
-type AndroidSymbol = NonNullable<
-  Extract<ComponentProps<typeof SymbolView>['name'], object>['android']
->;
-
-function BackButton({ color }: { color: ColorValue }) {
-  const router = useRouter();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Back"
-      hitSlop={12}
-      onPress={() => (router.canGoBack() ? router.back() : router.replace('/(app)'))}
-      style={{ paddingHorizontal: 12 }}
-    >
-      <SymbolView
-        name={{ ios: 'chevron.left', android: 'arrow_back', web: 'arrow_back' }}
-        tintColor={color}
-        size={22}
-      />
-    </Pressable>
-  );
-}
-
-function tabIcon(ios: SFSymbol, iosFocused: SFSymbol, material: AndroidSymbol) {
-  return ({ color, size, focused }: { color: ColorValue; size: number; focused: boolean }) => (
-    <SymbolView
-      name={{ ios: focused ? iosFocused : ios, android: material, web: material }}
-      tintColor={color}
-      size={size}
-    />
-  );
-}
+export const unstable_settings = { initialRouteName: '(tabs)' };
 
 export default function AppLayout() {
   const { colors } = useTheme();
-  const { huddle } = useAuth();
-  const { pathway } = useContent();
-  const currentWeek =
-    huddle && pathway ? (pathway.weeks.find((w) => w.weekNumber === huddle.current_week) ?? null) : null;
-  const showStudy = hasStudyContent(currentWeek, pathway?.resources);
-  const hidden = { href: null, headerLeft: () => <BackButton color={colors.ink} /> } as const;
+  const { loading } = useAuth();
+
+  if (loading) return <Loading />;
 
   return (
     <LeaderTourProvider>
-      <Tabs
-        backBehavior="history"
+      <Stack
         screenOptions={{
+          headerBackTitle: 'Back',
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.ink,
           headerTitleStyle: { fontWeight: '700', color: colors.ink },
-          tabBarStyle: {
-            backgroundColor: colors.surface,
-            borderTopColor: colors.muted,
-          },
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: colors.mutedText,
+          contentStyle: { backgroundColor: colors.bg },
         }}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'This Week',
-            tabBarIcon: tabIcon('calendar', 'calendar', 'calendar_today'),
-          }}
-        />
-        <Tabs.Screen
-          name="study"
-          options={{
-            title: 'Study',
-            href: showStudy ? undefined : null,
-            tabBarIcon: tabIcon('book', 'book.fill', 'menu_book'),
-          }}
-        />
-        <Tabs.Screen
-          name="progress"
-          options={{
-            title: 'Progress',
-            tabBarIcon: tabIcon('checkmark.circle', 'checkmark.circle.fill', 'task_alt'),
-          }}
-        />
-        <Tabs.Screen
-          name="settings"
-          options={{ title: 'Settings', tabBarIcon: tabIcon('gearshape', 'gearshape.fill', 'settings') }}
-        />
-        <Tabs.Screen name="guide" options={{ title: 'Guide', ...hidden }} />
-        <Tabs.Screen name="leader-guide" options={{ title: 'Leader Guide', ...hidden }} />
-        <Tabs.Screen name="leader-materials" options={{ title: 'Leader Materials', ...hidden }} />
-        <Tabs.Screen name="challenge-pool" options={{ title: 'Challenge Pool', ...hidden }} />
-        <Tabs.Screen name="meetings" options={{ title: 'Meetings', ...hidden }} />
-      </Tabs>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="guide" options={{ title: 'Guide' }} />
+        <Stack.Screen name="leader-guide" options={{ title: 'Leader Guide' }} />
+        <Stack.Screen name="leader-materials" options={{ title: 'Leader Materials' }} />
+        <Stack.Screen name="challenge-pool" options={{ title: 'Challenge Pool' }} />
+        <Stack.Screen name="meetings" options={{ title: 'Meetings' }} />
+      </Stack>
     </LeaderTourProvider>
   );
 }

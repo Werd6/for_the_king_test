@@ -8,5 +8,5 @@ export default function Index() {
   if (loading) return <Loading />;
   if (!userId) return <Redirect href="/(auth)/sign-in" />;
   if (!huddle) return <Redirect href="/(onboarding)/join-create" />;
-  return <Redirect href="/(app)" />;
+  return <Redirect href="/(app)/(tabs)" />;
 }

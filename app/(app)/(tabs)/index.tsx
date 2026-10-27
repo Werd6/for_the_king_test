@@ -365,7 +365,7 @@ export default function WeekHomeScreen() {
         {week.study ? (
           <SecondaryButton
             title="Read this week’s article"
-            onPress={() => router.push('/(app)/study')}
+            onPress={() => router.push('/(app)/(tabs)/study')}
           />
         ) : null}
 

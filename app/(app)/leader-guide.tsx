@@ -7,11 +7,11 @@ import { useContent } from '@/lib/ContentContext';
 export default function LeaderGuideScreen() {
   const { isLeader } = useAuth();
   const { pathway, loading } = useContent();
-  if (!isLeader) return <Redirect href="/(app)/settings" />;
+  if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
   if (loading || !pathway) return <Loading />;
 
   const leaderGuide = pathway.leaderGuide;
-  if (!leaderGuide) return <Redirect href="/(app)/progress" />;
+  if (!leaderGuide) return <Redirect href="/(app)/(tabs)/progress" />;
 
   return (
     <Screen>
