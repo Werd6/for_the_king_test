@@ -33,7 +33,6 @@ import {
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import type {
   JournalNote,
@@ -80,7 +79,7 @@ function MemberProgress({
   sharedNote?: (itemId: string) => { note: JournalNote; photos: JournalPhoto[] } | undefined;
   onViewNote?: (viewed: ViewedNote) => void;
 }) {
-  const { colors, radii } = useTheme();
+  const { colors, radii, fonts, typography } = useTheme();
   const { done, total } = weekCompletion(week, completed);
 
   return (
@@ -165,7 +164,7 @@ function MemberProgress({
                         }}
                       >
                         {isDone ? (
-                          <Text style={{ color: colors.onPrimary, fontSize: 12, fontWeight: '800' }}>✓</Text>
+                          <Text style={{ color: colors.onPrimary, fontSize: 12, ...fonts.bold }}>✓</Text>
                         ) : started ? (
                           <View
                             style={{
@@ -237,7 +236,7 @@ function WeekProgressModal({
   members: Profile[];
   onClose: () => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, typography } = useTheme();
   const { pathway, getWeek } = useContent();
   const [rows, setRows] = useState<ProgressRow[]>([]);
   const [pick, setPick] = useState<WeekPick | null>(null);

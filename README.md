@@ -1,6 +1,6 @@
-# For The King
+# Go and Make
 
-Men’s discipleship huddle companion (Expo + React Native / web). Mint–forest theme with light/dark mode.
+A discipleship huddle platform (Expo + React Native / web) that gives huddles access to content pathways. For The King is the first pathway; Focuses (PC3) is the second. Each pathway can bring its own theme; the Go and Make default is Paper, Stone, Ink, Sage and Clay with Instrument Serif and DM Sans, in light and dark mode.
 
 ## Quick start
 
@@ -66,13 +66,14 @@ Needs `supabase/migrations/004_journaling.sql` (tables, row-level security, the 
 
 ## Pathway theme
 
-Each pathway's look lives in `content/theme.json` (light + dark colors, corner radii, spacing scale, logos, browser tab icon/title, home-screen icon key). Image files go in `content/assets/`.
+Each pathway's look lives in `content/theme.json` (light + dark colors, corner radii, spacing scale, fonts, logos, browser tab icon/title, home-screen icon key). Image files go in `content/assets/`.
 
-- The huddle's pathway theme applies after sign-in; signed out uses the platform default (`lib/theme.ts`).
+- The huddle's pathway theme applies after sign-in; signed out uses the Go and Make default (`lib/theme.ts`).
+- `"fonts"`: `"system"` (the default for pathways, so existing themes keep their look) or `"go-and-make"` (Instrument Serif titles and quotes, DM Sans interface). Components read `fonts` and `typography` from `useTheme()`.
 - Themes are stored on the device with the content, so they work offline.
 - `npm run publish:pathway -- --theme-only` publishes just the theme (validates colors/contrast, embeds images, bumps `theme_version`). Requires `supabase/migrations/002_pathway_theme.sql`.
 - Home-screen icons: add a 1024×1024 icon + Android foreground to `assets/images/`, register it in the `expo-alternate-app-icons` plugin in `app.json`, add its name to `BUNDLED_ICONS` in `lib/appIcon.native.ts`, and set `iconKey` in the theme. Takes effect in the next native build.
-- Android notification icons: add a 96×96 white-on-transparent PNG to `assets/images/` and list it under the pathway id in the `./plugins/withPathwayNotificationIcons` entry in `app.json`. Takes effect in the next native build; until then that pathway's pushes use the default (crown) icon.
+- Android notification icons: add a 96×96 white-on-transparent PNG to `assets/images/` and list it under the pathway id in the `./plugins/withPathwayNotificationIcons` entry in `app.json`. Takes effect in the next native build; until then that pathway's pushes use the default Go and Make icon.
 
 ## Notifications
 
@@ -87,7 +88,7 @@ The first two are sent from the database through Expo's push service and use the
 Setup:
 
 1. Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor.
-2. Android push needs Firebase: create a Firebase project, add an Android app with package `com.fortheking.app`, put its `google-services.json` in the project root, set `"googleServicesFile": "./google-services.json"` under `android` in `app.json`, and upload an FCM V1 service account key with `eas credentials` → Android → Push Notifications.
+2. Android push needs Firebase: create a Firebase project, add an Android app with package `com.goandmake.app`, and put its `google-services.json` in the project root (gitignored; [`app.config.js`](app.config.js) picks it up). EAS builds read it from the secret file variable `GOOGLE_SERVICES_JSON` instead. Then upload an FCM V1 service account key with `eas credentials` → Android → Push Notifications.
 3. iOS push needs an Apple push key, which `eas build` offers to create.
 4. Rebuild the native app.
 

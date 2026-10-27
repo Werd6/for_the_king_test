@@ -20,7 +20,7 @@ function showMessage(title: string, message: string) {
 
 export default function SignInScreen() {
   const { signIn, signUp, usingLocalMode, userId, huddle, refresh } = useAuth();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const router = useRouter();
   const [mode, setMode] = useState<'in' | 'up'>('up');
   const [email, setEmail] = useState('');
@@ -117,8 +117,8 @@ export default function SignInScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 40 }}>
         <PathwayLogo height={64} />
-        <Title>For The King</Title>
-        <Body>Men’s discipleship huddle companion.</Body>
+        <Title>Go and Make</Title>
+        <Body>Your discipleship huddle companion.</Body>
         {usingLocalMode ? (
           <Body>Sign up or sign in to get started. Data stays on this device until cloud sync is configured.</Body>
         ) : (
@@ -158,14 +158,19 @@ export default function SignInScreen() {
           <Text
             accessibilityRole="link"
             onPress={busy ? undefined : forgotPassword}
-            style={{ color: colors.mutedText, textDecorationLine: 'underline', alignSelf: 'flex-end' }}
+            style={{
+              ...fonts.regular,
+              color: colors.mutedText,
+              textDecorationLine: 'underline',
+              alignSelf: 'flex-end',
+            }}
           >
             Forgot password?
           </Text>
         ) : null}
 
         {error ? (
-          <Text style={{ color: colors.danger, marginBottom: 4 }}>{error}</Text>
+          <Text style={{ ...fonts.regular, color: colors.danger, marginBottom: 4 }}>{error}</Text>
         ) : null}
 
         <PrimaryButton

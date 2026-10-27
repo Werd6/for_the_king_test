@@ -13,7 +13,7 @@ import { useTheme } from '@/lib/ThemeContext';
 export default function LeaderMaterialsScreen() {
   const { isLeader, huddle } = useAuth();
   const { getWeek, loading: contentLoading, pathway } = useContent();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const router = useRouter();
 
   if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
@@ -28,7 +28,7 @@ export default function LeaderMaterialsScreen() {
         <Subtitle>
           Week {week.weekNumber}: {week.title}
         </Subtitle>
-        <Text style={{ fontWeight: '600', color: colors.ink }}>{week.movement}</Text>
+        <Text style={{ ...fonts.semibold, color: colors.ink }}>{week.movement}</Text>
         <Body>For the in-person huddle meeting — not shown on members’ personal week screens.</Body>
         {pathway.leaderGuide ? (
           <PrimaryButton title="Open Leader Guide" onPress={() => router.push('/(app)/leader-guide')} />

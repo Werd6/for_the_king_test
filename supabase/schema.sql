@@ -1,5 +1,5 @@
 -- =============================================================================
--- For The King — Supabase schema (framework + cloud content library)
+-- Go and Make — Supabase schema (framework + cloud content library)
 -- Paste into: Supabase Dashboard → SQL Editor → Run
 -- =============================================================================
 -- Design:

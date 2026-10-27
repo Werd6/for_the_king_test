@@ -1,10 +1,12 @@
 import type { ImageSourcePropType } from 'react-native';
 import {
   darkColors,
+  fontThemes,
   lightColors,
   radii as defaultRadii,
   spacing as defaultSpacing,
   type ColorScheme,
+  type FontThemeName,
   type Radii,
   type Spacing,
   type ThemeColors,
@@ -24,6 +26,8 @@ export type RawPathwayTheme = {
   tabTitle?: string;
   /** Name of an alternate app icon bundled in the native build. */
   iconKey?: string;
+  /** `"go-and-make"` (Instrument Serif + DM Sans) or `"system"`, the default for pathways. */
+  fonts?: FontThemeName;
 };
 
 export type ThemeImage = ImageSourcePropType;
@@ -36,6 +40,7 @@ export type ResolvedTheme = {
   favicon: ThemeImage | null;
   tabTitle: string | null;
   iconKey: string | null;
+  fonts: FontThemeName;
 };
 
 export const DEFAULT_THEME: ResolvedTheme = {
@@ -43,12 +48,13 @@ export const DEFAULT_THEME: ResolvedTheme = {
   radii: defaultRadii,
   spacing: defaultSpacing,
   logo: {
-    light: BUNDLED_THEME_ASSETS['for-the-king-logo.png'] ?? null,
-    dark: BUNDLED_THEME_ASSETS['for-the-king-logo-dark.png'] ?? null,
+    light: BUNDLED_THEME_ASSETS['go-and-make-logo.png'] ?? null,
+    dark: BUNDLED_THEME_ASSETS['go-and-make-logo.png'] ?? null,
   },
   favicon: null,
   tabTitle: null,
   iconKey: null,
+  fonts: 'go-and-make',
 };
 
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -146,5 +152,6 @@ export function resolveTheme(raw: unknown): ResolvedTheme {
     favicon: resolveImage(raw.favicon),
     tabTitle: resolveText(raw.tabTitle),
     iconKey: resolveText(raw.iconKey),
+    fonts: typeof raw.fonts === 'string' && raw.fonts in fontThemes ? (raw.fonts as FontThemeName) : 'system',
   };
 }

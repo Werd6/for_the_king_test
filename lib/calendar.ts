@@ -11,7 +11,10 @@ import { Platform } from 'react-native';
 import { showAlert } from '@/lib/dialogs';
 import type { Huddle } from '@/lib/types';
 
-const CALENDAR_TITLE = 'For The King Huddle';
+const CALENDAR_TITLE = 'Go and Make Huddle';
+/** Calendars made before the rename keep being reused instead of getting a second one. */
+const LEGACY_CALENDAR_TITLES = ['For The King Huddle'];
+const CALENDAR_COLOR = '#607666';
 const EVENT_TITLE_PREFIX = 'Huddle —';
 
 async function ensurePermissions(): Promise<boolean> {
@@ -25,7 +28,9 @@ async function ensurePermissions(): Promise<boolean> {
 
 async function getOrCreateCalendar(): Promise<ExpoCalendar | null> {
   const calendars = await getCalendars(EntityTypes.EVENT);
-  const existing = calendars.find((c) => c.title === CALENDAR_TITLE);
+  const existing =
+    calendars.find((c) => c.title === CALENDAR_TITLE) ??
+    calendars.find((c) => LEGACY_CALENDAR_TITLES.includes(c.title));
   if (existing) return existing;
 
   if (Platform.OS === 'ios') {
@@ -33,7 +38,7 @@ async function getOrCreateCalendar(): Promise<ExpoCalendar | null> {
       const defaultCalendar = getDefaultCalendarSync();
       return createCalendar({
         title: CALENDAR_TITLE,
-        color: '#17B890',
+        color: CALENDAR_COLOR,
         entityType: EntityTypes.EVENT,
         sourceId: defaultCalendar.source?.id,
         source: defaultCalendar.source,
@@ -48,7 +53,7 @@ async function getOrCreateCalendar(): Promise<ExpoCalendar | null> {
 
   return createCalendar({
     title: CALENDAR_TITLE,
-    color: '#17B890',
+    color: CALENDAR_COLOR,
     entityType: EntityTypes.EVENT,
     name: CALENDAR_TITLE,
     ownerAccount: 'personal',
@@ -92,7 +97,7 @@ export async function syncHuddleMeetingsToDevice(huddle: Huddle): Promise<number
     startDate,
     endDate,
     location: huddle.meetings.location ?? undefined,
-    notes: `For The King — invite ${huddle.invite_code}${
+    notes: `Go and Make, invite ${huddle.invite_code}${
       huddle.meetings.location ? `\n${huddle.meetings.location}` : ''
     }`,
   });

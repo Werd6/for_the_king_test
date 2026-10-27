@@ -1,4 +1,4 @@
-# For The King — Launch To-Do
+# Go and Make — Launch To-Do
 
 Work top to bottom. Each phase should be done before the next unless noted.
 
@@ -37,6 +37,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
   - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
   - [x] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
+  - [ ] Add `goandmake://**` to the Supabase redirect URLs (Go and Make scheme)
   - [ ] Test: request reset on the live site, open the email link, set a new password
 - [ ] **Auth emails**
   - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
@@ -57,7 +58,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **Accounts**
   - [ ] Apple Developer Program ($99/yr)
   - [ ] Google Play Console ($25 one-time)
-- [ ] **Bundle ID** — decide final ID (e.g. `com.yourname.fortheking`) and update `app.json` iOS + Android
+- [x] **Bundle ID** — `com.goandmake.app` (iOS + Android), scheme `goandmake`
 - [ ] **EAS setup**
   - [ ] `npm i -g eas-cli && eas login`
   - [ ] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
@@ -100,7 +101,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 
 ## Feature — Pathway theming
 
-Each pathway brings its own look; the platform default ("For The King") is the fallback everywhere.
+Each pathway brings its own look; the Go and Make default (Paper / Stone / Ink / Sage / Clay, Instrument Serif + DM Sans) is the fallback everywhere.
 
 **Decisions**
 - Customizable: light + dark colors, logo (light + dark), browser tab icon + title, corner roundness, spacing. Not fonts, not app name copy.
@@ -188,6 +189,19 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [ ] Rebuild the Android app and test all three notifications
 - [ ] Add push tokens to the App Privacy / Data Safety forms
 
+---
+
+## Feature — Go and Make rebrand
+
+Go and Make is the platform; For The King is the first content pathway.
+
+- [x] Name, scheme `goandmake`, IDs `com.goandmake.app`; winding-road icon, splash, favicon and notification icon
+- [x] Default theme: Paper `#F7F5F0`, Stone `#E6E2D9`, Ink `#292C29`, Sage `#607666`, Clay `#AE7757`
+- [x] Fonts: Instrument Serif (titles, Scripture quotes), DM Sans (interface)
+- [ ] Firebase: add Android app `com.goandmake.app`, update the EAS file variable `GOOGLE_SERVICES_JSON`
+- [ ] FCM V1 key for `com.goandmake.app` via `eas credentials`
+- [ ] Supabase redirect URL `goandmake://**`
+- [ ] New EAS build; uninstall the old For The King app (different package)
 
 ---
 

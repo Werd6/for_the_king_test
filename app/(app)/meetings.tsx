@@ -38,7 +38,7 @@ function looksLikeUrl(value: string): boolean {
 
 export default function MeetingsScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const [time, setTime] = useState<Date | null>(null);
   const [location, setLocation] = useState('');
   const [picking, setPicking] = useState(false);
@@ -182,7 +182,7 @@ export default function MeetingsScreen() {
         </SettingsGroup>
 
         {time ? (
-          <Text style={{ color: colors.mutedText, fontSize: 13, marginTop: 8, marginHorizontal: 4 }}>
+          <Text style={{ ...fonts.regular, color: colors.mutedText, fontSize: 13, marginTop: 8, marginHorizontal: 4 }}>
             Tip: pick the next meeting’s date & time — brothers can add it to their calendars from
             here.
           </Text>

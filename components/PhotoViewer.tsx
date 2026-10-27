@@ -1,4 +1,3 @@
-import { typography } from '@/lib/theme';
 import { useEffect, useRef, useState } from 'react';
 import {
   Image,
@@ -12,6 +11,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/lib/ThemeContext';
 
 /** Full-screen photo viewer. Swipe between photos; pinch to zoom on iOS. */
 export function PhotoViewer({
@@ -25,6 +25,7 @@ export function PhotoViewer({
   onClose: () => void;
 }) {
   const { width, height } = useWindowDimensions();
+  const { typography } = useTheme();
   const pager = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
   // Keeps photos on screen while the modal animates closed.

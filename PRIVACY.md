@@ -1,8 +1,8 @@
-# Privacy Policy — For The King (draft)
+# Privacy Policy — Go and Make (draft)
 
 Last updated: 2026-09-29
 
-For The King (“the App”) is a discipleship companion for men’s huddles.
+Go and Make (“the App”) is a discipleship companion for huddles, offering content pathways such as For The King.
 
 ## Data we collect
 

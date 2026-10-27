@@ -34,7 +34,6 @@ import { friendlyError } from '@/lib/errors';
 import { dayItemId, isGroupChallengeWeek, isStandardWeek } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import type { ChallengeItem, ProgressRow } from '@/lib/types';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -46,7 +45,7 @@ const NO_NOTES: WeekNotes = { notes: [], photos: [] };
 export default function WeekHomeScreen() {
   const { huddle, userId, isLeader, refresh } = useAuth();
   const { getWeek, pathway, loading: contentLoading } = useContent();
-  const { colors } = useTheme();
+  const { colors, fonts, typography } = useTheme();
   const router = useRouter();
   const [progress, setProgressRows] = useState<ProgressRow[]>([]);
   const [pickId, setPickId] = useState<string | null>(null);
@@ -300,7 +299,7 @@ export default function WeekHomeScreen() {
             Week {week.weekNumber} of {totalWeeks}
           </Title>
           <Subtitle>{week.title}</Subtitle>
-          <Text style={{ fontWeight: '600', color: colors.ink }}>{week.movement}</Text>
+          <Text style={{ ...fonts.semibold, color: colors.ink }}>{week.movement}</Text>
           <Body>This week replaces the normal huddle with a shared group activity.</Body>
           {isLeader ? (
             <PrimaryButton
@@ -355,7 +354,7 @@ export default function WeekHomeScreen() {
           Week {week.weekNumber} of {totalWeeks}
         </Title>
         <Subtitle>{week.title}</Subtitle>
-        <Text style={{ fontWeight: '600', color: colors.ink }}>{week.movement}</Text>
+        <Text style={{ ...fonts.semibold, color: colors.ink }}>{week.movement}</Text>
         {isLeader ? (
           <PrimaryButton
             title="Leader Materials"

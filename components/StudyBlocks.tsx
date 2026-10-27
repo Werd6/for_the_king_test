@@ -1,25 +1,25 @@
 import { Fragment } from 'react';
 import { Text, View, type TextStyle } from 'react-native';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import type { StudyBlock } from '@/lib/types';
 
 /** Renders `**bold**` and `*italic*` spans inside a string. */
 export function RichText({ text, style }: { text: string; style?: TextStyle | TextStyle[] }) {
+  const { fonts } = useTheme();
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean);
   return (
     <Text style={style}>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
-            <Text key={i} style={{ fontWeight: '700' }}>
+            <Text key={i} style={{ ...fonts.bold }}>
               {part.slice(2, -2)}
             </Text>
           );
         }
         if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
           return (
-            <Text key={i} style={{ fontStyle: 'italic' }}>
+            <Text key={i} style={{ ...fonts.italic }}>
               {part.slice(1, -1)}
             </Text>
           );
@@ -31,7 +31,7 @@ export function RichText({ text, style }: { text: string; style?: TextStyle | Te
 }
 
 export function QuoteBlock({ text, source }: { text: string; source?: string }) {
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, fonts, typography } = useTheme();
   return (
     <View
       style={{
@@ -42,11 +42,14 @@ export function QuoteBlock({ text, source }: { text: string; source?: string }) 
         gap: spacing.xs,
       }}
     >
-      <RichText text={text} style={{ ...typography.body, color: colors.ink, lineHeight: 24 }} />
+      <RichText
+        text={text}
+        style={{ ...typography.quote, color: colors.ink }}
+      />
       {source ? (
         <RichText
           text={`— ${source}`}
-          style={{ fontSize: 14, lineHeight: 20, color: colors.mutedText }}
+          style={{ ...fonts.regular, fontSize: 14, lineHeight: 20, color: colors.mutedText }}
         />
       ) : null}
     </View>
@@ -54,7 +57,7 @@ export function QuoteBlock({ text, source }: { text: string; source?: string }) 
 }
 
 export function StudyBlocks({ blocks }: { blocks: StudyBlock[] }) {
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, typography } = useTheme();
   const body: TextStyle = { ...typography.body, color: colors.ink, lineHeight: 24 };
 
   return (

@@ -34,7 +34,7 @@ export function DateTimeField({
   value: Date;
   onChange: (next: Date) => void;
 }) {
-  const { colors, radii, spacing, scheme } = useTheme();
+  const { colors, radii, spacing, scheme, fonts } = useTheme();
 
   if (Platform.OS === 'web') {
     const webStyle: TextStyle = {
@@ -43,6 +43,7 @@ export function DateTimeField({
       borderRadius: radii.sm,
       paddingHorizontal: 10,
       paddingVertical: spacing.sm,
+      ...fonts.regular,
       fontSize: 16,
       color: colors.ink,
       backgroundColor: colors.inputBg,

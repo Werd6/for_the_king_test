@@ -1,7 +1,6 @@
 import { PhotoViewer } from '@/components/PhotoViewer';
 import { Body } from '@/components/ui';
 import { notePhotoUrls } from '@/lib/api';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import type { JournalNote, JournalPhoto } from '@/lib/types';
 import { useEffect, useState } from 'react';
@@ -26,7 +25,7 @@ export type ViewedNote = {
 
 /** Read-only view of a note someone shared with the huddle. */
 export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onClose: () => void }) {
-  const { colors, radii } = useTheme();
+  const { colors, radii, typography } = useTheme();
   const { width } = useWindowDimensions();
   // Keeps content on screen while the modal animates closed.
   const [shown, setShown] = useState<ViewedNote | null>(null);

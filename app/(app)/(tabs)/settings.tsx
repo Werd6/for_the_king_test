@@ -64,7 +64,7 @@ export default function SettingsScreen() {
 
   async function shareCode() {
     try {
-      await shareText(`Join my For The King huddle with code ${huddle!.invite_code}`);
+      await shareText(`Join my huddle on Go and Make with code ${huddle!.invite_code}`);
     } catch (e) {
       showAlert('Share failed', friendlyError(e, 'Could not share'));
     }
@@ -80,7 +80,6 @@ export default function SettingsScreen() {
     try {
       await leaveHuddle(userId!);
       await refresh();
-      router.replace('/');
     } catch (e) {
       showAlert('Error', friendlyError(e, 'Could not leave'));
     }
@@ -96,7 +95,6 @@ export default function SettingsScreen() {
     try {
       await dissolveHuddle(huddle!.id);
       await refresh();
-      router.replace('/');
     } catch (e) {
       showAlert('Error', friendlyError(e, 'Could not dissolve'));
     }
@@ -113,7 +111,6 @@ export default function SettingsScreen() {
 
   async function onSignOut() {
     await signOut();
-    router.replace('/');
   }
 
   async function onDeleteAccount() {
@@ -128,7 +125,6 @@ export default function SettingsScreen() {
     try {
       await deleteAccount(userId!);
       await refresh();
-      router.replace('/');
     } catch (e) {
       showAlert('Error', friendlyError(e, 'Could not delete'));
     }

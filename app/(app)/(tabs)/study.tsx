@@ -23,7 +23,7 @@ import { useTheme } from '@/lib/ThemeContext';
 export default function StudyScreen() {
   const { huddle } = useAuth();
   const { getWeek, pathway, loading } = useContent();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const router = useRouter();
 
   if (!huddle || loading || !pathway) return <Loading />;
@@ -40,7 +40,7 @@ export default function StudyScreen() {
           Week {week.weekNumber}: {week.title}
         </Title>
         {week.movement ? (
-          <Text style={{ fontWeight: '600', color: colors.mutedText }}>{week.movement}</Text>
+          <Text style={{ ...fonts.semibold, color: colors.mutedText }}>{week.movement}</Text>
         ) : null}
 
         {study?.preface ? (

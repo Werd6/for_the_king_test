@@ -11,9 +11,16 @@ import {
 } from 'react-native';
 import { openFeedbackForm } from '@/lib/feedback';
 import { useTheme } from '@/lib/ThemeContext';
-import { typography, type Radii, type Spacing, type ThemeColors } from '@/lib/theme';
+import type { FontSet } from '@/lib/fonts';
+import type { Radii, Spacing, ThemeColors, Typography } from '@/lib/theme';
 
-function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
+function makeStyles(
+  colors: ThemeColors,
+  radii: Radii,
+  spacing: Spacing,
+  fonts: FontSet,
+  typography: Typography
+) {
   return StyleSheet.create({
     screen: {
       flex: 1,
@@ -73,6 +80,7 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
       borderRadius: radii.sm,
       paddingHorizontal: 10,
       paddingVertical: spacing.sm,
+      ...fonts.regular,
       fontSize: 16,
       color: colors.ink,
       backgroundColor: colors.inputBg,
@@ -105,8 +113,8 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
     },
     checkboxMark: {
       color: colors.onPrimary,
+      ...fonts.bold,
       fontSize: 14,
-      fontWeight: '800',
       lineHeight: 16,
     },
     checkLabel: {
@@ -176,8 +184,8 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
       gap: spacing.sm,
     },
     settingsGroupLabel: {
+      ...fonts.semibold,
       fontSize: 13,
-      fontWeight: '600',
       letterSpacing: 0.4,
       textTransform: 'uppercase',
       color: colors.mutedText,
@@ -209,25 +217,27 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
     },
     settingsRowLabel: {
       flex: 1,
+      ...fonts.medium,
       fontSize: 16,
-      fontWeight: '500',
       color: colors.ink,
     },
     settingsRowLabelDanger: {
       color: colors.danger,
     },
     settingsRowValue: {
+      ...fonts.regular,
       fontSize: 15,
       color: colors.mutedText,
       maxWidth: '45%',
     },
     settingsRowChevron: {
+      ...fonts.regular,
       fontSize: 20,
       color: colors.mutedText,
-      fontWeight: '300',
       marginLeft: 2,
     },
     settingsFooter: {
+      ...fonts.regular,
       fontSize: 13,
       lineHeight: 18,
       color: colors.mutedText,
@@ -253,8 +263,8 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
       backgroundColor: colors.primary,
     },
     segmentItemText: {
+      ...fonts.semibold,
       fontSize: 14,
-      fontWeight: '600',
       color: colors.mutedText,
     },
     segmentItemTextActive: {
@@ -269,10 +279,10 @@ function makeStyles(colors: ThemeColors, radii: Radii, spacing: Spacing) {
 }
 
 function useUiStyles() {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, radii, spacing, fonts, typography } = useTheme();
   return useMemo(
-    () => ({ colors, styles: makeStyles(colors, radii, spacing) }),
-    [colors, radii, spacing]
+    () => ({ colors, typography, styles: makeStyles(colors, radii, spacing, fonts, typography) }),
+    [colors, radii, spacing, fonts, typography]
   );
 }
 
@@ -282,7 +292,7 @@ export function Screen({ children, style }: { children: React.ReactNode; style?:
 }
 
 export function FeedbackLink() {
-  const { colors } = useUiStyles();
+  const { colors, typography } = useUiStyles();
   return (
     <Text
       accessibilityRole="link"

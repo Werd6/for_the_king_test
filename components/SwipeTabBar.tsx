@@ -25,7 +25,7 @@ export type SwipeTabBarProps = {
 
 /** Bottom tab bar for the swipeable tabs, styled like the standard bottom tabs. */
 export function SwipeTabBar({ state, descriptors, navigation }: SwipeTabBarProps) {
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
@@ -60,7 +60,7 @@ export function SwipeTabBar({ state, descriptors, navigation }: SwipeTabBarProps
             style={styles.item}
           >
             {options.tabBarIcon?.({ focused, color })}
-            <Text style={[styles.label, { color }]} numberOfLines={1}>
+            <Text style={[styles.label, fonts.semibold, { color }]} numberOfLines={1}>
               {label}
             </Text>
           </Pressable>
@@ -83,6 +83,5 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    fontWeight: '600',
   },
 });

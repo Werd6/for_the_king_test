@@ -5,12 +5,21 @@ import { Platform } from 'react-native';
 import { useColorScheme as useSystemColorScheme } from '@/components/useColorScheme';
 import { applyAppIcon } from '@/lib/appIcon';
 import { resolveTheme, type RawPathwayTheme, type ThemeImage } from '@/lib/pathwayTheme';
-import type { ColorScheme, Radii, Spacing, ThemeColors, ThemePreference } from '@/lib/theme';
+import type { FontSet } from '@/lib/fonts';
+import {
+  fontThemes,
+  type ColorScheme,
+  type Radii,
+  type Spacing,
+  type ThemeColors,
+  type ThemePreference,
+  type Typography,
+} from '@/lib/theme';
 
 const PREFERENCE_KEY = 'ftk_theme_preference';
 /** Last applied pathway theme, so launches start in the right look before content loads. */
 const ACTIVE_THEME_KEY = 'ftk.activeTheme';
-const DEFAULT_TAB_TITLE = 'For The King';
+const DEFAULT_TAB_TITLE = 'Go and Make';
 
 type ThemeContextValue = {
   preference: ThemePreference;
@@ -18,6 +27,8 @@ type ThemeContextValue = {
   colors: ThemeColors;
   radii: Radii;
   spacing: Spacing;
+  fonts: FontSet;
+  typography: Typography;
   logo: ThemeImage | null;
   tabTitle: string;
   setPreference: (next: ThemePreference) => void;
@@ -139,6 +150,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       colors,
       radii: resolved.radii,
       spacing: resolved.spacing,
+      ...fontThemes[resolved.fonts],
       logo: resolved.logo[scheme],
       tabTitle,
       setPreference,

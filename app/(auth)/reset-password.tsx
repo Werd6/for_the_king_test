@@ -34,7 +34,7 @@ function clearWebUrl() {
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { refresh } = useAuth();
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
   const nativeUrl = Linking.useURL();
   const url = Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.href : nativeUrl;
   const consumedRef = useRef(false);
@@ -165,7 +165,7 @@ export default function ResetPasswordScreen() {
           autoComplete="new-password"
           textContentType="newPassword"
         />
-        {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
+        {error ? <Text style={{ ...fonts.regular, color: colors.danger }}>{error}</Text> : null}
         <PrimaryButton
           title={busy ? 'Saving…' : 'Update password'}
           onPress={submit}

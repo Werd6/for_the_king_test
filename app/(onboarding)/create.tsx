@@ -19,11 +19,10 @@ import { friendlyError } from '@/lib/errors';
 import { useContent } from '@/lib/ContentContext';
 import { showAlert } from '@/lib/dialogs';
 import type { PathwayOption } from '@/lib/content';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 
 export default function CreateHuddleScreen() {
-  const { colors, radii } = useTheme();
+  const { colors, radii, typography } = useTheme();
   const { userId, profile, refresh } = useAuth();
   const { options, refreshOptions } = useContent();
   const router = useRouter();

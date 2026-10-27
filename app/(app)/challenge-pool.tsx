@@ -3,10 +3,12 @@ import { Redirect } from 'expo-router';
 import { Body, FeedbackLink, Loading, Screen, Section, Title } from '@/components/ui';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function ChallengePoolScreen() {
   const { isLeader } = useAuth();
   const { pathway, loading } = useContent();
+  const { fonts } = useTheme();
   if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
   if (loading || !pathway) return <Loading />;
 
@@ -26,7 +28,7 @@ export default function ChallengePoolScreen() {
         {Object.entries(categories).map(([name, items]) => (
           <Section key={name} title={name}>
             {items.map((item) => (
-              <Text key={item.id} style={{ marginBottom: 6, fontSize: 15 }}>
+              <Text key={item.id} style={{ ...fonts.regular, marginBottom: 6, fontSize: 15 }}>
                 • {item.text}
               </Text>
             ))}

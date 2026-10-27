@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "For The King",
+    "name": "Go and Make",
     "slug": "for-the-king",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fortheking",
+    "scheme": "goandmake",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fortheking.app",
+      "bundleIdentifier": "com.goandmake.app",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCalendarsUsageDescription": "Add your huddle meeting dates to your calendar.",
@@ -17,11 +17,10 @@
       }
     },
     "android": {
-      "package": "com.fortheking.app",
+      "package": "com.goandmake.app",
       "adaptiveIcon": {
-        "backgroundColor": "#DEE5E5",
+        "backgroundColor": "#F7F5F0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "permissions": [
@@ -44,7 +43,7 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Allow For The King to add huddle meetings to your calendar."
+          "calendarPermission": "Allow Go and Make to add huddle meetings to your calendar."
         }
       ],
       [
@@ -52,10 +51,10 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#DEE5E5",
+          "backgroundColor": "#F7F5F0",
           "dark": {
             "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#082D0F"
+            "backgroundColor": "#1F211F"
           }
         }
       ],
@@ -76,8 +75,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "For The King lets you attach photos of your journal pages to your notes.",
-          "cameraPermission": "For The King uses the camera to photograph your journal pages.",
+          "photosPermission": "Go and Make lets you attach photos of your journal pages to your notes.",
+          "cameraPermission": "Go and Make uses the camera to photograph your journal pages.",
           "microphonePermission": false
         }
       ],
@@ -85,21 +84,21 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#A8874F",
+          "color": "#607666",
           "defaultChannel": "default"
         }
       ],
       [
         "./plugins/withPathwayNotificationIcons",
         {
-          "for-the-king": "./assets/images/notification-icon.png",
+          "for-the-king": "./assets/images/notification-icon-for-the-king.png",
           "pc3-focuses": "./assets/images/notification-icon-pc3.png"
         }
       ],
       [
         "react-native-document-scanner-plugin",
         {
-          "cameraPermission": "For The King uses the camera to scan your journal pages."
+          "cameraPermission": "Go and Make uses the camera to scan your journal pages."
         }
       ]
     ],

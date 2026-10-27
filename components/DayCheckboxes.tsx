@@ -1,4 +1,3 @@
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import { Pressable, Text, View } from 'react-native';
 
@@ -16,7 +15,7 @@ export function DayCheckboxes({
   onToggleDay: (day: number, next: boolean) => void;
   saving?: boolean;
 }) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, radii, spacing, fonts, typography } = useTheme();
   const dayNumbers = Array.from({ length: days }, (_, i) => i + 1);
   const done = dayNumbers.filter(isChecked).length;
 
@@ -61,8 +60,8 @@ export function DayCheckboxes({
             >
               <Text
                 style={{
+                  ...fonts.semibold,
                   fontSize: 10,
-                  fontWeight: '600',
                   color: checked ? colors.onPrimary : colors.mutedText,
                 }}
               >
@@ -70,8 +69,8 @@ export function DayCheckboxes({
               </Text>
               <Text
                 style={{
+                  ...fonts.bold,
                   fontSize: 15,
-                  fontWeight: '800',
                   color: checked ? colors.onPrimary : colors.ink,
                 }}
               >

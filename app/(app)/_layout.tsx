@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { LeaderTourProvider } from '@/components/LeaderTour';
 import { Loading } from '@/components/ui';
@@ -49,10 +49,12 @@ function Notifications() {
 }
 
 export default function AppLayout() {
-  const { colors } = useTheme();
-  const { loading } = useAuth();
+  const { colors, fonts } = useTheme();
+  const { loading, userId, huddle } = useAuth();
 
   if (loading) return <Loading />;
+  if (!userId) return <Redirect href="/(auth)/sign-in" />;
+  if (!huddle) return <Redirect href="/(onboarding)/join-create" />;
 
   return (
     <LeaderTourProvider>
@@ -61,7 +63,7 @@ export default function AppLayout() {
           headerBackTitle: 'Back',
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.ink,
-          headerTitleStyle: { fontWeight: '700', color: colors.ink },
+          headerTitleStyle: { ...fonts.bold, color: colors.ink },
           contentStyle: { backgroundColor: colors.bg },
         }}
       >

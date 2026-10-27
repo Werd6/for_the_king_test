@@ -1,4 +1,7 @@
-/** Coolors palette: https://coolors.co/dee5e5-9dc5bb-17b890-5e807f-082d0f */
+import type { TextStyle } from 'react-native';
+import { goAndMakeFonts, systemFonts, type FontSet } from '@/lib/fonts';
+
+/** Go and Make palette: Paper #F7F5F0, Stone #E6E2D9, Ink #292C29, Sage #607666, Clay #AE7757. */
 
 export type ColorScheme = 'light' | 'dark';
 export type ThemePreference = 'system' | ColorScheme;
@@ -21,40 +24,37 @@ export type ThemeColors = {
   white: string;
 };
 
-/** Light — Coolors as specified */
+/** Light: Paper canvas, Ink text, Sage actions, Clay highlights. */
 export const lightColors: ThemeColors = {
-  bg: '#DEE5E5',
-  surface: '#E8EEEE',
-  surfaceStrong: '#9DC5BB',
-  primary: '#17B890',
-  accent: '#17B890',
-  muted: '#5E807F',
-  mutedText: '#466665',
-  ink: '#082D0F',
-  onPrimary: '#082D0F',
-  danger: '#8B1E1E',
-  border: '#5E807F',
-  inputBg: '#F4F7F7',
+  bg: '#F7F5F0',
+  surface: '#FCFBF8',
+  surfaceStrong: '#E6E2D9',
+  primary: '#607666',
+  accent: '#AE7757',
+  muted: '#8C8F88',
+  mutedText: '#5F625C',
+  ink: '#292C29',
+  onPrimary: '#FFFFFF',
+  danger: '#9B3B2E',
+  border: '#D9D4C9',
+  inputBg: '#FFFFFF',
   white: '#FFFFFF',
 };
 
-/**
- * Dark — same family inverted:
- * forest ink becomes the canvas; mint/platinum become text & accents.
- */
+/** Dark: Ink canvas, Paper text, lightened Sage and Clay so they read on dark. */
 export const darkColors: ThemeColors = {
-  bg: '#082D0F',
-  surface: '#0F3A1C',
-  surfaceStrong: '#5E807F',
-  primary: '#17B890',
-  accent: '#17B890',
-  muted: '#9DC5BB',
-  mutedText: '#9DC5BB',
-  ink: '#DEE5E5',
-  onPrimary: '#082D0F',
-  danger: '#E07070',
-  border: '#5E807F',
-  inputBg: '#0C2A16',
+  bg: '#1F211F',
+  surface: '#292C29',
+  surfaceStrong: '#3A3E3A',
+  primary: '#8FA595',
+  accent: '#C48E6E',
+  muted: '#7D817A',
+  mutedText: '#B3AFA6',
+  ink: '#F7F5F0',
+  onPrimary: '#292C29',
+  danger: '#E0826F',
+  border: '#3A3E3A',
+  inputBg: '#242624',
   white: '#FFFFFF',
 };
 
@@ -83,20 +83,28 @@ export const radii: Radii = {
   lg: 12,
 };
 
-export const typography = {
-  title: { fontSize: 22, fontWeight: '700' as const, lineHeight: 28 },
-  subtitle: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },
-  section: { fontSize: 17, fontWeight: '700' as const, lineHeight: 22 },
-  body: { fontSize: 15, fontWeight: '400' as const, lineHeight: 22 },
-  label: { fontSize: 14, fontWeight: '600' as const, lineHeight: 18 },
-  button: { fontSize: 16, fontWeight: '700' as const, lineHeight: 20 },
-} as const;
+export type FontThemeName = 'go-and-make' | 'system';
 
-export const theme = {
-  colors: lightColors,
-  spacing,
-  radii,
-  typography,
-} as const;
+function makeTypography(fonts: FontSet, serifDisplay: boolean) {
+  return {
+    title: serifDisplay
+      ? { ...fonts.display, fontSize: 30, lineHeight: 36 }
+      : { ...fonts.display, fontSize: 22, lineHeight: 28 },
+    subtitle: { ...fonts.semibold, fontSize: 16, lineHeight: 22 },
+    section: { ...fonts.bold, fontSize: 17, lineHeight: 22 },
+    body: { ...fonts.regular, fontSize: 15, lineHeight: 22 },
+    label: { ...fonts.semibold, fontSize: 14, lineHeight: 18 },
+    button: { ...fonts.bold, fontSize: 16, lineHeight: 20 },
+    /** Scripture and quote blocks. */
+    quote: serifDisplay
+      ? { ...fonts.display, fontSize: 20, lineHeight: 27 }
+      : { ...fonts.regular, fontSize: 15, lineHeight: 24 },
+  } satisfies Record<string, TextStyle>;
+}
 
-export type Theme = typeof theme;
+export type Typography = ReturnType<typeof makeTypography>;
+
+export const fontThemes: Record<FontThemeName, { fonts: FontSet; typography: Typography }> = {
+  'go-and-make': { fonts: goAndMakeFonts, typography: makeTypography(goAndMakeFonts, true) },
+  system: { fonts: systemFonts, typography: makeTypography(systemFonts, false) },
+};

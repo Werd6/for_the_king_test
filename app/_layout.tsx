@@ -1,10 +1,12 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { AuthProvider } from '@/lib/AuthContext';
 import { ContentProvider } from '@/lib/ContentContext';
+import { fontAssets } from '@/lib/fonts';
 import { ThemeProvider, useTheme } from '@/lib/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
@@ -21,7 +23,7 @@ if (Platform.OS === 'web' && typeof window !== 'undefined') {
 export { ErrorBoundary } from 'expo-router';
 
 function ThemedStack() {
-  const { colors, scheme } = useTheme();
+  const { colors, scheme, fonts } = useTheme();
   const navigationTheme = useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
     return {
@@ -46,7 +48,7 @@ function ThemedStack() {
           headerBackTitle: 'Back',
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.ink,
-          headerTitleStyle: { fontWeight: '700', color: colors.ink },
+          headerTitleStyle: { ...fonts.bold, color: colors.ink },
           contentStyle: { backgroundColor: colors.bg },
         }}
       >
@@ -63,9 +65,14 @@ function ThemedStack() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  const ready = fontsLoaded || Boolean(fontError);
+
   useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     <ThemeProvider>

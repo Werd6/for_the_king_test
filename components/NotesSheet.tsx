@@ -10,7 +10,6 @@ import {
 import { showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 import { canScan, choosePhoto, scanPages, takePhoto } from '@/lib/scan';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import type { JournalNote, JournalPhoto, NotesVisibility } from '@/lib/types';
 import { useEffect, useState } from 'react';
@@ -71,7 +70,7 @@ export function NotesSheet({
   photos: JournalPhoto[];
   onFinish: (result: NotesSheetResult) => void;
 }) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, radii, spacing, fonts, typography } = useTheme();
   // Keeps content on screen while the modal animates closed.
   const [shown, setShown] = useState<NotesSheetItem | null>(null);
   const [body, setBody] = useState('');
@@ -230,7 +229,7 @@ export function NotesSheet({
             }}
             accessibilityRole="text"
           >
-            <Text style={{ fontSize: 16 }}>{shared ? '👥' : '🔒'}</Text>
+            <Text style={{ ...fonts.regular, fontSize: 16 }}>{shared ? '👥' : '🔒'}</Text>
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={{ ...typography.label, color: colors.ink }}>
                 {shared
@@ -267,6 +266,7 @@ export function NotesSheet({
               borderColor: colors.muted,
               borderRadius: radii.sm,
               padding: 10,
+              ...fonts.regular,
               fontSize: 16,
               lineHeight: 22,
               color: colors.ink,
@@ -320,7 +320,7 @@ export function NotesSheet({
                       justifyContent: 'center',
                     }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '700' }}>✕</Text>
+                    <Text style={{ color: '#fff', ...fonts.bold }}>✕</Text>
                   </Pressable>
                 </View>
               ))}

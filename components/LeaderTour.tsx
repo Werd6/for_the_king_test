@@ -3,7 +3,6 @@ import { useAuth } from '@/lib/AuthContext';
 import { hasStudyContent } from '@/lib/content';
 import { useContent } from '@/lib/ContentContext';
 import { readJson, writeJson } from '@/lib/supabase';
-import { typography } from '@/lib/theme';
 import { useTheme } from '@/lib/ThemeContext';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
 import {
@@ -70,7 +69,7 @@ export function LeaderTourProvider({ children }: { children: ReactNode }) {
 }
 
 function LeaderTourModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, radii, spacing, typography } = useTheme();
   const { huddle } = useAuth();
   const { pathway } = useContent();
   const [index, setIndex] = useState(0);
