@@ -13,7 +13,13 @@ npm run web
 
 Without Supabase env vars the app runs in **local prototype mode** (AsyncStorage). Multi-device sync needs Supabase.
 
+## Marketing site
+
+The public site at https://goandmake.online (home, join, privacy, support, delete account) is a separate static site in [Werd6/Go_and_Make](https://github.com/Werd6/Go_and_Make). Its `privacy.html` is the published copy of [`PRIVACY.md`](PRIVACY.md); change both together. Settings → Privacy policy links to it.
+
 ## Deploy web (Vercel)
+
+The web app is for testers only and will be retired once the store apps are live (see TODO → Phase 8).
 
 1. Push **this folder** as its own GitHub repo (a local `git` repo was initialized here — do **not** push from your home directory).
 2. In Vercel, set env vars (must be present at **build** time):

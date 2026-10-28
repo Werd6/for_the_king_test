@@ -22,7 +22,7 @@ import { friendlyError } from '@/lib/errors';
 import { syncHuddleMeetingsToDevice } from '@/lib/calendar';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
-import { openFeedbackForm } from '@/lib/feedback';
+import { openFeedbackForm, openPrivacyPolicy } from '@/lib/feedback';
 import type { ThemePreference } from '@/lib/theme';
 import type { HuddleSettings, NotesVisibility } from '@/lib/types';
 import { useTheme } from '@/lib/ThemeContext';
@@ -281,6 +281,7 @@ export default function SettingsScreen() {
           label="Account"
           footer="We store your account, huddle membership, checkmarks, Huddle Pass records, and any journal notes or photos you save in the app."
         >
+          <SettingsRow label="Privacy policy" onPress={openPrivacyPolicy} />
           <SettingsRow
             label={accountAction === 'signOut' ? 'Signing out…' : 'Sign out'}
             onPress={accountBusy ? undefined : onSignOut}

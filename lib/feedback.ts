@@ -1,11 +1,20 @@
 import { Linking, Platform } from 'react-native';
 
 export const FEEDBACK_URL = 'https://forms.gle/NGM9MmfJ2y9hmstp6';
+export const PRIVACY_POLICY_URL = 'https://goandmake.online/privacy';
 
-export function openFeedbackForm() {
+function openExternal(url: string) {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    window.open(FEEDBACK_URL, '_blank', 'noopener,noreferrer');
+    window.open(url, '_blank', 'noopener,noreferrer');
     return;
   }
-  Linking.openURL(FEEDBACK_URL);
+  Linking.openURL(url);
+}
+
+export function openFeedbackForm() {
+  openExternal(FEEDBACK_URL);
+}
+
+export function openPrivacyPolicy() {
+  openExternal(PRIVACY_POLICY_URL);
 }

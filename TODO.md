@@ -115,13 +115,15 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 
 ## Phase 6 — Apple: listing & submission
 
-- [ ] **Marketing site** — general-purpose Go and Make site, separate from the web app
-  - [ ] Domain
-  - [ ] Pages: home (what Go and Make is, pathways, how huddles work), privacy, support, delete account
-  - [ ] App Store and Google Play badges once the apps are live
-  - [ ] Link to the web app, and to the business site eventually
-- [ ] **Privacy policy** — put a real contact email in `PRIVACY.md`, remove "draft", and publish it on the marketing site
-- [ ] **Support URL / contact email** — support page on the marketing site
+- [ ] **Marketing site** — https://goandmake.online, static site in [Werd6/Go_and_Make](https://github.com/Werd6/Go_and_Make)
+  - [x] Domain `goandmake.online` (Namecheap)
+  - [x] Pages: home (what Go and Make is, pathways, ministries contact), join, privacy, support, delete account
+  - [ ] Import the repo into Vercel and point Namecheap DNS at it (steps in that repo's README)
+  - [ ] Swap the "Coming soon" badges on the join page for real App Store and Google Play links once the apps are live
+  - [ ] Link to the business site eventually
+- [x] **Privacy policy** — contact email filled in, "draft" removed, published as `privacy.html` on the marketing site
+  - [x] Settings → Privacy policy opens https://goandmake.online/privacy (Apple 5.1.1)
+- [x] **Support URL / contact email** — https://goandmake.online/support, bespoke.it.llc@gmail.com
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
 - [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad)
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
@@ -146,7 +148,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] Closed testing track (and the 14 days, if a personal account)
 - [ ] **Store listing** — short and full description, 512×512 icon, 1024×500 feature graphic, phone screenshots
 - [ ] **Data safety form** — same data as Apple's App Privacy
-- [ ] **Account deletion URL** — the delete-account page on the marketing site
+- [x] **Account deletion URL** — https://goandmake.online/delete-account
 - [ ] **Content rating** questionnaire (IARC)
 - [ ] Target audience and ads declaration (no ads)
 - [ ] Declare photo/camera permissions if Play flags them
@@ -159,7 +161,10 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] **Crash reporting** — Sentry (`@sentry/react-native`)
 - [ ] **OTA updates** — EAS Update for JS-only fixes
 - [ ] **Separate environments** — staging Supabase project vs. production
-- [ ] **Custom domain** on Vercel for the web version
+- [ ] **Retire the tester web app** (https://for-the-king-test.vercel.app) once testers have moved to the store apps
+  - [ ] Huddle Pass checkout lives on the web app today (`SITE_URL` in `create-checkout`, success page `/?pass=success`); give it a new home first, depending on the Phase 4 decision
+  - [ ] Password-reset links: Supabase Site URL and redirect URLs, and `EXPO_PUBLIC_SITE_URL` / `lib/siteUrl.ts`, point at the web app; move them before turning it off
+  - [ ] Tell testers, then remove the Vercel project
 - [ ] **Automated tests** — E2E happy path: sign up → create huddle → join → check in → advance week
 - [ ] **CI** — typecheck + tests on every push (GitHub Actions)
 - [ ] **Analytics** (optional, privacy-respecting) — weekly active huddles, retention
