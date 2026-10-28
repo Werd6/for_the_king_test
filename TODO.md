@@ -256,7 +256,6 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Leader settings: notes Optional / Required (default Optional), Private / Shared with huddle (default Private)
 - [x] Shared notes viewable from Progress (this week and past weeks)
 - [x] Photo cleanup on account deletion and huddle dissolve
-- [ ] Only if you ran the old `009_no_journal_photo_uploads.sql`: run `supabase/migrations/009_journal_photo_uploads.sql` to turn uploads back on
 - [x] Run `supabase/migrations/004_journaling.sql` in Supabase → SQL Editor
 - [x] Republish both pathways into their current version so pinned huddles get the tags:
   `npm run publish:pathway -- --version 1` and `npm run publish:pathway -- --pathway pc3-focuses --version 1`
