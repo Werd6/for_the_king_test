@@ -115,8 +115,13 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 
 ## Phase 6 — Apple: listing & submission
 
-- [ ] **Privacy policy** — put a real contact email in `PRIVACY.md`, remove "draft", and host it at a public URL (e.g. `/privacy` on the website)
-- [ ] **Support URL / contact email**
+- [ ] **Marketing site** — general-purpose Go and Make site, separate from the web app
+  - [ ] Domain
+  - [ ] Pages: home (what Go and Make is, pathways, how huddles work), privacy, support, delete account
+  - [ ] App Store and Google Play badges once the apps are live
+  - [ ] Link to the web app, and to the business site eventually
+- [ ] **Privacy policy** — put a real contact email in `PRIVACY.md`, remove "draft", and publish it on the marketing site
+- [ ] **Support URL / contact email** — support page on the marketing site
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
 - [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad)
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
@@ -141,7 +146,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] Closed testing track (and the 14 days, if a personal account)
 - [ ] **Store listing** — short and full description, 512×512 icon, 1024×500 feature graphic, phone screenshots
 - [ ] **Data safety form** — same data as Apple's App Privacy
-- [ ] **Account deletion URL** — a web page explaining how to delete an account
+- [ ] **Account deletion URL** — the delete-account page on the marketing site
 - [ ] **Content rating** questionnaire (IARC)
 - [ ] Target audience and ads declaration (no ads)
 - [ ] Declare photo/camera permissions if Play flags them
