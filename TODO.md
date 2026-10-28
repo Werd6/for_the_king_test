@@ -1,10 +1,21 @@
 # Go and Make — Launch To-Do
 
-Work top to bottom. Each phase should be done before the next unless noted.
+Work top to bottom. Apple comes first because enrollment and review take the longest; Google Play follows.
+Feature history is further down; anything still open there has been moved into a phase.
 
 ---
 
-## Phase 1 — Security & compliance (before wider sharing)
+## Phase 1 — Start today (longest lead times)
+
+- [ ] **Apple Developer Program** ($99/yr)
+  - [ ] Decide: enroll as an individual or as an organization (Bespoke IT LLC / ministry)
+  - [ ] If organization: request a free D-U-N-S number (can take 1–2 weeks)
+  - [ ] Enroll
+- [ ] Delete the Firebase service account key from Downloads
+
+---
+
+## Phase 2 — Security & compliance
 
 SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (already updated)
 
@@ -22,10 +33,11 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **RLS audit**
   - [x] Leaders can't rewrite `leader_id`; checkmark upserts have an update policy; picks stay attributed to the leader
   - [ ] Verify with two accounts in different huddles: neither sees the other's members, progress, or huddle
+- [ ] **Supabase Pro plan** — free projects pause after a week without activity
 
 ---
 
-## Phase 2 — Polish & branding
+## Phase 3 — Polish & app fixes
 
 - [x] **App icon** — replace `assets/images/icon.png` (1024×1024, no transparency)
 - [x] **Android adaptive icon** — replace foreground/background/monochrome PNGs
@@ -37,56 +49,107 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
   - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
   - [x] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
-  - [ ] Add `goandmake://**` to the Supabase redirect URLs (Go and Make scheme)
+  - [x] Add `goandmake://**` to the Supabase redirect URLs (Go and Make scheme)
   - [ ] Test: request reset on the live site, open the email link, set a new password
+  - [ ] Test the same from the app (the link should open the app)
 - [ ] **Auth emails**
   - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
   - [x] Custom SMTP via Resend (`mail.bespokeit.llc`)
   - [x] Sign-up with an existing email says so instead of "check your email"
 - [x] **Remove dev-only text** — Settings content label, "Run npm run publish:pathway" messages
 - [x] **Error states** — friendly error messages; "Couldn't load / Try again" on week + progress screens
-- [ ] **Content review** — proofread every week in `content/` and `for_the_king_content1.md`
+- [x] **Dark mode** — Challenge Pool items were black on dark
+- [ ] **Content review** — proofread every week of For The King (`content/`, `for_the_king_content1.md`) and Focuses
 - [ ] **Accessibility pass**
   - [x] Screen-reader headings, input/checkbox/row labels, disabled states, email/password autofill
   - [x] Light-mode secondary text darkened to pass 4.5:1 contrast
   - [ ] Test with VoiceOver (iOS) and large text sizes once native builds exist
+- [ ] **New-pathway offline fallback** — if a pathway not built into the app can't load on first open, show "connect to load your pathway" instead of For The King content
+- [ ] **iPad** — decide iPhone-only vs. iPad support (`supportsTablet` in `app.json`; iPad means iPad screenshots too)
+- [ ] **Export compliance** — add `ios.config.usesNonExemptEncryption: false` to `app.json` so App Store Connect stops asking every build
+- [ ] **Sign in with Apple deletion** — revoke the Apple token when someone deletes their account (or be ready to explain if review asks)
 
 ---
 
-## Phase 3 — Native builds & beta
+## Phase 4 — Payments (Huddle Pass)
 
-- [ ] **Accounts**
-  - [ ] Apple Developer Program ($99/yr)
-  - [ ] Google Play Console ($25 one-time)
+Required before shipping. Background is in "Feature — Huddle Pass" below and README → Huddle Pass.
+
+- [ ] Stripe account verified (test mode first)
+- [ ] Run `supabase/migrations/006_huddle_passes.sql` in Supabase → SQL Editor
+- [ ] Supabase CLI: install, link, set secrets, deploy `create-checkout` and `stripe-webhook`
+- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
+- [ ] Test: leader pays, starts Week 1, member pays and checks in; refund removes access; expired window (edit `started_at`); exempt huddle
+- [ ] Switch to live keys and a live webhook
+- [ ] **Decide how Huddle Pass goes through store review** (Apple 3.1.3(b) / Google Play billing)
+  - [ ] Option A: submit as-is; review notes explain passes are bought on the website and the apps sell nothing
+  - [ ] Option B: add Apple / Google in-app purchase alongside Stripe
+  - [ ] Option C: turn off pass checks in the phone apps for launch
+
+---
+
+## Phase 5 — Apple: test builds (TestFlight)
+
 - [x] **Bundle ID** — `com.goandmake.app` (iOS + Android), scheme `goandmake`
 - [x] **EAS setup**
   - [x] `npm i -g eas-cli && eas login`
   - [x] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
   - [x] Add `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` as EAS env vars
-- [ ] **Preview build** — `eas build --profile preview --platform ios` (and android)
-- [ ] **Test native-only features** — Apple sign-in, calendar sync, date picker, share sheet
-- [ ] **Beta**
-  - [ ] TestFlight (iOS)
-  - [ ] Play Internal Testing (Android)
-  - [ ] Collect feedback via the feedback form; fix blockers
+- [ ] Create the app in App Store Connect (bundle ID `com.goandmake.app`)
+- [ ] iOS push key and Sign in with Apple capability (`eas credentials`, or let `eas build` create them)
+- [ ] `eas build --profile production --platform ios`
+- [ ] `eas submit --platform ios` → TestFlight
+- [ ] **Test on a real iPhone**
+  - [ ] Sign up, create or join a huddle, check off items
+  - [ ] Sign in with Apple
+  - [ ] Notifications: week started, item finished, meeting reminder
+  - [ ] Swap account: both accounts get notifications, and tapping one opens the right account
+  - [ ] Calendar sync, date picker, share sheet
+  - [ ] Photo attach and document scanner on notes
+  - [ ] Home-screen icon switches to For The King
+  - [ ] Read-only state for a huddle without a pass
+- [ ] Invite a few huddle members as TestFlight testers (external testers need a quick beta review)
+- [ ] Collect feedback via the feedback form; fix blockers
 
 ---
 
-## Phase 4 — Store submission
+## Phase 6 — Apple: listing & submission
 
-- [ ] **Privacy policy** — host `PRIVACY.md` at a public URL (e.g. a page on the Vercel site)
+- [ ] **Privacy policy** — put a real contact email in `PRIVACY.md`, remove "draft", and host it at a public URL (e.g. `/privacy` on the website)
 - [ ] **Support URL / contact email**
-- [ ] **Store listing** — name, subtitle, description, keywords, category
-- [ ] **Screenshots** — required iPhone sizes + Android phone
-- [ ] **Age rating questionnaire**
-- [ ] **App Privacy / Data Safety forms** (email, name, usage data)
-- [ ] **Demo account** for Apple reviewers (put credentials in review notes)
-- [ ] `eas build --profile production` → `eas submit`
+- [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
+- [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad)
+- [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
+- [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
+- [ ] **Demo account** for App Review — a leader with a huddle and a comp pass (`grant_comp_pass`)
+- [ ] **Review notes** — demo login, how huddles work, how passes are bought (if Option A)
+- [ ] Submit for review
 - [ ] Respond to review feedback
 
 ---
 
-## Phase 5 — Professional polish (post-launch OK)
+## Phase 7 — Google Play
+
+- [ ] **Google Play Console** ($25 one-time)
+  - [ ] Personal account: needs a closed test with 12+ testers for 14 days before production
+  - [ ] Organization account: needs a D-U-N-S number, skips the 12-tester rule
+- [ ] Create the app (package `com.goandmake.app`)
+- [ ] `eas build --profile production --platform android` (AAB)
+- [ ] Upload the first AAB by hand in the Play Console (required once)
+- [ ] Service account key so `eas submit --platform android` works for later releases
+- [ ] Internal testing on real Android phones (same checks as iPhone, plus the icon change after the app is backgrounded)
+- [ ] Closed testing track (and the 14 days, if a personal account)
+- [ ] **Store listing** — short and full description, 512×512 icon, 1024×500 feature graphic, phone screenshots
+- [ ] **Data safety form** — same data as Apple's App Privacy
+- [ ] **Account deletion URL** — a web page explaining how to delete an account
+- [ ] **Content rating** questionnaire (IARC)
+- [ ] Target audience and ads declaration (no ads)
+- [ ] Declare photo/camera permissions if Play flags them
+- [ ] Promote to production
+
+---
+
+## Phase 8 — After launch
 
 - [ ] **Crash reporting** — Sentry (`@sentry/react-native`)
 - [ ] **OTA updates** — EAS Update for JS-only fixes
@@ -95,6 +158,8 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [ ] **Automated tests** — E2E happy path: sign up → create huddle → join → check in → advance week
 - [ ] **CI** — typecheck + tests on every push (GitHub Actions)
 - [ ] **Analytics** (optional, privacy-respecting) — weekly active huddles, retention
+- [ ] **Each content release** — new pathways go live from Supabase; their home-screen and Android notification icons ship in the next app build
+- [ ] High-res (1024×1024) PC3 logo for a Focuses home-screen icon
 - [x] **Push notifications** — see "Feature — Notifications" below
 
 ---
@@ -104,6 +169,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 Each pathway brings its own look; the Go and Make default (Paper / Stone / Ink / Sage / Clay, Instrument Serif + DM Sans) is the fallback everywhere.
 
 **Decisions**
+
 - Customizable: light + dark colors, logo (light + dark), browser tab icon + title, corner roundness, spacing. Not fonts, not app name copy.
 - Theme lives on the **pathway** (not the version), so branding fixes reach every huddle.
 - Users keep the System / Light / Dark picker; the pathway supplies both palettes.
@@ -111,34 +177,42 @@ Each pathway brings its own look; the Go and Make default (Paper / Stone / Ink /
 - Downloaded with the huddle's content the first time, then stored on the device so it works with no signal. Logos are embedded in the JSON as small images so they're stored with it.
 
 **Step 1 — Theme format + default theme**
+
 - [x] `content/theme.json` — For The King theme (parchment / charcoal / gold, from the inspiration screenshot)
 - [x] `lib/pathwayTheme.ts` — merge over default, invalid values fall back, contrast check
 
 **Step 2 — Theme system**
+
 - [x] `ThemeContext` holds the pathway theme; `useTheme()` returns colors, radii, spacing, logo
 - [x] UI components + navigation chrome use theme radii/spacing/colors
 - [x] Signed out / no huddle → default theme; sign-out resets it
 
 **Step 3 — Load + store offline**
+
 - [x] Migration `supabase/migrations/002_pathway_theme.sql` (`theme`, `theme_version`)
 - [x] Run the migration in Supabase → SQL Editor
 - [x] Theme loads with pathway content and is stored on the device; bundled theme as fallback
 - [x] Last theme applied on launch (no flash); re-downloads only when `theme_version` is newer
 
 **Step 4 — Apply it**
+
 - [x] `PathwayLogo` (crown + accent rule) on week screen, Settings, sign-in
 - [x] Web: browser tab favicon, title, `theme-color` update at runtime
 
 **Step 5 — Publishing**
+
 - [x] Publish script validates + embeds images, bumps `theme_version` only on change; `--theme-only` flag
 - [x] Run `npm run publish:pathway -- --theme-only` after the migration (theme v1 live)
 
 **Step 6 — Home-screen app icons**
+
 - [x] `expo-alternate-app-icons` installed; `ForTheKing` icon registered (verified with a test prebuild)
 - [x] `lib/appIcon.native.ts` switches after the theme settles, skips if already correct; web no-op
-- [ ] Test on a native build (Phase 3) — Expo Go can't switch icons
+- [x] Android: switch only once the app is in the background (Android closes the app when its launcher entry changes)
+- Native test: Phase 5
 
 **Follow-ups**
+
 - [x] Tab bar icons — book / checkmark / gear (SF Symbols on iOS, Material Symbols on web + Android)
 - [x] Platform default logo — crown shows on sign-in and for pathways without their own logo
 
@@ -154,10 +228,10 @@ Second pathway from Providence Church. Adds weekly quotes/article reading and pa
 - [x] Study tab (only when the week has study content) — preface, definition, quotes, article, guide pages
 - [x] This Week: SOAP checklist, "Challenge Options" (choose one counts once), link to the article
 - [x] Leader Guide / Challenge Pool hidden for pathways without them; back button on sub-screens
-- [ ] Run `supabase/migrations/003_pathway_resources.sql` in Supabase → SQL Editor
-- [ ] `npm run publish:pathway -- --pathway pc3-focuses`
-- [ ] Confirm permission from Providence Church to adapt the guide into the app
-- [ ] High-res (1024×1024) PC3 logo for a native home-screen icon
+- [x] Run `supabase/migrations/003_pathway_resources.sql` in Supabase → SQL Editor
+- [x] `npm run publish:pathway -- --pathway pc3-focuses`
+- [x] Confirm permission from Providence Church to adapt the guide into the app
+- High-res home-screen icon: Phase 8
 
 ---
 
@@ -171,11 +245,10 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Leader settings: notes Optional / Required (default Optional), Private / Shared with huddle (default Private)
 - [x] Shared notes viewable from Progress (this week and past weeks)
 - [x] Photo cleanup on account deletion and huddle dissolve
-- [ ] Run `supabase/migrations/004_journaling.sql` in Supabase → SQL Editor
-- [ ] Republish both pathways into their current version so pinned huddles get the tags:
+- [x] Run `supabase/migrations/004_journaling.sql` in Supabase → SQL Editor
+- [x] Republish both pathways into their current version so pinned huddles get the tags:
   `npm run publish:pathway -- --version 1` and `npm run publish:pathway -- --pathway pc3-focuses --version 1`
-- [ ] Native build to try the document scanner (Expo Go falls back to the camera)
-- [ ] Update the App Privacy / Data Safety forms for journal text and photos
+- Scanner test: Phase 5 · App Privacy / Data Safety: Phases 6 and 7
 
 ---
 
@@ -186,12 +259,11 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Branded per pathway: content from the huddle's pinned version, Android icon per pathway, reminder tinted with the pathway accent
 - [x] Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor
 - [x] Firebase project + `google-services.json` + FCM V1 key via `eas credentials` (Android push; redo for `com.goandmake.app`, see rebrand)
-- [ ] Rebuild the Android app and test all three notifications
-- [ ] Add push tokens to the App Privacy / Data Safety forms
+- [x] Rebuild the Android app and test all three notifications
 - [x] Settings → Swap account: stay signed in to several accounts and switch between them
 - [x] Migration `supabase/migrations/007_multi_account_notifications.sql` — one device token can belong to several accounts; pushes say which account and huddle they're for
 - [x] Run `supabase/migrations/007_multi_account_notifications.sql` in Supabase → SQL Editor
-- [ ] On a phone: sign in to two accounts, then check that both get notifications and that tapping one opens the right account
+- Two-account phone test: Phase 5 · Push tokens in App Privacy / Data Safety: Phases 6 and 7
 
 ---
 
@@ -204,8 +276,8 @@ Go and Make is the platform; For The King is the first content pathway.
 - [x] Fonts: Instrument Serif (titles, Scripture quotes), DM Sans (interface)
 - [x] Firebase: add Android app `com.goandmake.app`, update the EAS file variable `GOOGLE_SERVICES_JSON`
 - [x] FCM V1 key for `com.goandmake.app` via `eas credentials`
-- [ ] Supabase redirect URL `goandmake://**`
-- [ ] New EAS build; uninstall the old For The King app (different package)
+- [x] Supabase redirect URL `goandmake://**`
+- [x] New EAS build; uninstall the old For The King app (different package)
 
 ---
 
@@ -216,18 +288,14 @@ Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week
 - [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
 - [x] Edge Functions `create-checkout` and `stripe-webhook`
 - [x] Huddle Pass card (web checkout, neutral message in the apps, Start Week 1, expired), read-only UI, "Pass pending" in Progress
-- [ ] Stripe account (test mode first)
-- [ ] Run migration 006 in Supabase → SQL Editor
-- [ ] Supabase CLI: link, set secrets, deploy both functions
-- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
-- [ ] Test: leader pays, starts Week 1, member pays and checks in; refund removes access; expired window (edit `started_at`); exempt huddle
-- [ ] Switch to live keys and a live webhook
-- [ ] Store review notes: the apps don't sell anything; passes are bought on the website
+- Setup, testing, going live and the store-review decision: Phase 4
 
 ---
 
 ## Notes
 
 - Never commit `.env` / `.env.publish`; never put the service role key in Vercel or any `EXPO_PUBLIC_*` var.
+- Stripe secret keys and the webhook secret go only in Supabase function secrets.
 - `EXPO_PUBLIC_*` vars are baked in at build time — redeploy after changing them.
+- Run `eas` / `expo` commands from `~/dev/For_The_King`, not the Desktop copy.
 - Feedback form: https://forms.gle/NGM9MmfJ2y9hmstp6
