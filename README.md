@@ -85,7 +85,7 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 
 Native builds only (not the browser). Members get:
 
-- **Huddle has started the next week** when the leader advances the week.
+- **Huddle has started the next week** when the leader advances the week (or jumps ahead with Change week; going back doesn't notify).
 - **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (every day, for daily items). Tapping it opens their progress.
 - **Huddle is tomorrow at {time}**, 24 hours before the weekly meeting. Scheduled on the device, so it works without Firebase.
 
@@ -134,7 +134,7 @@ update public.huddles set billing_exempt = true where invite_code = 'ABC123'; --
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).
 - **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
-- **Leader:** Start Week 1 (Huddle Pass), advance week, view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
+- **Leader:** Start Week 1 (Huddle Pass), advance week, change to any week (Progress → Leader → Change week, e.g. to undo an accidental advance), view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
 - **Notifications:** native iOS/Android only; see Notifications above.
 

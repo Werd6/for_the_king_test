@@ -59,6 +59,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [x] **Remove dev-only text** — Settings content label, "Run npm run publish:pathway" messages
 - [x] **Error states** — friendly error messages; "Couldn't load / Try again" on week + progress screens
 - [x] **Dark mode** — Challenge Pool items were black on dark
+- [x] **Change week** — leaders can move the huddle to any week (Progress → Leader → Change week) to undo an accidental advance
 - [ ] **Content review** — proofread every week of For The King (`content/`, `for_the_king_content1.md`) and Focuses
 - [ ] **Accessibility pass**
   - [x] Screen-reader headings, input/checkbox/row labels, disabled states, email/password autofill

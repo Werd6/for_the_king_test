@@ -131,7 +131,7 @@ function LeaderTourModal({ visible, onClose }: { visible: boolean; onClose: () =
         material: 'skip_next',
         body: [
           'The huddle doesn’t move on by itself. After your meeting, go to Progress → Leader → Advance to next week.',
-          'Everyone moves to the new week together, and it can’t be undone, so advance only when the group is ready.',
+          'Everyone moves to the new week together. Advanced by mistake? Use Progress → Leader → Change week to go back.',
         ],
       },
       {

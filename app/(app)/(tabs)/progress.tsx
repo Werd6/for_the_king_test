@@ -19,6 +19,7 @@ import {
   getNotesForWeek,
   getProgressForWeek,
   getWeekPick,
+  setCurrentWeek,
   type WeekNotes,
 } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
@@ -389,6 +390,7 @@ export default function ProgressScreen() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [weekMenuOpen, setWeekMenuOpen] = useState(false);
+  const [changeWeekOpen, setChangeWeekOpen] = useState(false);
   const [viewWeek, setViewWeek] = useState<number | null>(null);
   const [weekNotes, setWeekNotes] = useState<WeekNotes>(NO_NOTES);
   const [viewed, setViewed] = useState<ViewedNote | null>(null);
@@ -447,6 +449,28 @@ export default function ProgressScreen() {
     }
   }
 
+  async function onChangeWeek(target: number) {
+    if (!huddle || !userId) return;
+    const back = target < huddle.current_week;
+    const ok = await confirmAction(
+      back ? `Go back to week ${target}?` : `Jump ahead to week ${target}?`,
+      back
+        ? `Everyone in the huddle moves back to week ${target}. Checkmarks from later weeks are kept.`
+        : `Everyone in the huddle moves to week ${target} and gets a “week started” notification.`,
+      'Change week'
+    );
+    if (!ok) return;
+    try {
+      await setCurrentWeek(huddle.id, userId, target, pathway?.totalWeeks ?? 20);
+      setChangeWeekOpen(false);
+      await refresh();
+      await reloadForHuddle();
+      showAlert('Week changed', `Now on week ${target}.`);
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not change the week'));
+    }
+  }
+
   if (!huddle) return <Loading />;
   if (loadError) return <ErrorState message={loadError} onRetry={load} />;
   if (loading || contentLoading || !pathway) return <Loading />;
@@ -457,6 +481,31 @@ export default function ProgressScreen() {
     <>
       <SettingsGroup label="Leader">
         {canEdit ? <SettingsRow label="Advance to next week" onPress={onAdvance} /> : null}
+        {canEdit ? (
+          <SettingsRow
+            label="Change week"
+            value={changeWeekOpen ? 'Choose a week' : `Week ${huddle.current_week}`}
+            onPress={() => setChangeWeekOpen((open) => !open)}
+          />
+        ) : null}
+        {canEdit && changeWeekOpen
+          ? pathway.weeks.map((w) =>
+              w.weekNumber === huddle.current_week ? (
+                <SettingsRow
+                  key={w.weekNumber}
+                  label={`Week ${w.weekNumber} (current)`}
+                  value={w.title}
+                />
+              ) : (
+                <SettingsRow
+                  key={w.weekNumber}
+                  label={`Week ${w.weekNumber}`}
+                  value={w.title}
+                  onPress={() => onChangeWeek(w.weekNumber)}
+                />
+              )
+            )
+          : null}
         <SettingsRow
           label="Leader materials"
           onPress={() => router.push('/(app)/leader-materials')}

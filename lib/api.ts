@@ -484,21 +484,35 @@ export async function getHuddleMembers(huddleId: string): Promise<Profile[]> {
 export async function advanceWeek(huddleId: string, leaderId: string, totalWeeks = 20) {
   const huddle = await getHuddle(huddleId);
   if (!huddle) throw new Error('Huddle not found.');
-  if (huddle.leader_id !== leaderId) throw new Error('Only the leader can advance the week.');
   if (huddle.current_week >= totalWeeks) {
     throw new Error(`Already on week ${totalWeeks}.`);
   }
+  await setCurrentWeek(huddleId, leaderId, huddle.current_week + 1, totalWeeks);
+}
 
-  const next = huddle.current_week + 1;
+/** Moves the whole huddle to any week; checkmarks for every week are kept. */
+export async function setCurrentWeek(
+  huddleId: string,
+  leaderId: string,
+  week: number,
+  totalWeeks = 20
+) {
+  const huddle = await getHuddle(huddleId);
+  if (!huddle) throw new Error('Huddle not found.');
+  if (huddle.leader_id !== leaderId) throw new Error('Only the leader can change the week.');
+  if (!Number.isInteger(week) || week < 1 || week > totalWeeks) {
+    throw new Error(`Choose a week from 1 to ${totalWeeks}.`);
+  }
+
   if (isRemoteConfigured && supabase) {
-    const { error } = await supabase.from('huddles').update({ current_week: next }).eq('id', huddleId);
+    const { error } = await supabase.from('huddles').update({ current_week: week }).eq('id', huddleId);
     if (error) throw error;
     return;
   }
   const huddles = await readJson<Huddle[]>(STORAGE_KEYS.huddles, []);
   await writeJson(
     STORAGE_KEYS.huddles,
-    huddles.map((h) => (h.id === huddleId ? { ...h, current_week: next } : h))
+    huddles.map((h) => (h.id === huddleId ? { ...h, current_week: week } : h))
   );
 }
 
