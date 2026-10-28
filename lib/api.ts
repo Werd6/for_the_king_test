@@ -131,7 +131,7 @@ export async function signUpWithEmail(email: string, password: string, displayNa
   const id = randomId();
   const profile: Profile = {
     id,
-    display_name: displayName.trim() || 'Brother',
+    display_name: displayName.trim() || 'Member',
     email,
     created_at: new Date().toISOString(),
   };
@@ -222,7 +222,7 @@ export async function restoreMissingProfile(): Promise<Profile | null> {
     .from('profiles')
     .upsert({
       id: user.id,
-      display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || 'Brother',
+      display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || 'Member',
       email: user.email ?? null,
     })
     .select()

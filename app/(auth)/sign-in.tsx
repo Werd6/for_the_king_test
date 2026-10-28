@@ -56,7 +56,7 @@ export default function SignInScreen() {
       return;
     }
     if (mode === 'up' && !displayName.trim()) {
-      const msg = 'Enter the name your brothers will see.';
+      const msg = 'Enter the name your group will see.';
       setError(msg);
       showMessage('Display name required', msg);
       return;

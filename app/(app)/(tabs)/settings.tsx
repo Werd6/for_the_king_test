@@ -218,7 +218,7 @@ export default function SettingsScreen() {
           ) : null}
         </SettingsGroup>
 
-        <SettingsGroup label="Invite" footer="Brothers join with this code.">
+        <SettingsGroup label="Invite" footer="Members join with this code.">
           <SettingsRow label="Invite code" value={huddle.invite_code} showChevron={false} />
           <SettingsRow label="Share invite" onPress={shareCode} />
         </SettingsGroup>
@@ -232,7 +232,7 @@ export default function SettingsScreen() {
           <>
             <SettingsGroup
               label="Leader tour"
-              footer="A quick walkthrough of inviting brothers, Leader Materials, Progress, and advancing the week."
+              footer="A quick walkthrough of inviting members, Leader Materials, Progress, and advancing the week."
             >
               <SettingsRow label="Replay leader tour" onPress={openTour} />
             </SettingsGroup>

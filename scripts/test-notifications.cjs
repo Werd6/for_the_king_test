@@ -20,8 +20,8 @@ function load(relative, dependencies = {}) {
 }
 
 const routing = load('lib/notificationRouting.ts');
-const accountA = { userId: 'a', huddleId: 'huddle-a', huddleName: 'Monday men' };
-const accountB = { userId: 'b', huddleId: 'huddle-b', huddleName: 'Friday men' };
+const accountA = { userId: 'a', huddleId: 'huddle-a', huddleName: 'Monday group' };
+const accountB = { userId: 'b', huddleId: 'huddle-b', huddleName: 'Friday group' };
 
 function hooks() {
   const values = [];

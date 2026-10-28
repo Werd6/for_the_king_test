@@ -95,12 +95,12 @@ function LeaderTourModal({ visible, onClose }: { visible: boolean; onClose: () =
         ],
       },
       {
-        title: 'Invite your brothers',
+        title: 'Invite your group',
         ios: 'person.badge.plus',
         material: 'person_add',
         body: [
           `Your invite code is ${huddle?.invite_code ?? '—'}.`,
-          'Share it from Settings → Invite. Brothers sign up, tap Join Huddle, and enter the code.',
+          'Share it from Settings → Invite. Members sign up, tap Join Huddle, and enter the code.',
         ],
       },
       {
@@ -119,7 +119,7 @@ function LeaderTourModal({ visible, onClose }: { visible: boolean; onClose: () =
         ios: 'checkmark.circle',
         material: 'task_alt',
         body: [
-          'See how each brother is doing this week. Tap a name to see item by item.',
+          'See how each member is doing this week. Tap a name to see item by item.',
           `The Leader section at the bottom has View progress for past weeks${
             leaderExtras.length ? `, plus the ${leaderExtras.join(' and ')}` : ''
           }.`,

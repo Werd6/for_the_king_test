@@ -264,7 +264,7 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 
 ## Feature — Notifications
 
-- [x] Week started, item finished (opens his progress), and meeting reminder 24 hours before
+- [x] Week started, item finished (opens their progress), and meeting reminder 24 hours before
 - [x] Migration `supabase/migrations/005_push_notifications.sql` — push tokens, triggers, Expo push via `pg_net`
 - [x] Branded per pathway: content from the huddle's pinned version, Android icon per pathway, reminder tinted with the pathway accent
 - [x] Run `supabase/migrations/005_push_notifications.sql` in Supabase → SQL Editor
@@ -273,6 +273,7 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Settings → Swap account: stay signed in to several accounts and switch between them
 - [x] Migration `supabase/migrations/007_multi_account_notifications.sql` — one device token can belong to several accounts; pushes say which account and huddle they're for
 - [x] Run `supabase/migrations/007_multi_account_notifications.sql` in Supabase → SQL Editor
+- [ ] Run `supabase/migrations/008_neutral_defaults.sql` in Supabase → SQL Editor ("Member" / "Someone" instead of "Brother" / "A brother" when there's no display name)
 - Two-account phone test: Phase 5 · Push tokens in App Privacy / Data Safety: Phases 6 and 7
 
 ---

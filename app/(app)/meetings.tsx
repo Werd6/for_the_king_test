@@ -183,7 +183,7 @@ export default function MeetingsScreen() {
 
         {time ? (
           <Text style={{ ...fonts.regular, color: colors.mutedText, fontSize: 13, marginTop: 8, marginHorizontal: 4 }}>
-            Tip: pick the next meeting’s date & time — brothers can add it to their calendars from
+            Tip: pick the next meeting’s date & time — members can add it to their calendars from
             here.
           </Text>
         ) : null}
