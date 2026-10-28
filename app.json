@@ -73,6 +73,14 @@
       ],
       "expo-asset",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Go and Make lets you attach photos of your journal pages to your notes.",
+          "cameraPermission": "Go and Make uses the camera to photograph your journal pages.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
@@ -85,6 +93,12 @@
         {
           "for-the-king": "./assets/images/notification-icon-for-the-king.png",
           "pc3-focuses": "./assets/images/notification-icon-pc3.png"
+        }
+      ],
+      [
+        "react-native-document-scanner-plugin",
+        {
+          "cameraPermission": "Go and Make uses the camera to scan your journal pages."
         }
       ]
     ],

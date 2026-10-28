@@ -63,12 +63,12 @@ Daily items get one check box per day (Day 1…N), and each day counts as 1/N of
 
 ## Journal notes
 
-Members can attach typed notes to tagged items. Leaders control two huddle settings in Settings → Journal notes:
+Members can attach typed notes and photos (or scans, in native builds) to tagged items. Leaders control two huddle settings in Settings → Journal notes:
 
-- **Optional / Required** (default Optional). When required, tagged items can't be checked off without 10+ non-space characters. The database enforces this too.
+- **Optional / Required** (default Optional). When required, tagged items can't be checked off without 10+ non-space characters or a photo. The database enforces this too.
 - **Private / Shared with huddle** (default Private). Each note keeps the setting from when it was last saved. Shared notes can be read from the Progress tab.
 
-Needs `supabase/migrations/004_journaling.sql` (tables, row-level security, the private `journal` storage bucket, and the check-off rule). Until it's run, the app works as before without notes. Notes are text only: `supabase/migrations/009_no_journal_photo_uploads.sql` turns off photo uploads (the `journal_photos` table and `journal` bucket only hold photos uploaded before then, which are still removed on account deletion and dissolve).
+Needs `supabase/migrations/004_journaling.sql` (tables, row-level security, the private `journal` storage bucket, and the check-off rule). Until it's run, the app works as before without notes.
 
 ## Pathway theme
 

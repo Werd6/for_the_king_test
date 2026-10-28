@@ -240,7 +240,7 @@ export default function SettingsScreen() {
               label="Journal notes"
               footer={
                 huddle.settings.requireNotes
-                  ? 'Journaling and SOAP items need a written note (a few sentences) before they can be checked off.'
+                  ? 'Journaling and SOAP items need a written note (a few sentences) or a photo before they can be checked off.'
                   : 'Members can add notes to journaling and SOAP items, but checking them off doesn’t require it.'
               }
             >
@@ -279,7 +279,7 @@ export default function SettingsScreen() {
 
         <SettingsGroup
           label="Account"
-          footer="We store your account, huddle membership, checkmarks, Huddle Pass records, and any journal notes you save in the app."
+          footer="We store your account, huddle membership, checkmarks, Huddle Pass records, and any journal notes or photos you save in the app."
         >
           <SettingsRow label="Privacy policy" onPress={openPrivacyPolicy} />
           <SettingsRow

@@ -1,24 +1,50 @@
+import { PhotoViewer } from '@/components/PhotoViewer';
+import { Body } from '@/components/ui';
+import { notePhotoUrls } from '@/lib/api';
 import { useTheme } from '@/lib/ThemeContext';
-import type { JournalNote } from '@/lib/types';
+import type { JournalNote, JournalPhoto } from '@/lib/types';
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type ViewedNote = {
   note: JournalNote;
+  photos: JournalPhoto[];
   authorName: string;
   itemText: string;
 };
 
 /** Read-only view of a note someone shared with the huddle. */
 export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onClose: () => void }) {
-  const { colors, typography } = useTheme();
+  const { colors, radii, typography } = useTheme();
+  const { width } = useWindowDimensions();
   // Keeps content on screen while the modal animates closed.
   const [shown, setShown] = useState<ViewedNote | null>(null);
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const [photoError, setPhotoError] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (viewed) setShown(viewed);
+    if (!viewed) return;
+    setShown(viewed);
+    setUrls({});
+    setPhotoError(false);
+    notePhotoUrls(viewed.photos)
+      .then(setUrls)
+      .catch(() => setPhotoError(true));
   }, [viewed]);
+
+  const photoWidth = Math.min(width, 700) - 32;
+  const viewablePhotos = (shown?.photos ?? []).filter((p) => urls[p.path]);
 
   return (
     <Modal
@@ -52,12 +78,59 @@ export function NoteViewer({ viewed, onClose }: { viewed: ViewedNote | null; onC
               <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
                 Shared with the huddle · View only
               </Text>
-              <Text style={{ ...typography.body, color: colors.ink }} selectable>
-                {shown.note.body}
-              </Text>
+              {shown.note.body.trim() ? (
+                <Text style={{ ...typography.body, color: colors.ink }} selectable>
+                  {shown.note.body}
+                </Text>
+              ) : null}
+              {photoError ? <Body>Photos couldn’t be loaded. Try again later.</Body> : null}
+              {viewablePhotos.length ? (
+                <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
+                  Tap a photo to view it full screen.
+                </Text>
+              ) : null}
+              {shown.photos.map((p) =>
+                urls[p.path] ? (
+                  <Pressable
+                    key={p.id}
+                    accessibilityRole="imagebutton"
+                    accessibilityLabel="View photo full screen"
+                    onPress={() => setViewerIndex(viewablePhotos.findIndex((v) => v.id === p.id))}
+                  >
+                    <Image
+                      source={{ uri: urls[p.path] }}
+                      style={{
+                        width: photoWidth,
+                        height: photoWidth * 1.3,
+                        borderRadius: radii.md,
+                        backgroundColor: colors.surface,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </Pressable>
+                ) : photoError ? null : (
+                  <View
+                    key={p.id}
+                    style={{
+                      height: 160,
+                      borderRadius: radii.md,
+                      backgroundColor: colors.surface,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <ActivityIndicator color={colors.primary} />
+                  </View>
+                )
+              )}
             </>
           ) : null}
         </ScrollView>
+        <PhotoViewer
+          uris={viewablePhotos.map((p) => urls[p.path])}
+          index={viewerIndex}
+          onClose={() => setViewerIndex(null)}
+        />
       </SafeAreaView>
     </Modal>
   );
