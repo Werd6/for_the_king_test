@@ -1,6 +1,6 @@
 # Go and Make
 
-A discipleship huddle platform (Expo + React Native / web) that gives huddles access to content pathways. For The King is the first pathway; Focuses (PC3) is the second. Each pathway can bring its own theme; the Go and Make default is Paper, Stone, Ink, Sage and Clay with Instrument Serif and DM Sans, in light and dark mode.
+A discipleship huddle platform (Expo + React Native / web) that gives huddles access to content pathways. For The King is the first pathway; Focuses (PC3) is the second (web app only for now; see below). Each pathway can bring its own theme; the Go and Make default is Paper, Stone, Ink, Sage and Clay with Instrument Serif and DM Sans, in light and dark mode.
 
 ## Quick start
 
@@ -54,6 +54,8 @@ npm run publish:pathway -- --pathway pc3-focuses  # another pathway
 Curriculum lives in `for_the_king_content1.md`. Regenerate JSON with `npm run content`.
 
 Other pathways live in `content/pathways/<id>/` (`pathway.json`, `theme.json`, `assets/`, optional `leader-guide.json` / `challenge-pool.json`). Focuses (PC3) is authored in `content/pathways/pc3-focuses/source.md`; regenerate with `npm run content:pc3`. Register new pathways in `BUNDLED_PATHWAYS` (`lib/content.ts`) and `BUNDLED_THEMES` (`lib/themeAssets.ts`).
+
+**Web-only pathways.** Pathways in `lib/webOnlyContent.web.ts` are bundled into the web app only; the iPhone/Android builds use the empty `lib/webOnlyContent.ts`. In Supabase, `pathways.in_apps = false` keeps a published pathway out of Create Huddle in the phone apps while the web app still lists it (`supabase/migrations/009_pathways_in_apps.sql`). Focuses is set up this way while its licensing is settled; TODO.md has the steps to bring it back.
 
 Weeks with `study` content (quotes, article) and pathways with `resources` (guide pages) get a **Study** tab. Guide pages need `supabase/migrations/003_pathway_resources.sql`.
 

@@ -91,8 +91,7 @@
       [
         "./plugins/withPathwayNotificationIcons",
         {
-          "for-the-king": "./assets/images/notification-icon-for-the-king.png",
-          "pc3-focuses": "./assets/images/notification-icon-pc3.png"
+          "for-the-king": "./assets/images/notification-icon-for-the-king.png"
         }
       ],
       [

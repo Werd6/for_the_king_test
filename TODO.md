@@ -126,10 +126,10 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [x] Settings → Privacy policy opens https://goandmake.online/privacy (Apple 5.1.1)
 - [x] **Support URL / contact email** — https://goandmake.online/support, bespoke.it.llc@gmail.com
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
-- [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad)
+- [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad); For The King only while Focuses is on hold
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
-- [ ] **Demo account** for App Review — a leader with a huddle and a comp pass (`grant_comp_pass`)
+- [ ] **Demo account** for App Review — a leader with a For The King huddle and a comp pass (`grant_comp_pass`)
 - [ ] **Review notes** — demo login, how huddles work, how passes are bought (if Option A)
 - [ ] Submit for review
 - [ ] Respond to review feedback
@@ -244,6 +244,14 @@ Second pathway from Providence Church. Adds weekly quotes/article reading and pa
 - [x] `npm run publish:pathway -- --pathway pc3-focuses`
 - [x] Confirm permission from Providence Church to adapt the guide into the app
 - High-res home-screen icon: Phase 8
+
+**On hold for the phone apps (licensing).** Focuses is web app only for now: the iPhone/Android builds don't bundle its content, logo or notification icon, Create Huddle there doesn't list it, and the marketing site doesn't mention it. The web app still offers it.
+
+- [ ] Run `supabase/migrations/009_pathways_in_apps.sql` in Supabase → SQL Editor (until it's run, the apps fall back to their bundled list, which is For The King only)
+- [ ] Once licensing is settled, bring it back:
+  - Supabase: `update public.pathways set in_apps = true where id = 'pc3-focuses';` (Create Huddle in the apps lists it right away)
+  - Move the PC3 entries from `lib/webOnlyContent.web.ts` back into `BUNDLED_PATHWAYS` (`lib/content.ts`) and `BUNDLED_THEMES` / `BUNDLED_THEME_ASSETS` (`lib/themeAssets.ts`) for offline use, and add `"pc3-focuses": "./assets/images/notification-icon-pc3.png"` back to the `withPathwayNotificationIcons` plugin in `app.json` (needs a new build)
+  - Marketing site: restore the Focuses card and `assets/focuses-logo.png` (`git revert` the commit that removed them in Werd6/Go_and_Make)
 
 ---
 

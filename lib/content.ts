@@ -1,10 +1,12 @@
+import { Platform } from 'react-native';
+
 import pathwayData from '@/content/pathway.json';
 import challengePoolData from '@/content/challenge-pool.json';
 import leaderGuideData from '@/content/leader-guide.json';
-import pc3PathwayData from '@/content/pathways/pc3-focuses/pathway.json';
 import type { RawPathwayTheme } from '@/lib/pathwayTheme';
 import { isRemoteConfigured, readJson, supabase, writeJson } from '@/lib/supabase';
 import { BUNDLED_THEMES } from '@/lib/themeAssets';
+import { WEB_ONLY_PATHWAYS } from '@/lib/webOnlyContent';
 import type { Pathway, PathwayResource, PathwayWeek, StandardWeek } from '@/lib/types';
 
 const CACHE_KEY = 'ftk.pathwayCache';
@@ -26,11 +28,12 @@ const BUNDLED_PATHWAYS: Record<string, BundledPathway> = {
     leaderGuide: leaderGuideData,
     challengePool: challengePoolData,
   },
-  'pc3-focuses': {
-    pathway: pc3PathwayData as Pathway,
-    leaderGuide: null,
-    challengePool: null,
-  },
+  ...Object.fromEntries(
+    Object.entries(WEB_ONLY_PATHWAYS).map(([id, pathway]) => [
+      id,
+      { pathway, leaderGuide: null, challengePool: null },
+    ])
+  ),
 };
 
 const DEFAULT_PATHWAY_ID = 'for-the-king';
@@ -177,7 +180,10 @@ function rowToWeek(row: {
 
 export async function listAvailablePathways(): Promise<PathwayOption[]> {
   if (isRemoteConfigured && supabase) {
-    const { data, error } = await supabase.from('pathways_available').select('*');
+    let query = supabase.from('pathways_available').select('*');
+    // The phone apps only offer pathways cleared for them (migration 009); web offers all.
+    if (Platform.OS !== 'web') query = query.eq('in_apps', true);
+    const { data, error } = await query;
     if (!error && data && data.length > 0) {
       return data.map((row) => ({
         pathwayId: row.pathway_id as string,

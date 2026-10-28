@@ -31,6 +31,8 @@ create table if not exists public.pathways (
   name text not null,
   description text not null default '',
   is_published boolean not null default false,  -- visible in Create Huddle picker
+  -- false = web app only; the iPhone/Android apps leave it out of Create Huddle.
+  in_apps boolean not null default true,
   sort_order int not null default 0,
   -- Pathway look (colors, radii, spacing, embedded logos). See content/theme.json.
   theme jsonb not null default '{}'::jsonb,
@@ -89,7 +91,8 @@ select
   pv.id as pathway_version_id,
   pv.version,
   pv.total_weeks,
-  pv.published_at
+  pv.published_at,
+  p.in_apps
 from public.pathways p
 join lateral (
   select *
