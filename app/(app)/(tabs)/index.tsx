@@ -41,7 +41,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-const NO_NOTES: WeekNotes = { notes: [], photos: [] };
+const NO_NOTES: WeekNotes = { notes: [] };
 
 export default function WeekHomeScreen() {
   const { huddle, userId, isLeader, canEdit, refresh } = useAuth();
@@ -101,11 +101,6 @@ export default function WeekHomeScreen() {
     return weekNotes.notes.find((n) => n.user_id === userId && n.item_id === itemId) ?? null;
   }
 
-  function myNotePhotos(itemId: string) {
-    const note = myNote(itemId);
-    return note ? weekNotes.photos.filter((p) => p.note_id === note.id) : [];
-  }
-
   function openNotes(item: ChallengeItem, isSoap: boolean, pendingDay?: number) {
     setSheetItem({
       id: item.id,
@@ -120,7 +115,7 @@ export default function WeekHomeScreen() {
   function needsNoteFirst(item: ChallengeItem) {
     if (!notesRequired || !item.requiresNote) return false;
     const note = myNote(item.id);
-    return !noteMeetsRequirement(note?.body ?? '', myNotePhotos(item.id).length);
+    return !noteMeetsRequirement(note?.body ?? '');
   }
 
   function onCheck(item: ChallengeItem, next: boolean, isSoap: boolean) {
@@ -189,7 +184,7 @@ export default function WeekHomeScreen() {
     const label = opts?.label ?? item.text;
     const isSoap = Boolean(opts?.isSoap);
     const note = myNote(item.id);
-    const hasNote = Boolean(note && (note.body.trim() || myNotePhotos(item.id).length));
+    const hasNote = Boolean(note?.body.trim());
     const days = item.days;
     return (
       <>
@@ -444,7 +439,6 @@ export default function WeekHomeScreen() {
             : false
         }
         note={sheetItem ? myNote(sheetItem.id) : null}
-        photos={sheetItem ? myNotePhotos(sheetItem.id) : []}
         onFinish={onNotesFinished}
         readOnly={!canEdit}
       />

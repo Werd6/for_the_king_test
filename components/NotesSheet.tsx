@@ -1,42 +1,24 @@
-import { PhotoViewer } from '@/components/PhotoViewer';
 import { Body, PrimaryButton, SecondaryButton } from '@/components/ui';
-import {
-  addNotePhoto,
-  deleteNote,
-  notePhotoUrls,
-  removeNotePhoto,
-  saveNote,
-} from '@/lib/api';
+import { deleteNote, saveNote } from '@/lib/api';
 import { showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
-import { canScan, choosePhoto, scanPages, takePhoto } from '@/lib/scan';
 import { useTheme } from '@/lib/ThemeContext';
-import type { JournalNote, JournalPhoto, NotesVisibility } from '@/lib/types';
+import type { JournalNote, NotesVisibility } from '@/lib/types';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const MIN_NOTE_CHARS = 10;
 
-/** Mirrors the database rule: 10+ non-space characters or at least one photo. */
-export function noteMeetsRequirement(body: string, photoCount: number) {
-  return body.replace(/\s/g, '').length >= MIN_NOTE_CHARS || photoCount > 0;
+/** Mirrors the database rule: 10+ non-space characters. */
+export function noteMeetsRequirement(body: string) {
+  return body.replace(/\s/g, '').length >= MIN_NOTE_CHARS;
 }
 
 export type NotesSheetItem = { id: string; text: string; isSoap: boolean };
 
 export type NotesSheetResult = {
-  /** True when the note still has any text or photos. */
+  /** True when the note still has any text. */
   hasContent: boolean;
   /** True when the member tapped "Save & complete". */
   complete: boolean;
@@ -54,7 +36,6 @@ export function NotesSheet({
   required,
   completed,
   note,
-  photos,
   onFinish,
   readOnly,
 }: {
@@ -68,7 +49,6 @@ export function NotesSheet({
   required: boolean;
   completed: boolean;
   note: JournalNote | null;
-  photos: JournalPhoto[];
   onFinish: (result: NotesSheetResult) => void;
   /** View only: the Huddle Pass isn't active. */
   readOnly?: boolean;
@@ -78,79 +58,27 @@ export function NotesSheet({
   const [shown, setShown] = useState<NotesSheetItem | null>(null);
   const [body, setBody] = useState('');
   const [current, setCurrent] = useState<JournalNote | null>(null);
-  const [currentPhotos, setCurrentPhotos] = useState<JournalPhoto[]>([]);
-  const [urls, setUrls] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
-  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!item) return;
     setShown(item);
     setBody(note?.body ?? '');
     setCurrent(note);
-    setCurrentPhotos(photos);
-    setUrls({});
     setBusy(null);
-    notePhotoUrls(photos)
-      .then(setUrls)
-      .catch(() => {});
     // Only reset when a different item opens, not when the parent reloads notes.
   }, [item?.id]);
 
-  const canComplete = noteMeetsRequirement(body, currentPhotos.length);
-  const savedHasContent = (current?.body.trim().length ?? 0) > 0 || currentPhotos.length > 0;
-
-  async function ensureNote(): Promise<JournalNote> {
-    if (current) return current;
-    const created = await saveNote({ huddleId, userId, week, itemId: item!.id, body });
-    setCurrent(created);
-    return created;
-  }
-
-  async function attach(source: 'scan' | 'camera' | 'library') {
-    if (!item || busy) return;
-    try {
-      const uris =
-        source === 'scan'
-          ? await scanPages()
-          : [await (source === 'camera' ? takePhoto() : choosePhoto())].filter(
-              (u): u is string => u != null
-            );
-      if (!uris.length) return;
-      setBusy('photo');
-      const target = await ensureNote();
-      const added: JournalPhoto[] = [];
-      for (const uri of uris) added.push(await addNotePhoto(target, uri));
-      setCurrentPhotos((prev) => [...prev, ...added]);
-      const newUrls = await notePhotoUrls(added).catch(() => ({}));
-      setUrls((prev) => ({ ...prev, ...newUrls }));
-    } catch (e) {
-      showAlert('Error', friendlyError(e, 'Could not add the photo.'));
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function removePhoto(photo: JournalPhoto) {
-    if (busy) return;
-    setBusy('photo');
-    try {
-      await removeNotePhoto(photo);
-      setCurrentPhotos((prev) => prev.filter((p) => p.id !== photo.id));
-    } catch (e) {
-      showAlert('Error', friendlyError(e, 'Could not remove the photo.'));
-    } finally {
-      setBusy(null);
-    }
-  }
+  const canComplete = noteMeetsRequirement(body);
+  const savedHasContent = (current?.body.trim().length ?? 0) > 0;
 
   async function save(complete: boolean) {
     if (!item || busy) return;
     setBusy(complete ? 'complete' : 'save');
     try {
-      const hasContent = body.trim().length > 0 || currentPhotos.length > 0;
+      const hasContent = body.trim().length > 0;
       if (!hasContent) {
-        if (current) await deleteNote(current.id, currentPhotos);
+        if (current) await deleteNote(current.id);
         setCurrent(null);
       } else {
         setCurrent(await saveNote({ huddleId, userId, week, itemId: item.id, body }));
@@ -163,29 +91,13 @@ export function NotesSheet({
     }
   }
 
-  async function cancel() {
+  function cancel() {
     if (busy) return;
-    if (readOnly) {
-      onFinish({ hasContent: savedHasContent, complete: false });
-      return;
-    }
-    // A note created only to hold photos that were then removed is left empty.
-    if (current && !current.body.trim() && !currentPhotos.length) {
-      try {
-        await deleteNote(current.id, []);
-      } catch {
-        // Harmless: an empty note never satisfies the requirement.
-      }
-      onFinish({ hasContent: false, complete: false });
-      return;
-    }
     onFinish({ hasContent: savedHasContent, complete: false });
   }
 
-  const viewablePhotos = currentPhotos.filter((p) => urls[p.path]);
   const shared = visibility === 'shared';
   const visibilityChanged = current != null && current.visibility !== visibility;
-  const isWeb = Platform.OS === 'web';
 
   return (
     <Modal
@@ -258,8 +170,7 @@ export function NotesSheet({
             <Body>Your Huddle Pass isn&apos;t active, so these notes are view only.</Body>
           ) : required && !completed ? (
             <Body>
-              Your huddle requires notes for this item. Write a few sentences or add a photo of your
-              journal to check it off.
+              Your huddle requires notes for this item. Write a few sentences to check it off.
             </Body>
           ) : null}
 
@@ -286,98 +197,8 @@ export function NotesSheet({
             }}
           />
 
-          {currentPhotos.length ? (
-            <ScrollView horizontal contentContainerStyle={{ gap: 10 }}>
-              {currentPhotos.map((p) => (
-                <View key={p.id}>
-                  {urls[p.path] ? (
-                    <Pressable
-                      accessibilityRole="imagebutton"
-                      accessibilityLabel="View photo full screen"
-                      onPress={() => setViewerIndex(viewablePhotos.findIndex((v) => v.id === p.id))}
-                    >
-                      <Image
-                        source={{ uri: urls[p.path] }}
-                        style={{ width: 120, height: 160, borderRadius: radii.sm }}
-                      />
-                    </Pressable>
-                  ) : (
-                    <View
-                      style={{
-                        width: 120,
-                        height: 160,
-                        borderRadius: radii.sm,
-                        backgroundColor: colors.surface,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <ActivityIndicator color={colors.primary} />
-                    </View>
-                  )}
-                  {readOnly ? null : (
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Remove photo"
-                      onPress={() => removePhoto(p)}
-                      hitSlop={8}
-                      style={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        width: 24,
-                        height: 24,
-                        borderRadius: 12,
-                        backgroundColor: 'rgba(0,0,0,0.6)',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text style={{ color: '#fff', ...fonts.bold }}>✕</Text>
-                    </Pressable>
-                  )}
-                </View>
-              ))}
-            </ScrollView>
-          ) : null}
-          {viewablePhotos.length ? (
-            <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
-              Tap a photo to view it full screen.
-            </Text>
-          ) : null}
-
           {readOnly ? null : (
             <>
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                {isWeb ? (
-                  <View style={{ flex: 1 }}>
-                    <SecondaryButton
-                      title="Add photo"
-                      onPress={() => attach('library')}
-                      disabled={busy != null}
-                    />
-                  </View>
-                ) : (
-                  <>
-                    <View style={{ flex: 1 }}>
-                      <SecondaryButton
-                        title={canScan ? 'Scan page' : 'Take photo'}
-                        onPress={() => attach(canScan ? 'scan' : 'camera')}
-                        disabled={busy != null}
-                      />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <SecondaryButton
-                        title="Choose photo"
-                        onPress={() => attach('library')}
-                        disabled={busy != null}
-                      />
-                    </View>
-                  </>
-                )}
-              </View>
-              {busy === 'photo' ? <Body>Working on your photo…</Body> : null}
-
               {completed ? (
                 <PrimaryButton
                   title={busy === 'save' ? 'Saving…' : 'Save'}
@@ -393,8 +214,7 @@ export function NotesSheet({
                   />
                   {!canComplete ? (
                     <Text style={{ ...typography.body, fontSize: 13, color: colors.mutedText }}>
-                      Write at least {MIN_NOTE_CHARS} characters or add a photo to complete this
-                      item.
+                      Write at least {MIN_NOTE_CHARS} characters to complete this item.
                     </Text>
                   ) : null}
                   <SecondaryButton
@@ -407,11 +227,6 @@ export function NotesSheet({
             </>
           )}
         </ScrollView>
-        <PhotoViewer
-          uris={viewablePhotos.map((p) => urls[p.path])}
-          index={viewerIndex}
-          onClose={() => setViewerIndex(null)}
-        />
       </SafeAreaView>
     </Modal>
   );

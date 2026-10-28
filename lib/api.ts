@@ -10,13 +10,11 @@ import {
   writeJson,
 } from '@/lib/supabase';
 import { isAuthApiError } from '@supabase/supabase-js';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type {
   Huddle,
   HuddleAccess,
   HuddleSettings,
   JournalNote,
-  JournalPhoto,
   MeetingInfo,
   Membership,
   Profile,
@@ -267,9 +265,7 @@ export async function deleteAccount(userId: string) {
     }
   }
   const notes = await readJson<JournalNote[]>(STORAGE_KEYS.journalNotes, []);
-  const photos = await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, []);
   await writeJson(STORAGE_KEYS.journalNotes, notes.filter((n) => n.user_id !== userId));
-  await writeJson(STORAGE_KEYS.journalPhotos, photos.filter((p) => p.user_id !== userId));
   const profiles = await readJson<Profile[]>(STORAGE_KEYS.profiles, []);
   await writeJson(
     STORAGE_KEYS.profiles,
@@ -572,10 +568,7 @@ export async function dissolveHuddle(huddleId: string) {
     picks.filter((p) => p.huddle_id !== huddleId)
   );
   const notes = await readJson<JournalNote[]>(STORAGE_KEYS.journalNotes, []);
-  const photos = await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, []);
-  const noteIds = new Set(notes.filter((n) => n.huddle_id === huddleId).map((n) => n.id));
-  await writeJson(STORAGE_KEYS.journalNotes, notes.filter((n) => !noteIds.has(n.id)));
-  await writeJson(STORAGE_KEYS.journalPhotos, photos.filter((p) => !noteIds.has(p.note_id)));
+  await writeJson(STORAGE_KEYS.journalNotes, notes.filter((n) => n.huddle_id !== huddleId));
 }
 
 export async function getProgressForWeek(huddleId: string, week: number): Promise<ProgressRow[]> {
@@ -699,7 +692,6 @@ export async function setWeekPick(params: {
 // -----------------------------------------------------------------------------
 
 const JOURNAL_BUCKET = 'journal';
-const PHOTO_MAX_WIDTH = 1600;
 
 export async function updateHuddleSettings(
   huddleId: string,
@@ -724,7 +716,7 @@ export async function updateHuddleSettings(
   return settings;
 }
 
-export type WeekNotes = { notes: JournalNote[]; photos: JournalPhoto[] };
+export type WeekNotes = { notes: JournalNote[] };
 
 /** The caller's own notes plus any shared notes from the huddle. */
 export async function getNotesForWeek(huddleId: string, week: number): Promise<WeekNotes> {
@@ -735,15 +727,7 @@ export async function getNotesForWeek(huddleId: string, week: number): Promise<W
       .eq('huddle_id', huddleId)
       .eq('week', week);
     if (error) throw error;
-    const ids = (notes ?? []).map((n) => n.id);
-    if (!ids.length) return { notes: [], photos: [] };
-    const { data: photos, error: pErr } = await supabase
-      .from('journal_photos')
-      .select('*')
-      .in('note_id', ids)
-      .order('created_at');
-    if (pErr) throw pErr;
-    return { notes: notes ?? [], photos: photos ?? [] };
+    return { notes: notes ?? [] };
   }
 
   const me = await getCurrentUserId();
@@ -751,11 +735,7 @@ export async function getNotesForWeek(huddleId: string, week: number): Promise<W
     (n) =>
       n.huddle_id === huddleId && n.week === week && (n.user_id === me || n.visibility === 'shared')
   );
-  const ids = new Set(notes.map((n) => n.id));
-  const photos = (await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, [])).filter((p) =>
-    ids.has(p.note_id)
-  );
-  return { notes, photos };
+  return { notes };
 }
 
 /** Creates or updates the caller's note for an item; visibility follows the huddle setting. */
@@ -810,132 +790,31 @@ export async function saveNote(params: {
   return note;
 }
 
-export async function deleteNote(noteId: string, photos: JournalPhoto[]) {
+export async function deleteNote(noteId: string) {
   if (isRemoteConfigured && supabase) {
-    const paths = photos.filter((p) => p.note_id === noteId).map((p) => p.path);
-    if (paths.length) {
-      const { error: sErr } = await supabase.storage.from(JOURNAL_BUCKET).remove(paths);
-      if (sErr) throw sErr;
-    }
+    await removeNotePhotoFiles(noteId);
     const { error } = await supabase.from('journal_notes').delete().eq('id', noteId);
     if (error) throw error;
     return;
   }
   const notes = await readJson<JournalNote[]>(STORAGE_KEYS.journalNotes, []);
-  const all = await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, []);
   await writeJson(STORAGE_KEYS.journalNotes, notes.filter((n) => n.id !== noteId));
-  await writeJson(STORAGE_KEYS.journalPhotos, all.filter((p) => p.note_id !== noteId));
 }
 
-/** Shrinks to at most PHOTO_MAX_WIDTH wide and re-encodes as JPEG. */
-async function prepareJournalImage(uri: string): Promise<{ base64: string; uri: string }> {
-  const context = ImageManipulator.manipulate(uri);
-  const original = await context.renderAsync();
-  const image =
-    original.width > PHOTO_MAX_WIDTH
-      ? await context
-          .resize({
-            width: PHOTO_MAX_WIDTH,
-            // Web can't infer the height from null, so keep the aspect ratio explicitly.
-            height: Math.round((original.height * PHOTO_MAX_WIDTH) / original.width),
-          })
-          .renderAsync()
-      : original;
-  const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.7, base64: true });
-  if (!saved.base64) throw new Error('Could not read the photo.');
-  return { base64: saved.base64, uri: saved.uri };
-}
-
-function base64ToBytes(base64: string): Uint8Array {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  const lookup = new Uint8Array(256);
-  for (let i = 0; i < chars.length; i++) lookup[chars.charCodeAt(i)] = i;
-  const clean = base64.replace(/[^A-Za-z0-9+/]/g, '');
-  const bytes = new Uint8Array(Math.floor((clean.length * 3) / 4));
-  let p = 0;
-  for (let i = 0; i < clean.length; i += 4) {
-    const a = lookup[clean.charCodeAt(i)];
-    const b = lookup[clean.charCodeAt(i + 1)];
-    const c = lookup[clean.charCodeAt(i + 2)];
-    const d = lookup[clean.charCodeAt(i + 3)];
-    bytes[p++] = (a << 2) | (b >> 4);
-    if (i + 2 < clean.length) bytes[p++] = ((b & 15) << 4) | (c >> 2);
-    if (i + 3 < clean.length) bytes[p++] = ((c & 3) << 6) | d;
-  }
-  return bytes.subarray(0, p);
-}
-
-export async function addNotePhoto(note: JournalNote, uri: string): Promise<JournalPhoto> {
-  const image = await prepareJournalImage(uri);
-
-  if (isRemoteConfigured && supabase) {
-    const path = `${note.huddle_id}/${note.user_id}/${note.id}/${randomId()}.jpg`;
-    const { error: upErr } = await supabase.storage
-      .from(JOURNAL_BUCKET)
-      .upload(path, base64ToBytes(image.base64), { contentType: 'image/jpeg' });
-    if (upErr) throw upErr;
-    const { data, error } = await supabase
-      .from('journal_photos')
-      .insert({ note_id: note.id, user_id: note.user_id, path })
-      .select('*')
-      .single();
-    if (error) {
-      await supabase.storage.from(JOURNAL_BUCKET).remove([path]);
-      throw error;
-    }
-    return data;
-  }
-
-  const photo: JournalPhoto = {
-    id: randomId(),
-    note_id: note.id,
-    user_id: note.user_id,
-    path: `data:image/jpeg;base64,${image.base64}`,
-    created_at: new Date().toISOString(),
-  };
-  const photos = await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, []);
-  await writeJson(STORAGE_KEYS.journalPhotos, [...photos, photo]);
-  return photo;
-}
-
-export async function removeNotePhoto(photo: JournalPhoto) {
-  if (isRemoteConfigured && supabase) {
-    const { error: sErr } = await supabase.storage.from(JOURNAL_BUCKET).remove([photo.path]);
-    if (sErr) throw sErr;
-    const { error } = await supabase.from('journal_photos').delete().eq('id', photo.id);
-    if (error) throw error;
-    return;
-  }
-  const photos = await readJson<JournalPhoto[]>(STORAGE_KEYS.journalPhotos, []);
-  await writeJson(STORAGE_KEYS.journalPhotos, photos.filter((p) => p.id !== photo.id));
-}
-
-/** Short-lived viewing URLs keyed by photo path. */
-export async function notePhotoUrls(photos: JournalPhoto[]): Promise<Record<string, string>> {
-  if (!photos.length) return {};
-  if (isRemoteConfigured && supabase) {
-    const { data, error } = await supabase.storage
-      .from(JOURNAL_BUCKET)
-      .createSignedUrls(
-        photos.map((p) => p.path),
-        60 * 60
-      );
-    if (error) throw error;
-    const urls: Record<string, string> = {};
-    for (const item of data ?? []) {
-      if (item.path && item.signedUrl) urls[item.path] = item.signedUrl;
-    }
-    return urls;
-  }
-  return Object.fromEntries(photos.map((p) => [p.path, p.path]));
-}
-
+// Notes no longer take photos; these remove any files still in the journal bucket.
 async function removeStorageFiles(paths: string[]) {
   if (!supabase) return;
   for (let i = 0; i < paths.length; i += 100) {
     const { error } = await supabase.storage.from(JOURNAL_BUCKET).remove(paths.slice(i, i + 100));
     if (error) throw error;
   }
+}
+
+async function removeNotePhotoFiles(noteId: string) {
+  if (!supabase) return;
+  const { data, error } = await supabase.from('journal_photos').select('path').eq('note_id', noteId);
+  if (error) return;
+  await removeStorageFiles((data ?? []).map((r) => r.path as string));
 }
 
 async function removeOwnPhotoFiles(userId: string) {

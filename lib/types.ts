@@ -141,15 +141,6 @@ export type JournalNote = {
   updated_at: string;
 };
 
-export type JournalPhoto = {
-  id: string;
-  note_id: string;
-  user_id: string;
-  /** Storage path in the `journal` bucket; a data URL in local mode. */
-  path: string;
-  created_at: string;
-};
-
 export type Membership = {
   id: string;
   huddle_id: string;

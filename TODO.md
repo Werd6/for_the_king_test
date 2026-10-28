@@ -7,11 +7,11 @@ Feature history is further down; anything still open there has been moved into a
 
 ## Phase 1 — Start today (longest lead times)
 
-- [ ] **Apple Developer Program** ($99/yr)
-  - [ ] Decide: enroll as an individual or as an organization (Bespoke IT LLC / ministry)
+- [x] **Apple Developer Program** ($99/yr)
+  - [x] Decide: enroll as an individual or as an organization (Bespoke IT LLC / ministry)
   - [ ] If organization: request a free D-U-N-S number (can take 1–2 weeks)
-  - [ ] Enroll
-- [ ] Delete the Firebase service account key from Downloads
+  - [x] Enroll
+- [x] Delete the Firebase service account key from Downloads
 
 ---
 
@@ -20,12 +20,12 @@ Feature history is further down; anything still open there has been moved into a
 SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (already updated)
 
 - [x] **Run the migration** in Supabase → SQL Editor, then push the app code right after
-- [ ] **Lock down huddle reads**
+- [x] **Lock down huddle reads**
   - [x] `join_huddle_by_code(code)` function joins server-side
   - [x] Removed `huddles_select_by_invite_for_join` policy
   - [x] `memberships_insert_self` limited to a leader joining their own new huddle
   - [x] `joinHuddleByCode` calls the RPC
-  - [ ] Verify: Account B (not in a huddle) can't see Account A's huddle, but can join with the code
+  - [x] Verify: Account B (not in a huddle) can't see Account A's huddle, but can join with the code
 - [ ] **Real account deletion**
   - [x] `delete_my_account()` function deletes led huddles, then the auth user (cascades profile, membership, progress)
   - [x] `deleteAccount` calls the RPC
@@ -105,7 +105,6 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [ ] Notifications: week started, item finished, meeting reminder
   - [ ] Swap account: both accounts get notifications, and tapping one opens the right account
   - [ ] Calendar sync, date picker, share sheet
-  - [ ] Photo attach and document scanner on notes
   - [ ] Home-screen icon switches to For The King
   - [ ] Read-only state for a huddle without a pass
 - [ ] Invite a few huddle members as TestFlight testers (external testers need a quick beta review)
@@ -126,7 +125,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [x] **Support URL / contact email** — https://goandmake.online/support, bespoke.it.llc@gmail.com
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
 - [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad)
-- [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
+- [ ] **App Privacy questionnaire** — email, name, journal text, push tokens, purchase records
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
 - [ ] **Demo account** for App Review — a leader with a huddle and a comp pass (`grant_comp_pass`)
 - [ ] **Review notes** — demo login, how huddles work, how passes are bought (if Option A)
@@ -151,7 +150,6 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [x] **Account deletion URL** — https://goandmake.online/delete-account
 - [ ] **Content rating** questionnaire (IARC)
 - [ ] Target audience and ads declaration (no ads)
-- [ ] Declare photo/camera permissions if Play flags them
 - [ ] Promote to production
 
 ---
@@ -247,18 +245,21 @@ Second pathway from Providence Church. Adds weekly quotes/article reading and pa
 
 ## Feature — On-platform journaling
 
-Typed notes and journal photos/scans on journaling and SOAP items, with leader settings.
+Typed notes on journaling and SOAP items, with leader settings.
 
 - [x] `requiresNote` tag on items (auto for journaling / SOAP, `[note]` marker for others); both pathways regenerated
 - [x] Migration `supabase/migrations/004_journaling.sql` — huddle `settings`, `journal_notes`, `journal_photos`, RLS, private `journal` bucket, check-off rule
-- [x] Notes sheet on This Week (text, photos, scanner in native builds) with the privacy notice
+- [x] Notes sheet on This Week with the privacy notice
 - [x] Leader settings: notes Optional / Required (default Optional), Private / Shared with huddle (default Private)
 - [x] Shared notes viewable from Progress (this week and past weeks)
 - [x] Photo cleanup on account deletion and huddle dissolve
+- [x] Dropped photo attachments and the document scanner (Supabase storage cost); notes are text only
+- [ ] Run `supabase/migrations/009_no_journal_photo_uploads.sql` in Supabase → SQL Editor
+- [ ] Optional: empty tester photos from Supabase → Storage → `journal`
 - [x] Run `supabase/migrations/004_journaling.sql` in Supabase → SQL Editor
 - [x] Republish both pathways into their current version so pinned huddles get the tags:
   `npm run publish:pathway -- --version 1` and `npm run publish:pathway -- --pathway pc3-focuses --version 1`
-- Scanner test: Phase 5 · App Privacy / Data Safety: Phases 6 and 7
+- App Privacy / Data Safety: Phases 6 and 7
 
 ---
 

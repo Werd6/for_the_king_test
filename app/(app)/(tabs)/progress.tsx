@@ -37,7 +37,6 @@ import { friendlyError } from '@/lib/errors';
 import { useTheme } from '@/lib/ThemeContext';
 import type {
   JournalNote,
-  JournalPhoto,
   Profile,
   ProgressRow,
   StandardWeek,
@@ -49,16 +48,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const NO_NOTES: WeekNotes = { notes: [], photos: [] };
+const NO_NOTES: WeekNotes = { notes: [] };
 
-/** Other members' shared notes that have text or photos, keyed by `${userId}:${itemId}`. */
+/** Other members' shared notes that have text, keyed by `${userId}:${itemId}`. */
 function sharedNotesByItem(weekNotes: WeekNotes, viewerId: string | null) {
-  const map = new Map<string, { note: JournalNote; photos: JournalPhoto[] }>();
+  const map = new Map<string, { note: JournalNote }>();
   for (const note of weekNotes.notes) {
     if (note.visibility !== 'shared' || note.user_id === viewerId) continue;
-    const photos = weekNotes.photos.filter((p) => p.note_id === note.id);
-    if (!note.body.trim() && !photos.length) continue;
-    map.set(`${note.user_id}:${note.item_id}`, { note, photos });
+    if (!note.body.trim()) continue;
+    map.set(`${note.user_id}:${note.item_id}`, { note });
   }
   return map;
 }
@@ -80,7 +78,7 @@ function MemberProgress({
   completed: ReadonlySet<string>;
   expanded: boolean;
   onToggle: () => void;
-  sharedNote?: (itemId: string) => { note: JournalNote; photos: JournalPhoto[] } | undefined;
+  sharedNote?: (itemId: string) => { note: JournalNote } | undefined;
   onViewNote?: (viewed: ViewedNote) => void;
 }) {
   const { colors, radii, fonts, typography } = useTheme();
