@@ -8,9 +8,12 @@
     "scheme": "goandmake",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.goandmake.app",
       "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSCalendarsUsageDescription": "Add your huddle meeting dates to your calendar.",
         "NSCalendarsFullAccessUsageDescription": "Add and update your huddle meeting dates on your calendar."

@@ -60,14 +60,14 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [x] **Error states** — friendly error messages; "Couldn't load / Try again" on week + progress screens
 - [x] **Dark mode** — Challenge Pool items were black on dark
 - [x] **Change week** — leaders can move the huddle to any week (Progress → Leader → Change week) to undo an accidental advance
-- [ ] **Content review** — proofread every week of For The King (`content/`, `for_the_king_content1.md`) and Focuses
+- [x] **Content review** — proofread every week of For The King (`content/`, `for_the_king_content1.md`) and Focuses
 - [ ] **Accessibility pass**
   - [x] Screen-reader headings, input/checkbox/row labels, disabled states, email/password autofill
   - [x] Light-mode secondary text darkened to pass 4.5:1 contrast
   - [ ] Test with VoiceOver (iOS) and large text sizes once native builds exist
 - [ ] **New-pathway offline fallback** — if a pathway not built into the app can't load on first open, show "connect to load your pathway" instead of For The King content
-- [ ] **iPad** — decide iPhone-only vs. iPad support (`supportsTablet` in `app.json`; iPad means iPad screenshots too)
-- [ ] **Export compliance** — add `ios.config.usesNonExemptEncryption: false` to `app.json` so App Store Connect stops asking every build
+- [x] **iPad** — iPhone only (`supportsTablet: false` in `app.json`), so no iPad screenshots
+- [x] **Export compliance** — `ios.config.usesNonExemptEncryption: false` in `app.json`, so App Store Connect doesn't ask every build
 - [ ] **Sign in with Apple deletion** — revoke the Apple token when someone deletes their account (or be ready to explain if review asks)
 
 ---
@@ -119,14 +119,14 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] **Marketing site** — https://goandmake.online, static site in [Werd6/Go_and_Make](https://github.com/Werd6/Go_and_Make)
   - [x] Domain `goandmake.online` (Namecheap)
   - [x] Pages: home (what Go and Make is, pathways, ministries contact), join, privacy, support, delete account
-  - [ ] Import the repo into Vercel and point Namecheap DNS at it (steps in that repo's README)
+  - [x] Import the repo into Vercel and point Namecheap DNS at it (steps in that repo's README)
   - [ ] Swap the "Coming soon" badges on the join page for real App Store and Google Play links once the apps are live
   - [ ] Link to the business site eventually
 - [x] **Privacy policy** — contact email filled in, "draft" removed, published as `privacy.html` on the marketing site
   - [x] Settings → Privacy policy opens https://goandmake.online/privacy (Apple 5.1.1)
 - [x] **Support URL / contact email** — https://goandmake.online/support, bespoke.it.llc@gmail.com
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
-- [ ] **Screenshots** — iPhone 6.9" (plus 13" iPad if supporting iPad); For The King only while Focuses is on hold
+- [ ] **Screenshots** — iPhone 6.9"; For The King only while Focuses is on hold
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
 - [ ] **Demo account** for App Review — a leader with a For The King huddle and a comp pass (`grant_comp_pass`)
@@ -247,7 +247,7 @@ Second pathway from Providence Church. Adds weekly quotes/article reading and pa
 
 **On hold for the phone apps (licensing).** Focuses is web app only for now: the iPhone/Android builds don't bundle its content, logo or notification icon, Create Huddle there doesn't list it, and the marketing site doesn't mention it. The web app still offers it.
 
-- [ ] Run `supabase/migrations/009_pathways_in_apps.sql` in Supabase → SQL Editor (until it's run, the apps fall back to their bundled list, which is For The King only)
+- [x] Run `supabase/migrations/009_pathways_in_apps.sql` in Supabase → SQL Editor (until it's run, the apps fall back to their bundled list, which is For The King only)
 - [ ] Once licensing is settled, bring it back:
   - Supabase: `update public.pathways set in_apps = true where id = 'pc3-focuses';` (Create Huddle in the apps lists it right away)
   - Move the PC3 entries from `lib/webOnlyContent.web.ts` back into `BUNDLED_PATHWAYS` (`lib/content.ts`) and `BUNDLED_THEMES` / `BUNDLED_THEME_ASSETS` (`lib/themeAssets.ts`) for offline use, and add `"pc3-focuses": "./assets/images/notification-icon-pc3.png"` back to the `withPathwayNotificationIcons` plugin in `app.json` (needs a new build)
@@ -283,7 +283,7 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Settings → Swap account: stay signed in to several accounts and switch between them
 - [x] Migration `supabase/migrations/007_multi_account_notifications.sql` — one device token can belong to several accounts; pushes say which account and huddle they're for
 - [x] Run `supabase/migrations/007_multi_account_notifications.sql` in Supabase → SQL Editor
-- [ ] Run `supabase/migrations/008_neutral_defaults.sql` in Supabase → SQL Editor ("Member" / "Someone" instead of "Brother" / "A brother" when there's no display name)
+- [x] Run `supabase/migrations/008_neutral_defaults.sql` in Supabase → SQL Editor ("Member" / "Someone" instead of "Brother" / "A brother" when there's no display name)
 - Two-account phone test: Phase 5 · Push tokens in App Privacy / Data Safety: Phases 6 and 7
 
 ---
