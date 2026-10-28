@@ -8,7 +8,7 @@ import { useTheme } from '@/lib/ThemeContext';
 export default function ChallengePoolScreen() {
   const { isLeader } = useAuth();
   const { pathway, loading } = useContent();
-  const { fonts } = useTheme();
+  const { fonts, colors } = useTheme();
   if (!isLeader) return <Redirect href="/(app)/(tabs)/settings" />;
   if (loading || !pathway) return <Loading />;
 
@@ -21,14 +21,14 @@ export default function ChallengePoolScreen() {
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
         <Title>Optional Challenge Pool</Title>
         <Body>{challengePool.intro}</Body>
-        <Body>
-          Read-only in v1. Substitute verbally if needed — the app does not swap weekly items yet.
-        </Body>
 
         {Object.entries(categories).map(([name, items]) => (
-          <Section key={name} title={name}>
+          <Section key={name} title={name.charAt(0).toUpperCase() + name.slice(1)}>
             {items.map((item) => (
-              <Text key={item.id} style={{ ...fonts.regular, marginBottom: 6, fontSize: 15 }}>
+              <Text
+                key={item.id}
+                style={{ ...fonts.regular, marginBottom: 6, fontSize: 15, color: colors.ink }}
+              >
                 • {item.text}
               </Text>
             ))}
