@@ -26,7 +26,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
   - [x] `memberships_insert_self` limited to a leader joining their own new huddle
   - [x] `joinHuddleByCode` calls the RPC
   - [x] Verify: Account B (not in a huddle) can't see Account A's huddle, but can join with the code
-- [ ] **Real account deletion**
+- [x] **Real account deletion**
   - [x] `delete_my_account()` function deletes led huddles, then the auth user (cascades profile, membership, progress)
   - [x] `deleteAccount` calls the RPC
   - [ ] Verify: the user disappears from Supabase → Authentication → Users
@@ -45,13 +45,13 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 - [x] **Splash screen** — replace `splash-icon.png`
   - [x] Background `#DEE5E5` light / `#082D0F` dark
 - [x] **Favicon** for web — replace `assets/images/favicon.png` (48×48)
-- [ ] **Forgot password**
+- [x] **Forgot password**
   - [x] "Forgot password?" link on sign-in + `/reset-password` screen
   - [x] Recovery links that land on `/` are routed to `/reset-password`; email links always use the public site URL on web
   - [x] Supabase → Authentication → URL Configuration: Site URL `https://for-the-king-test.vercel.app`; Redirect URLs `https://for-the-king-test.vercel.app/**`, `http://localhost:8081/**`, `fortheking://**`
   - [x] Add `goandmake://**` to the Supabase redirect URLs (Go and Make scheme)
-  - [ ] Test: request reset on the live site, open the email link, set a new password
-  - [ ] Test the same from the app (the link should open the app)
+  - [x] Test: request reset on the live site, open the email link, set a new password
+  - [x] Test the same from the app (the link should open the app)
 - [ ] **Auth emails**
   - [ ] Customize Supabase confirm/reset email templates (Authentication → Email Templates)
   - [x] Custom SMTP via Resend (`mail.bespokeit.llc`)
