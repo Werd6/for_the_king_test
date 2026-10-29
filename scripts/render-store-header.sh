@@ -1,5 +1,5 @@
 #!/bin/sh
-# Renders store/header.html at the App Store header sizes with headless Chrome.
+# Renders store/header.html at the App Store header and search results sizes with headless Chrome.
 # Usage: sh scripts/render-store-header.sh [output folder]   (default: ~/Desktop/App Store assets)
 set -e
 cd "$(dirname "$0")/.."
@@ -16,3 +16,5 @@ render() { # width height file (rendered at 2x)
 
 render 5244 2950 "header-5244x2950.png"
 render 3840 1646 "header-3840x1646.png"
+render 3840 2560 "search-results-3840x2560.png"
+render 1920 1280 "search-results-1920x1280.png"
