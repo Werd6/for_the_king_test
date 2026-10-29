@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+  App Store header artwork, drawn in vector so it renders sharp at any size.
+  Render with scripts/render-store-header.sh. Wider sizes trim the sky, never the road.
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f2ede3; }
+  svg { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<svg id="art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="0.52" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#fbf8f1" />
+      <stop offset="1" stop-color="#efe9dd" />
+    </radialGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.16" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#glow)" />
+
+  <!-- far hills -->
+  <path fill="#cfc7b8" d="M0 455 C 140 400, 330 385, 560 452 L 560 900 L 0 900 Z" />
+  <path fill="#b8afa0" d="M640 488 C 860 430, 1080 330, 1330 330 C 1470 330, 1560 362, 1600 378 L 1600 900 L 640 900 Z" />
+
+  <!-- middle hills -->
+  <path fill="#a96e47" d="M760 560 C 900 530, 1220 470, 1600 462 L 1600 900 L 686 900 C 720 840, 896 790, 896 707 C 896 650, 690 630, 690 591 C 690 575, 720 565, 760 560 Z" />
+  <path fill="#5f705a" d="M0 470 C 260 395, 560 430, 800 488 L 854 494 C 760 535, 690 560, 690 591 C 690 630, 896 650, 896 707 C 896 790, 720 840, 686 900 L 0 900 Z" />
+
+  <!-- road -->
+  <path fill="#f4efe5" d="
+    M 545 900
+    C 640 822, 842 772, 842 706
+    C 842 646, 650 640, 652 592
+    C 654 548, 770 524, 846 494
+    L 862 495
+    C 812 524, 724 552, 728 590
+    C 732 628, 950 638, 950 708
+    C 950 800, 840 850, 828 900
+    Z" />
+
+  <!-- foreground hills -->
+  <path fill="#35432f" d="M0 640 C 230 600, 470 620, 640 680 C 760 722, 700 810, 560 900 L 0 900 Z" />
+  <path fill="#35432f" d="M1600 740 C 1380 712, 1140 750, 1010 800 C 930 832, 900 870, 880 900 L 1600 900 Z" />
+
+  <rect width="1600" height="900" filter="url(#grain)" />
+</svg>
+</body>
+</html>
