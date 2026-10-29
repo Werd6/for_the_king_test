@@ -1,0 +1,65 @@
+<!doctype html>
+<!-- Export compliance statement for App Store Connect. Print to PDF with headless Chrome:
+     "Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=out.pdf store/encryption-documentation.html -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Go and Make — Encryption Export Compliance</title>
+<style>
+  @page { size: letter; margin: 0.9in; }
+  body { font: 11pt/1.5 -apple-system, 'Helvetica Neue', Arial, sans-serif; color: #222; }
+  h1 { font-size: 17pt; margin: 0 0 4pt; }
+  h2 { font-size: 12pt; margin: 18pt 0 4pt; }
+  .meta { color: #555; margin-bottom: 14pt; }
+  table { border-collapse: collapse; width: 100%; margin: 6pt 0; }
+  td, th { border: 1px solid #ccc; padding: 5pt 7pt; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; width: 32%; }
+  ul { margin: 4pt 0; padding-left: 18pt; }
+</style>
+</head>
+<body>
+  <h1>Encryption Export Compliance Statement</h1>
+  <div class="meta">Go and Make for iOS &middot; October 29, 2026</div>
+
+  <table>
+    <tr><th>App name</th><td>Go and Make</td></tr>
+    <tr><th>Bundle ID</th><td>com.goandmake.app</td></tr>
+    <tr><th>Apple ID</th><td>6828165990</td></tr>
+    <tr><th>Developer</th><td>Andrew Charles Swanberg (Team ID 3P95M865HG)</td></tr>
+    <tr><th>Contact</th><td>bespoke.it.llc@gmail.com</td></tr>
+    <tr><th>Info.plist</th><td>ITSAppUsesNonExemptEncryption = NO</td></tr>
+  </table>
+
+  <h2>Summary</h2>
+  <p>
+    Go and Make does not contain proprietary or non-standard encryption, and it does not include its own
+    implementation of any standard encryption algorithm. All encryption in the app is provided by Apple's
+    operating system. The app therefore qualifies for the exemption in Category 5, Part 2 of the U.S. Export
+    Administration Regulations, and no encryption registration or classification is required.
+  </p>
+
+  <h2>How the app uses encryption</h2>
+  <ul>
+    <li><strong>Network traffic (HTTPS/TLS).</strong> The app connects to its backend (Supabase) and to Expo's push
+      notification service only over HTTPS, using iOS's built-in networking (URLSession). It adds no TLS library or
+      custom transport encryption.</li>
+    <li><strong>Saved sign-ins.</strong> Session tokens are stored in the iOS Keychain through Apple's Keychain
+      Services (via the expo-secure-store library).</li>
+    <li><strong>Hashing and random values.</strong> The app includes the expo-crypto library, which calls Apple's
+      CommonCrypto for hashing and random numbers. It is not used to encrypt data.</li>
+    <li><strong>Sign in with Apple and payments</strong> are handled entirely by Apple.</li>
+  </ul>
+
+  <h2>What the app does not contain</h2>
+  <ul>
+    <li>No proprietary or non-standard cryptographic algorithms.</li>
+    <li>No bundled cryptographic libraries (for example OpenSSL, libsodium or BoringSSL).</li>
+    <li>No end-to-end encryption, VPN, encrypted messaging or file encryption features.</li>
+  </ul>
+
+  <p style="margin-top:20pt">
+    I confirm that the information above is accurate to the best of my knowledge.<br /><br />
+    Andrew Charles Swanberg
+  </p>
+</body>
+</html>
