@@ -24,8 +24,11 @@ import { cancelMeetingReminder, disablePushNotifications } from '@/lib/notificat
 import { isRemoteConfigured, supabase } from '@/lib/supabase';
 import type { Huddle, HuddleAccess, Profile } from '@/lib/types';
 
-/** Set after returning from Stripe Checkout on web. */
-export type CheckoutReturn = 'confirming' | 'delayed' | 'cancelled' | null;
+/**
+ * Set after returning from Stripe Checkout. 'delayed': paid on web but not confirmed yet.
+ * 'unconfirmed': the in-app checkout closed without a pass showing up (paid late, or cancelled).
+ */
+export type CheckoutReturn = 'confirming' | 'delayed' | 'unconfirmed' | 'cancelled' | null;
 
 type AuthState = {
   loading: boolean;
@@ -39,6 +42,8 @@ type AuthState = {
   canEdit: boolean;
   checkoutReturn: CheckoutReturn;
   dismissCheckoutReturn: () => void;
+  /** Polls for the pass after checkout; the webhook can land a few seconds after Stripe returns. */
+  confirmCheckout: (fromApp: boolean) => Promise<void>;
   /** Accounts signed in on this device, for Swap account. Includes the current one. */
   savedAccounts: SavedAccount[];
   /** Makes a saved account the current one; the others stay signed in. */
@@ -191,33 +196,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => sub.remove();
   }, [refresh]);
 
-  // Back from Stripe: the webhook may land a few seconds after the redirect, so poll briefly.
-  useEffect(() => {
-    const param = takeCheckoutParam();
-    if (param === 'cancelled') {
-      setCheckoutReturn('cancelled');
-      return;
-    }
-    if (param !== 'success') return;
-    setCheckoutReturn('confirming');
-    let cancelled = false;
-    (async () => {
-      for (let attempt = 0; attempt < 15 && !cancelled; attempt++) {
+  const confirmSeq = useRef(0);
+  const confirmCheckout = useCallback(
+    async (fromApp: boolean) => {
+      const seq = ++confirmSeq.current;
+      setCheckoutReturn('confirming');
+      // The in-app browser can't tell paid from cancelled, so it waits less before asking.
+      const attempts = fromApp ? 5 : 15;
+      for (let attempt = 0; attempt < attempts; attempt++) {
         await refresh().catch(() => {});
+        if (seq !== confirmSeq.current) return;
         if (accessRef.current !== 'unpaid' && accessRef.current !== 'none') {
-          if (!cancelled) setCheckoutReturn(null);
+          setCheckoutReturn(null);
           return;
         }
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-      if (!cancelled) setCheckoutReturn('delayed');
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [refresh]);
+      if (seq === confirmSeq.current) setCheckoutReturn(fromApp ? 'unconfirmed' : 'delayed');
+    },
+    [refresh]
+  );
 
-  const dismissCheckoutReturn = useCallback(() => setCheckoutReturn(null), []);
+  // Back from Stripe on web.
+  useEffect(() => {
+    const param = takeCheckoutParam();
+    if (param === 'cancelled') setCheckoutReturn('cancelled');
+    if (param === 'success') confirmCheckout(false);
+  }, [confirmCheckout]);
+
+  const dismissCheckoutReturn = useCallback(() => {
+    confirmSeq.current++;
+    setCheckoutReturn(null);
+  }, []);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -230,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canEdit: access === 'active' || access === 'exempt',
       checkoutReturn,
       dismissCheckoutReturn,
+      confirmCheckout,
       savedAccounts,
       switchAccount: async (id) => {
         await changeAccount(() => activateSavedAccount(id));
@@ -288,6 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       access,
       checkoutReturn,
       dismissCheckoutReturn,
+      confirmCheckout,
       savedAccounts,
       changeAccount,
       refresh,

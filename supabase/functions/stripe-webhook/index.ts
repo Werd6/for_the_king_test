@@ -11,7 +11,8 @@ const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE
 });
 
 async function recordPass(session: Stripe.Checkout.Session) {
-  if (session.payment_status !== 'paid') return;
+  // 100%-off promotion codes complete as 'no_payment_required' with no PaymentIntent.
+  if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return;
   const { huddle_id, user_id, kind } = session.metadata ?? {};
   if (!huddle_id || !user_id || (kind !== 'leader' && kind !== 'member')) {
     console.warn(`Session ${session.id} has no Huddle Pass metadata; ignoring.`);

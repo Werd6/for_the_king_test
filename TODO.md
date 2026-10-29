@@ -80,11 +80,15 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] Run `supabase/migrations/006_huddle_passes.sql` in Supabase → SQL Editor
 - [ ] Supabase CLI: install, link, set secrets, deploy `create-checkout` and `stripe-webhook`
 - [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
-- [ ] Test: leader pays, starts Week 1, member pays and checks in; refund removes access; expired window (edit `started_at`); exempt huddle
-- [ ] Switch to live keys and a live webhook
-- [x] **Decide how Huddle Pass goes through store review** (Apple 3.1.3(b) / Google Play billing) — **Option A**
-  - [x] Option A: submit as-is; review notes explain passes are bought on the website and the apps sell nothing
-  - Fallback if review rejects under 3.1.3(b): Option B (add Apple / Google in-app purchase alongside Stripe) or Option C (turn off pass checks in the phone apps)
+- [ ] **Access codes** — Stripe → Product catalog → Coupons: a 100% off coupon, then promotion codes on it (e.g. one for TestFlight testers, one for App Review), with a redemption limit and expiry
+- [ ] Test: leader pays, starts Week 1, member pays and checks in; access code checks out at $0; refund removes access; expired window (edit `started_at`); exempt huddle
+- [ ] Test from the iPhone app: Get Huddle Pass opens Stripe in the app, Done returns, the pass shows up (needs the next build)
+- [ ] Switch to live keys and a live webhook (and recreate the coupon and promotion codes in live mode)
+- [x] **Decide how Huddle Pass goes through store review** — **website purchasing, linked from the apps** (allowed on the US storefront)
+  - [x] Phone apps show the price and a Get Huddle Pass button that opens Stripe Checkout in an in-app browser; it returns to https://goandmake.online/pass
+  - [ ] App Store Connect → Pricing and Availability: United States only (link-outs without in-app purchase are only allowed on the US storefront)
+  - [ ] Review notes: purchases happen on Stripe's website; give App Review a promotion code (or a demo huddle that's already free)
+  - Fallback if review rejects under 3.1.1 / 3.1.3(b): add Apple / Google in-app purchase alongside Stripe, or turn off pass checks in the phone apps
 
 ---
 
@@ -136,7 +140,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
 - [ ] **Demo account** for App Review — a leader with a For The King huddle and a comp pass (`grant_comp_pass`)
-- [ ] **Review notes** — demo login, how huddles work, how passes are bought (if Option A)
+- [ ] **Review notes** — demo login, how huddles work, passes bought on Stripe's website (US storefront link-out), promotion code for a free pass
 - [ ] Submit for review
 - [ ] Respond to review feedback
 
@@ -310,11 +314,12 @@ Go and Make is the platform; For The King is the first content pathway.
 
 ## Feature — Huddle Pass (payments)
 
-Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Website checkout only. See README → Huddle Pass.
+Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Checkout, opened from the web app and (in an in-app browser) the phone apps; access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
 
 - [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
 - [x] Edge Functions `create-checkout` and `stripe-webhook`
-- [x] Huddle Pass card (web checkout, neutral message in the apps, Start Week 1, expired), read-only UI, "Pass pending" in Progress
+- [x] Huddle Pass card (checkout, Start Week 1, expired), read-only UI, "Pass pending" in Progress
+- [x] Phone apps: Get Huddle Pass opens Stripe in an in-app browser and checks for the pass when it closes; Stripe accepts promotion codes and $0 orders
 - Setup, testing, going live and the store-review decision: Phase 4
 
 ---

@@ -1,5 +1,7 @@
 // Starts a Stripe Checkout for the caller's Huddle Pass. The pass kind and price are decided
-// here from the database, never by the app. Secrets: STRIPE_SECRET_KEY, SITE_URL.
+// here from the database, never by the app. Promotion codes (e.g. 100% off for testers and
+// App Review) are entered on the Stripe page. Secrets: STRIPE_SECRET_KEY, SITE_URL, and
+// optionally APP_RETURN_URL (where the phone apps' in-app browser lands after checkout).
 import Stripe from 'npm:stripe@^22';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders, json } from '../_shared/http.ts';
@@ -10,6 +12,7 @@ const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE
   auth: { persistSession: false },
 });
 const SITE_URL = (Deno.env.get('SITE_URL') || 'https://for-the-king-test.vercel.app').replace(/\/+$/, '');
+const APP_RETURN_URL = (Deno.env.get('APP_RETURN_URL') || 'https://goandmake.online/pass').replace(/\/+$/, '');
 
 /** Return to the page that started checkout when it's the site itself or local development. */
 function returnBase(requested: unknown): string {
@@ -77,6 +80,7 @@ Deno.serve(async (req) => {
     if (!weeks) return json({ error: 'Could not price this pathway.' }, 500);
 
     const metadata = { huddle_id: huddle.id, user_id: user.id, kind, weeks: String(weeks) };
+    const fromApp = returnUrl === 'app';
     const base = returnBase(returnUrl);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -95,10 +99,11 @@ Deno.serve(async (req) => {
           },
         },
       ],
+      allow_promotion_codes: true,
       metadata,
       payment_intent_data: { metadata },
-      success_url: `${base}/?pass=success`,
-      cancel_url: `${base}/?pass=cancelled`,
+      success_url: fromApp ? `${APP_RETURN_URL}?pass=success` : `${base}/?pass=success`,
+      cancel_url: fromApp ? `${APP_RETURN_URL}?pass=cancelled` : `${base}/?pass=cancelled`,
     });
 
     return json({ url: session.url });

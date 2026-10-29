@@ -14,10 +14,12 @@ function formatDate(date: Date) {
 
 /**
  * Huddle Pass status at the top of This Week, shown until access is active.
- * Passes are sold on the website only: the phone apps never show prices, links or buy buttons.
+ * Passes are bought through Stripe Checkout: in the same tab on web, in an in-app browser on
+ * the phone apps. Testers and App Review enter a 100%-off promotion code on the Stripe page.
  */
 export function HuddlePassCard() {
-  const { huddle, access, isLeader, checkoutReturn, dismissCheckoutReturn, refresh } = useAuth();
+  const { huddle, access, isLeader, checkoutReturn, dismissCheckoutReturn, confirmCheckout, refresh } =
+    useAuth();
   const { pathway } = useContent();
   const [busy, setBusy] = useState(false);
 
@@ -34,7 +36,10 @@ export function HuddlePassCard() {
     setBusy(true);
     dismissCheckoutReturn();
     try {
-      await startCheckout(huddle.id);
+      const result = await startCheckout(huddle.id);
+      if (result === 'left') return;
+      setBusy(false);
+      if (result === 'closed') await confirmCheckout(true);
     } catch (e) {
       showAlert('Huddle Pass', friendlyError(e, 'Could not start checkout. Try again.'));
       setBusy(false);
@@ -94,22 +99,10 @@ export function HuddlePassCard() {
   }
 
   // unpaid
-  if (!isWeb) {
-    return (
-      <Card title="Huddle Pass">
-        <Body>
-          Your Huddle Pass isn&apos;t active yet. You can read this week, but check-ins and notes are
-          turned off until it is.
-        </Body>
-        <SecondaryButton title="Refresh" onPress={() => refresh()} />
-      </Card>
-    );
-  }
-
   if (checkoutReturn === 'confirming') {
     return (
       <Card title="Huddle Pass">
-        <Body>Payment received. Activating your pass…</Body>
+        <Body>{isWeb ? 'Payment received. Activating your pass…' : 'Checking for your pass…'}</Body>
       </Card>
     );
   }
@@ -132,6 +125,12 @@ export function HuddlePassCard() {
       {checkoutReturn === 'cancelled' ? (
         <Body>Checkout was cancelled. You haven&apos;t been charged.</Body>
       ) : null}
+      {checkoutReturn === 'unconfirmed' ? (
+        <Body>
+          Finished checking out? Your pass can take a minute to show up; tap Check again. If you
+          closed checkout early, you haven&apos;t been charged.
+        </Body>
+      ) : null}
       <Body>
         Pay once for the entire pathway. Leader access is $1/week and participant access is
         50¢/week. Every Huddle includes an additional 20% of time for breaks and missed weeks.
@@ -139,14 +138,15 @@ export function HuddlePassCard() {
       <Body>
         {isLeader ? 'Leader Pass' : 'Your pass'} for this {weeks}-week pathway: {price}. {accessText}
       </Body>
-      {checkoutReturn === 'delayed' ? (
-        <SecondaryButton title="Check again" onPress={() => refresh()} />
+      {checkoutReturn === 'delayed' || checkoutReturn === 'unconfirmed' ? (
+        <SecondaryButton title="Check again" onPress={() => confirmCheckout(!isWeb)} />
       ) : null}
       <PrimaryButton
         title={busy ? 'Opening checkout…' : `Get Huddle Pass (${price})`}
         onPress={buy}
         disabled={busy}
       />
+      <Body>Have an access code? Enter it on the checkout page.</Body>
     </Card>
   );
 }

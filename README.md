@@ -104,7 +104,9 @@ Setup:
 
 ## Huddle Pass
 
-One-time payments, sold on the website only. The phone apps never show prices, links or buy buttons, so no Apple or Google fees apply.
+One-time payments through Stripe Checkout. On web, **Get Huddle Pass** opens Checkout in the same tab. The phone apps show the same price and button and open Checkout in an in-app browser (allowed on the US App Store storefront without in-app purchase); afterwards it lands on https://goandmake.online/pass and the app checks for the pass when the browser closes.
+
+Testers and App Review get **access codes**: Stripe promotion codes for a 100% off coupon, entered on the Stripe page. The order completes at $0 and the webhook records the pass like any other. There's no code box in the apps (Apple doesn't allow in-app codes that unlock paid features).
 
 - **Leader Pass:** $1 x pathway weeks. **Member Pass:** 50¢ x weeks, bought by each member.
 - **Access:** ceil(weeks x 1.2) weeks, counted from when the leader taps **Start Week 1** (on This Week, after buying the Leader Pass). Members who join late get the time that's left.
@@ -121,9 +123,11 @@ Setup:
    ```bash
    supabase secrets set STRIPE_SECRET_KEY=sk_test_… SITE_URL=https://for-the-king-test.vercel.app
    ```
+   Optional: `APP_RETURN_URL` (defaults to `https://goandmake.online/pass`), where the phone apps' checkout lands.
 4. Deploy: `supabase functions deploy create-checkout` and `supabase functions deploy stripe-webhook --no-verify-jwt`.
 5. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`.
-6. Test in Stripe test mode with card `4242 4242 4242 4242`. Switch to live keys (and a live webhook with its own secret) when ready.
+6. Access codes: Stripe → Product catalog → Coupons → create a coupon for **100% off**, then add promotion codes to it (e.g. `TESTFLIGHT`, `APPREVIEW`). Set a redemption limit or expiry on each; deactivate a code to stop it.
+7. Test in Stripe test mode with card `4242 4242 4242 4242`. Switch to live keys (and a live webhook with its own secret) when ready; coupons and promotion codes have to be recreated in live mode.
 
 Free passes (SQL editor):
 

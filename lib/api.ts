@@ -10,6 +10,8 @@ import {
   writeJson,
 } from '@/lib/supabase';
 import { isAuthApiError } from '@supabase/supabase-js';
+import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type {
   Huddle,
@@ -443,14 +445,17 @@ export async function startHuddle(huddleId: string): Promise<Huddle> {
   return normalizeHuddle(data as Huddle);
 }
 
-/** Web only: opens Stripe Checkout for the caller's Huddle Pass. */
-export async function startCheckout(huddleId: string): Promise<void> {
-  if (!supabase || typeof window === 'undefined') {
-    throw new Error('Huddle Passes are available on the website.');
-  }
+/**
+ * Opens Stripe Checkout for the caller's Huddle Pass. On web the page navigates away ('left').
+ * The phone apps open it in an in-app browser: iOS resolves 'closed' when it's dismissed,
+ * Android resolves 'opened' right away (access is rechecked when the app comes back).
+ */
+export async function startCheckout(huddleId: string): Promise<'left' | 'closed' | 'opened'> {
+  if (!supabase) throw new Error('Huddle Passes need cloud sync.');
+  const isWeb = Platform.OS === 'web' && typeof window !== 'undefined';
   const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(
     'create-checkout',
-    { body: { huddleId, returnUrl: window.location.origin } }
+    { body: { huddleId, returnUrl: isWeb ? window.location.origin : 'app' } }
   );
   if (error) {
     const context = (error as { context?: unknown }).context;
@@ -459,7 +464,12 @@ export async function startCheckout(huddleId: string): Promise<void> {
     throw new Error(body?.error ?? error.message);
   }
   if (!data?.url) throw new Error(data?.error ?? 'Could not start checkout. Try again.');
-  window.location.assign(data.url);
+  if (isWeb) {
+    window.location.assign(data.url);
+    return 'left';
+  }
+  const result = await WebBrowser.openBrowserAsync(data.url);
+  return result.type === WebBrowser.WebBrowserResultType.OPENED ? 'opened' : 'closed';
 }
 
 export async function getHuddleMembers(huddleId: string): Promise<Profile[]> {
