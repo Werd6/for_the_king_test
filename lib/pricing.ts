@@ -1,5 +1,5 @@
-// Huddle Pass pricing for display. The real price is set by supabase/functions/create-checkout
-// (keep supabase/functions/_shared/pricing.ts in sync).
+// Huddle Pass pricing for display. The real price is each pathway's Stripe Payment Link, and the
+// webhook checks payments against supabase/functions/_shared/pricing.ts (keep both in sync).
 
 export type PassKind = 'leader' | 'member';
 

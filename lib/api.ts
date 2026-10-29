@@ -445,30 +445,40 @@ export async function startHuddle(huddleId: string): Promise<Huddle> {
   return normalizeHuddle(data as Huddle);
 }
 
+export type PassLinks = { leader: string | null; member: string | null };
+
+/** The pathway's Stripe Payment Links (set in Supabase → pathways). */
+export async function getPassLinks(pathwayId: string): Promise<PassLinks> {
+  if (!supabase) return { leader: null, member: null };
+  const { data, error } = await supabase
+    .from('pathways')
+    .select('leader_pass_link, member_pass_link')
+    .eq('id', pathwayId)
+    .maybeSingle();
+  if (error) throw error;
+  return { leader: data?.leader_pass_link ?? null, member: data?.member_pass_link ?? null };
+}
+
 /**
- * Opens Stripe Checkout for the caller's Huddle Pass. On web the page navigates away ('left').
- * The phone apps open it in an in-app browser: iOS resolves 'closed' when it's dismissed,
- * Android resolves 'opened' right away (access is rechecked when the app comes back).
+ * Opens a Payment Link for this person's pass. client_reference_id tells the Stripe webhook
+ * which huddle and account paid. Web opens a new tab and the phone apps an in-app browser:
+ * iOS resolves 'closed' when it's dismissed; web and Android resolve 'opened' right away
+ * (access is rechecked when the app or tab comes back into focus).
  */
-export async function startCheckout(huddleId: string): Promise<'left' | 'closed' | 'opened'> {
-  if (!supabase) throw new Error('Huddle Passes need cloud sync.');
-  const isWeb = Platform.OS === 'web' && typeof window !== 'undefined';
-  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(
-    'create-checkout',
-    { body: { huddleId, returnUrl: isWeb ? window.location.origin : 'app' } }
-  );
-  if (error) {
-    const context = (error as { context?: unknown }).context;
-    const body =
-      context instanceof Response ? await context.json().catch(() => null) : null;
-    throw new Error(body?.error ?? error.message);
+export async function openPassCheckout(
+  link: string,
+  huddleId: string,
+  userId: string,
+  email?: string | null
+): Promise<'closed' | 'opened'> {
+  const params = [`client_reference_id=${encodeURIComponent(`${huddleId}__${userId}`)}`];
+  if (email) params.push(`prefilled_email=${encodeURIComponent(email)}`);
+  const url = `${link}${link.includes('?') ? '&' : '?'}${params.join('&')}`;
+  if (Platform.OS === 'web') {
+    window.open(url, '_blank', 'noopener');
+    return 'opened';
   }
-  if (!data?.url) throw new Error(data?.error ?? 'Could not start checkout. Try again.');
-  if (isWeb) {
-    window.location.assign(data.url);
-    return 'left';
-  }
-  const result = await WebBrowser.openBrowserAsync(data.url);
+  const result = await WebBrowser.openBrowserAsync(url);
   return result.type === WebBrowser.WebBrowserResultType.OPENED ? 'opened' : 'closed';
 }
 

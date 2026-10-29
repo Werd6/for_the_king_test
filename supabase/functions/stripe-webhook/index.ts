@@ -1,8 +1,9 @@
-// Records Huddle Passes from Stripe. Deploy with --no-verify-jwt: Stripe signs each request
-// instead. Secrets: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
+// Records Huddle Passes bought through the Stripe Payment Links. Deploy with --no-verify-jwt:
+// Stripe signs each request instead. Secrets: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
 // Stripe events: checkout.session.completed, checkout.session.async_payment_succeeded, charge.refunded.
 import Stripe from 'npm:stripe@^22';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { passPriceCents, type PassKind } from '../_shared/pricing.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -10,16 +11,54 @@ const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE
   auth: { persistSession: false },
 });
 
+const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+/** The app adds client_reference_id=<huddle id>__<user id> to the Payment Link. */
+const REFERENCE = new RegExp(`^(${UUID})__(${UUID})$`, 'i');
+
+async function refund(paymentIntent: string | null, sessionId: string, reason: string) {
+  if (!paymentIntent) return;
+  await stripe.refunds.create(
+    { payment_intent: paymentIntent, reason: reason === 'already_has_pass' ? 'duplicate' : 'requested_by_customer' },
+    { idempotencyKey: `huddle-pass-refund-${sessionId}` }
+  );
+  console.log(`Refunded session ${sessionId}: ${reason}`);
+}
+
 async function recordPass(session: Stripe.Checkout.Session) {
   // 100%-off promotion codes complete as 'no_payment_required' with no PaymentIntent.
   if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return;
-  const { huddle_id, user_id, kind } = session.metadata ?? {};
-  if (!huddle_id || !user_id || (kind !== 'leader' && kind !== 'member')) {
-    console.warn(`Session ${session.id} has no Huddle Pass metadata; ignoring.`);
+  const match = REFERENCE.exec(session.client_reference_id ?? '');
+  if (!match) {
+    console.warn(`Session ${session.id} has no Huddle Pass reference; ignoring.`);
     return;
   }
+  const [, huddle_id, user_id] = match;
   const paymentIntent =
     typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null);
+
+  // The pass kind and price come from the database, not from which link was used.
+  const { data: huddle } = await admin
+    .from('huddles')
+    .select('leader_id, pathway_version_id')
+    .eq('id', huddle_id)
+    .maybeSingle();
+  if (!huddle) {
+    await refund(paymentIntent, session.id, 'gone');
+    return;
+  }
+  const { data: version } = await admin
+    .from('pathway_versions')
+    .select('total_weeks')
+    .eq('id', huddle.pathway_version_id)
+    .maybeSingle();
+  const kind: PassKind = huddle.leader_id === user_id ? 'leader' : 'member';
+  const expected = version?.total_weeks ? passPriceCents(kind, version.total_weeks) : null;
+  // Promotion codes lower the total, not the subtotal.
+  if (expected === null || (session.amount_subtotal ?? 0) < expected) {
+    console.warn(`Session ${session.id} subtotal ${session.amount_subtotal} is below the ${kind} price ${expected}.`);
+    await refund(paymentIntent, session.id, 'wrong_price');
+    return;
+  }
 
   const { data: result, error } = await admin.rpc('record_stripe_pass', {
     p_session_id: session.id,
@@ -32,13 +71,7 @@ async function recordPass(session: Stripe.Checkout.Session) {
   if (error) throw error;
 
   // Paid twice, or the huddle/account is gone: give the money back.
-  if ((result === 'already_has_pass' || result === 'gone') && paymentIntent) {
-    await stripe.refunds.create(
-      { payment_intent: paymentIntent, reason: result === 'already_has_pass' ? 'duplicate' : 'requested_by_customer' },
-      { idempotencyKey: `huddle-pass-refund-${session.id}` }
-    );
-    console.log(`Refunded session ${session.id}: ${result}`);
-  }
+  if (result === 'already_has_pass' || result === 'gone') await refund(paymentIntent, session.id, result);
 }
 
 Deno.serve(async (req) => {

@@ -1,4 +1,4 @@
-// Huddle Pass pricing. Keep in sync with lib/pricing.ts (the app only displays it).
+// Huddle Pass pricing. Keep in sync with lib/pricing.ts and the Stripe Payment Link prices.
 
 export type PassKind = 'leader' | 'member';
 

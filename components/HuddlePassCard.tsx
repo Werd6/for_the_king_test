@@ -1,12 +1,11 @@
 import { Body, Card, PrimaryButton, SecondaryButton } from '@/components/ui';
-import { startCheckout, startHuddle } from '@/lib/api';
+import { getPassLinks, openPassCheckout, startHuddle, type PassLinks } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { useContent } from '@/lib/ContentContext';
 import { confirmAction, showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 import { accessEndsAt, accessWeeks, formatCents, passPriceCents } from '@/lib/pricing';
-import { useState } from 'react';
-import { Platform } from 'react-native';
+import { useEffect, useState } from 'react';
 
 function formatDate(date: Date) {
   return date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
@@ -14,14 +13,42 @@ function formatDate(date: Date) {
 
 /**
  * Huddle Pass status at the top of This Week, shown until access is active.
- * Passes are bought through Stripe Checkout: in the same tab on web, in an in-app browser on
- * the phone apps. Testers and App Review enter a 100%-off promotion code on the Stripe page.
+ * Get Huddle Pass opens the pathway's Stripe Payment Link (new tab on web, in-app browser on the
+ * phone apps). Testers and App Review enter a 100%-off promotion code on the Stripe page.
  */
 export function HuddlePassCard() {
-  const { huddle, access, isLeader, checkoutReturn, dismissCheckoutReturn, confirmCheckout, refresh } =
-    useAuth();
+  const {
+    userId,
+    profile,
+    huddle,
+    access,
+    isLeader,
+    checkoutReturn,
+    dismissCheckoutReturn,
+    checkoutOpened,
+    confirmCheckout,
+    refresh,
+  } = useAuth();
   const { pathway } = useContent();
   const [busy, setBusy] = useState(false);
+  const [links, setLinks] = useState<PassLinks | null>(null);
+
+  const pathwayId = huddle?.pathway_id;
+  const needsPass = access === 'unpaid';
+  useEffect(() => {
+    if (!pathwayId || !needsPass) return;
+    let cancelled = false;
+    getPassLinks(pathwayId)
+      .then((next) => {
+        if (!cancelled) setLinks(next);
+      })
+      .catch(() => {
+        if (!cancelled) setLinks({ leader: null, member: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pathwayId, needsPass]);
 
   if (!huddle || !pathway || access === 'active' || access === 'exempt' || access === 'none') {
     return null;
@@ -29,19 +56,19 @@ export function HuddlePassCard() {
 
   const weeks = pathway.totalWeeks;
   const endsAt = accessEndsAt(huddle.started_at, huddle.access_weeks);
-  const isWeb = Platform.OS === 'web';
+  const link = isLeader ? links?.leader : links?.member;
 
   async function buy() {
-    if (!huddle) return;
-    setBusy(true);
+    if (!huddle || !userId || !link) return;
     dismissCheckoutReturn();
+    setBusy(true);
     try {
-      const result = await startCheckout(huddle.id);
-      if (result === 'left') return;
+      const result = await openPassCheckout(link, huddle.id, userId, profile?.email);
       setBusy(false);
-      if (result === 'closed') await confirmCheckout(true);
+      if (result === 'closed') await confirmCheckout();
+      else checkoutOpened();
     } catch (e) {
-      showAlert('Huddle Pass', friendlyError(e, 'Could not start checkout. Try again.'));
+      showAlert('Huddle Pass', friendlyError(e, 'Could not open checkout. Try again.'));
       setBusy(false);
     }
   }
@@ -102,7 +129,7 @@ export function HuddlePassCard() {
   if (checkoutReturn === 'confirming') {
     return (
       <Card title="Huddle Pass">
-        <Body>{isWeb ? 'Payment received. Activating your pass…' : 'Checking for your pass…'}</Body>
+        <Body>Checking for your pass…</Body>
       </Card>
     );
   }
@@ -117,14 +144,6 @@ export function HuddlePassCard() {
 
   return (
     <Card title="Huddle Pass">
-      {checkoutReturn === 'delayed' ? (
-        <Body>
-          We&apos;re still confirming your payment. This can take a minute; tap Check again shortly.
-        </Body>
-      ) : null}
-      {checkoutReturn === 'cancelled' ? (
-        <Body>Checkout was cancelled. You haven&apos;t been charged.</Body>
-      ) : null}
       {checkoutReturn === 'unconfirmed' ? (
         <Body>
           Finished checking out? Your pass can take a minute to show up; tap Check again. If you
@@ -138,15 +157,21 @@ export function HuddlePassCard() {
       <Body>
         {isLeader ? 'Leader Pass' : 'Your pass'} for this {weeks}-week pathway: {price}. {accessText}
       </Body>
-      {checkoutReturn === 'delayed' || checkoutReturn === 'unconfirmed' ? (
-        <SecondaryButton title="Check again" onPress={() => confirmCheckout(!isWeb)} />
+      {checkoutReturn === 'unconfirmed' ? (
+        <SecondaryButton title="Check again" onPress={() => confirmCheckout()} />
       ) : null}
-      <PrimaryButton
-        title={busy ? 'Opening checkout…' : `Get Huddle Pass (${price})`}
-        onPress={buy}
-        disabled={busy}
-      />
-      <Body>Have an access code? Enter it on the checkout page.</Body>
+      {link ? (
+        <>
+          <PrimaryButton
+            title={busy ? 'Opening checkout…' : `Get Huddle Pass (${price})`}
+            onPress={buy}
+            disabled={busy}
+          />
+          <Body>Have an access code? Enter it on the checkout page.</Body>
+        </>
+      ) : (
+        <Body>{links ? 'Huddle Passes for this pathway aren’t available yet.' : 'Loading…'}</Body>
+      )}
     </Card>
   );
 }

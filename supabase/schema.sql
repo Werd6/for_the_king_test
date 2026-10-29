@@ -33,6 +33,9 @@ create table if not exists public.pathways (
   is_published boolean not null default false,  -- visible in Create Huddle picker
   -- false = web app only; the iPhone/Android apps leave it out of Create Huddle.
   in_apps boolean not null default true,
+  -- Stripe Payment Links that Get Huddle Pass opens (migration 010).
+  leader_pass_link text,
+  member_pass_link text,
   sort_order int not null default 0,
   -- Pathway look (colors, radii, spacing, embedded logos). See content/theme.json.
   theme jsonb not null default '{}'::jsonb,

@@ -77,15 +77,17 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 Required before shipping. Background is in "Feature — Huddle Pass" below and README → Huddle Pass.
 
 - [ ] Stripe account verified (test mode first)
-- [ ] Run `supabase/migrations/006_huddle_passes.sql` in Supabase → SQL Editor
-- [ ] Supabase CLI: install, link, set secrets, deploy `create-checkout` and `stripe-webhook`
-- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
+- [ ] **Payment Links** (test mode) — For The King Leader $20.00 and Member $10.00; allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
+- [ ] Run `supabase/migrations/010_pass_links.sql`, then paste the links into Supabase → Table Editor → `pathways` (`leader_pass_link`, `member_pass_link`)
 - [ ] **Access codes** — Stripe → Product catalog → Coupons: a 100% off coupon, then promotion codes on it (e.g. one for TestFlight testers, one for App Review), with a redemption limit and expiry
+- [ ] Supabase CLI: install, link, `STRIPE_SECRET_KEY` secret, deploy `stripe-webhook --no-verify-jwt`
+- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
+- [ ] Run `supabase/migrations/006_huddle_passes.sql` once the build with the Get Huddle Pass button is on TestFlight (new huddles need a pass from then on)
 - [ ] Test: leader pays, starts Week 1, member pays and checks in; access code checks out at $0; refund removes access; expired window (edit `started_at`); exempt huddle
 - [ ] Test from the iPhone app: Get Huddle Pass opens Stripe in the app, Done returns, the pass shows up (needs the next build)
-- [ ] Switch to live keys and a live webhook (and recreate the coupon and promotion codes in live mode)
+- [ ] Switch to the live key and a live webhook; recreate the Payment Links, coupon and promotion codes in live mode and paste the live links into `pathways`
 - [x] **Decide how Huddle Pass goes through store review** — **website purchasing, linked from the apps** (allowed on the US storefront)
-  - [x] Phone apps show the price and a Get Huddle Pass button that opens Stripe Checkout in an in-app browser; it returns to https://goandmake.online/pass
+  - [x] Phone apps show the price and a Get Huddle Pass button that opens the pathway's Stripe Payment Link in an in-app browser; it returns to https://goandmake.online/pass
   - [ ] App Store Connect → Pricing and Availability: United States only (link-outs without in-app purchase are only allowed on the US storefront)
   - [ ] Review notes: purchases happen on Stripe's website; give App Review a promotion code (or a demo huddle that's already free)
   - Fallback if review rejects under 3.1.1 / 3.1.3(b): add Apple / Google in-app purchase alongside Stripe, or turn off pass checks in the phone apps
@@ -173,7 +175,6 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] **OTA updates** — EAS Update for JS-only fixes
 - [ ] **Separate environments** — staging Supabase project vs. production
 - [ ] **Retire the tester web app** (https://for-the-king-test.vercel.app) once testers have moved to the store apps
-  - [ ] Huddle Pass checkout lives on the web app today (`SITE_URL` in `create-checkout`, success page `/?pass=success`); give it a new home first, depending on the Phase 4 decision
   - [ ] Password-reset links: Supabase Site URL and redirect URLs, and `EXPO_PUBLIC_SITE_URL` / `lib/siteUrl.ts`, point at the web app; move them before turning it off
   - [ ] Tell testers, then remove the Vercel project
 - [ ] **Automated tests** — E2E happy path: sign up → create huddle → join → check in → advance week
@@ -314,12 +315,12 @@ Go and Make is the platform; For The King is the first content pathway.
 
 ## Feature — Huddle Pass (payments)
 
-Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Checkout, opened from the web app and (in an in-app browser) the phone apps; access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
+Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Payment Links, opened from the web app (new tab) and the phone apps (in-app browser); access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
 
 - [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
-- [x] Edge Functions `create-checkout` and `stripe-webhook`
+- [x] Edge Function `stripe-webhook` (Payment Links; `create-checkout` was removed)
 - [x] Huddle Pass card (checkout, Start Week 1, expired), read-only UI, "Pass pending" in Progress
-- [x] Phone apps: Get Huddle Pass opens Stripe in an in-app browser and checks for the pass when it closes; Stripe accepts promotion codes and $0 orders
+- [x] Get Huddle Pass opens the pathway's Payment Link (links live in `pathways`, migration 010) and checks for the pass afterwards; the webhook accepts $0 promotion-code orders and refunds underpayments
 - Setup, testing, going live and the store-review decision: Phase 4
 
 ---

@@ -104,7 +104,7 @@ Setup:
 
 ## Huddle Pass
 
-One-time payments through Stripe Checkout. On web, **Get Huddle Pass** opens Checkout in the same tab. The phone apps show the same price and button and open Checkout in an in-app browser (allowed on the US App Store storefront without in-app purchase); afterwards it lands on https://goandmake.online/pass and the app checks for the pass when the browser closes.
+One-time payments through **Stripe Payment Links**, one per pathway and pass kind (the price depends on the pathway's length). **Get Huddle Pass** opens the right link: a new tab on web, an in-app browser in the phone apps (allowed on the US App Store storefront without in-app purchase). The app adds `client_reference_id=<huddle id>__<user id>` so the webhook knows who paid, and checks for the pass when the browser closes or the app/tab comes back into focus. After paying, Stripe redirects to https://goandmake.online/pass.
 
 Testers and App Review get **access codes**: Stripe promotion codes for a 100% off coupon, entered on the Stripe page. The order completes at $0 and the webhook records the pass like any other. There's no code box in the apps (Apple doesn't allow in-app codes that unlock paid features).
 
@@ -113,21 +113,27 @@ Testers and App Review get **access codes**: Stripe promotion codes for a 100% o
 - Without an active pass the huddle is read-only: content, past progress and notes stay visible, but checking off, writing notes, picking group activities and advancing the week are off. The database enforces this (`huddle_access()` in the migration).
 - Huddles that existed before the migration are free (`billing_exempt`).
 
-Pricing is computed on the server in [`supabase/functions/create-checkout`](supabase/functions/create-checkout/index.ts); [`lib/pricing.ts`](lib/pricing.ts) is for display only. Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts), which also refunds duplicate payments and removes access when a charge is fully refunded in Stripe.
+Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database, refunds a payment whose subtotal is below that pass's price ([`_shared/pricing.ts`](supabase/functions/_shared/pricing.ts); promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
 
 Setup:
 
-1. Run `supabase/migrations/006_huddle_passes.sql` in Supabase → SQL Editor. Until it's run, every huddle works as before.
-2. Install the Supabase CLI (`brew install supabase/tap/supabase`), then `supabase login` and `supabase link --project-ref <project ref>`.
-3. Set the function secrets (never in Vercel, the repo or any `EXPO_PUBLIC_*` var):
+1. Run `supabase/migrations/006_huddle_passes.sql` and `010_pass_links.sql` in Supabase → SQL Editor. Until 006 is run, every huddle works as before.
+2. **Payment Links** (Stripe → Payment Links → New), one per pathway and kind. For The King (20 weeks): Leader **$20.00**, Member **$10.00**. For each:
+   - Product name like "Huddle Pass: Leader (For The King)", one-time price, quantity not adjustable.
+   - Options: turn on **Allow promotion codes**.
+   - After payment: **Don't show confirmation page** → redirect to `https://goandmake.online/pass?pass=success`.
+   - Paste the link (`https://buy.stripe.com/…`) into Supabase → Table Editor → `pathways` → `leader_pass_link` / `member_pass_link` for that pathway. No app build needed.
+3. **Access codes:** Stripe → Product catalog → Coupons → a coupon for **100% off**, then promotion codes on it (e.g. `TESTFLIGHT`, `APPREVIEW`) with a redemption limit or expiry. Deactivate a code to stop it.
+4. Install the Supabase CLI (`brew install supabase/tap/supabase`), then `supabase login` and `supabase link --project-ref <project ref>`.
+5. Secrets (never in Vercel, the repo or any `EXPO_PUBLIC_*` var) and deploy:
    ```bash
-   supabase secrets set STRIPE_SECRET_KEY=sk_test_… SITE_URL=https://for-the-king-test.vercel.app
+   supabase secrets set STRIPE_SECRET_KEY=sk_test_…
+   supabase functions deploy stripe-webhook --no-verify-jwt
    ```
-   Optional: `APP_RETURN_URL` (defaults to `https://goandmake.online/pass`), where the phone apps' checkout lands.
-4. Deploy: `supabase functions deploy create-checkout` and `supabase functions deploy stripe-webhook --no-verify-jwt`.
-5. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`.
-6. Access codes: Stripe → Product catalog → Coupons → create a coupon for **100% off**, then add promotion codes to it (e.g. `TESTFLIGHT`, `APPREVIEW`). Set a redemption limit or expiry on each; deactivate a code to stop it.
-7. Test in Stripe test mode with card `4242 4242 4242 4242`. Switch to live keys (and a live webhook with its own secret) when ready; coupons and promotion codes have to be recreated in live mode.
+6. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`.
+7. Test in Stripe test mode with card `4242 4242 4242 4242`. For live payments, switch to the live secret key and a live webhook (its own secret), and recreate the Payment Links, coupon and promotion codes in live mode (test-mode links and codes don't carry over), then paste the live links into `pathways`.
+
+If a pathway's price changes (more or fewer weeks), make new Payment Links at the new price and update `_shared/pricing.ts` / `lib/pricing.ts` if the per-week rate changed.
 
 Free passes (SQL editor):
 
