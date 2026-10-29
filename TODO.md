@@ -96,7 +96,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [x] `npm i -g eas-cli && eas login`
   - [x] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
   - [x] Add `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` as EAS env vars
-- [ ] Create the app in App Store Connect (bundle ID `com.goandmake.app`)
+- [x] Create the app in App Store Connect (bundle ID `com.goandmake.app`, Apple ID `6828165990` set as `ascAppId` in `eas.json`)
 - [ ] iOS push key and Sign in with Apple capability (`eas credentials`, or let `eas build` create them)
 - [ ] `eas build --profile production --platform ios`
 - [ ] `eas submit --platform ios` → TestFlight
