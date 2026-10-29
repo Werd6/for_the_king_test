@@ -97,9 +97,9 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [x] `eas init` (replaces `replace-with-eas-project-id` in `app.json`)
   - [x] Add `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` as EAS env vars
 - [x] Create the app in App Store Connect (bundle ID `com.goandmake.app`, Apple ID `6828165990` set as `ascAppId` in `eas.json`)
-- [ ] iOS push key and Sign in with Apple capability (`eas credentials`, or let `eas build` create them)
-- [ ] `eas build --profile production --platform ios`
-- [ ] `eas submit --platform ios` → TestFlight
+- [ ] iOS push key and Sign in with Apple capability — confirm with `eas credentials --platform ios` (Push Notifications key should be listed) if notifications don't arrive
+- [x] `eas build --profile production --platform ios`
+- [x] `eas submit --platform ios` → TestFlight
 - [ ] **Test on a real iPhone**
   - [ ] Sign up, create or join a huddle, check off items
   - [ ] Sign in with Apple
@@ -109,7 +109,10 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [ ] Photo attach and document scanner on notes
   - [ ] Home-screen icon switches to For The King
   - [ ] Read-only state for a huddle without a pass
-- [ ] Invite a few huddle members as TestFlight testers (external testers need a quick beta review)
+- [ ] **TestFlight testers**
+  - [ ] Internal: add yourself (Users and Access), install from the TestFlight app
+  - [ ] Test Information: beta description, feedback email, demo sign-in for Beta App Review
+  - [ ] External group "Huddle testers" + public link (first build needs Beta App Review, usually within a day)
 - [ ] Collect feedback via the feedback form; fix blockers
 
 ---
