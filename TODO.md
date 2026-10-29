@@ -77,7 +77,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 The app costs $4.99 on the App Store and Google Play and gives full access; there are no Huddle Passes. Background is in "Feature — Paid app" below and README → Paid app.
 
 - [x] **Decide pricing** — $4.99 paid app (iPhone and Android), no in-app purchases; the web app stays free until it's retired
-- [ ] Run `supabase/migrations/011_paid_app.sql` in Supabase → SQL Editor (every huddle becomes free; the current TestFlight build's pass card disappears)
+- [x] Run `supabase/migrations/011_paid_app.sql` in Supabase → SQL Editor (every huddle becomes free; the current TestFlight build's pass card disappears)
 - [ ] **Shut down Stripe passes**
   - [ ] Stripe → Payment Links: deactivate both Huddle Pass links
   - [ ] Refund the test purchases
@@ -138,7 +138,7 @@ The app costs $4.99 on the App Store and Google Play and gives full access; ther
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens (Apple handles the purchase)
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
 - [x] **Moderation (guideline 1.2)** — report shared notes, block members, leaders remove members (README → Moderation; needs the next build)
-  - [ ] Run `supabase/migrations/012_moderation.sql` in Supabase → SQL Editor
+  - [x] Run `supabase/migrations/012_moderation.sql` in Supabase → SQL Editor
   - [ ] Test: report a note (row appears in `note_reports`), block hides their notes, unblock in Settings, leader removes a member and they can't rejoin
   - [ ] Check open reports daily (query in README → Moderation)
 - [ ] **Demo account** for App Review — a leader with a For The King huddle and a member who has shared a note
