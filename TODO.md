@@ -82,10 +82,9 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
 - [ ] Test: leader pays, starts Week 1, member pays and checks in; refund removes access; expired window (edit `started_at`); exempt huddle
 - [ ] Switch to live keys and a live webhook
-- [ ] **Decide how Huddle Pass goes through store review** (Apple 3.1.3(b) / Google Play billing)
-  - [ ] Option A: submit as-is; review notes explain passes are bought on the website and the apps sell nothing
-  - [ ] Option B: add Apple / Google in-app purchase alongside Stripe
-  - [ ] Option C: turn off pass checks in the phone apps for launch
+- [x] **Decide how Huddle Pass goes through store review** (Apple 3.1.3(b) / Google Play billing) — **Option A**
+  - [x] Option A: submit as-is; review notes explain passes are bought on the website and the apps sell nothing
+  - Fallback if review rejects under 3.1.3(b): Option B (add Apple / Google in-app purchase alongside Stripe) or Option C (turn off pass checks in the phone apps)
 
 ---
 
@@ -117,7 +116,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - **First TestFlight round (build 1)**
   - [ ] Supabase → Authentication → Sign In / Providers → Apple: enable, Client IDs `com.goandmake.app` (Sign in with Apple said "Provider is not enabled")
   - [x] Reset password link stuck on a blank screen when the app was already open (fixed; needs the next build)
-  - [ ] Swap the custom "Sign in with Apple" button for Apple's official button (App Review guideline 4.8 / HIG)
+  - [x] Swap the custom "Sign in with Apple" button for Apple's official button (black in light mode, white in dark; needs the next build)
 
 ---
 

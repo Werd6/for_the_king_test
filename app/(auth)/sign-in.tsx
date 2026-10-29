@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { Alert, Platform, ScrollView, Text } from 'react-native';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Body, FeedbackLink, Field, PrimaryButton, Screen, SecondaryButton, Title } from '@/components/ui';
@@ -20,7 +21,7 @@ function showMessage(title: string, message: string) {
 
 export default function SignInScreen() {
   const { signIn, signUp, usingLocalMode, userId, huddle, refresh, savedAccounts } = useAuth();
-  const { colors, fonts } = useTheme();
+  const { colors, fonts, radii, scheme, spacing } = useTheme();
   const router = useRouter();
   // Swap account → Add account: sign in to another account while staying signed in.
   const params = useLocalSearchParams<{ addAccount?: string; email?: string }>();
@@ -107,6 +108,7 @@ export default function SignInScreen() {
   }
 
   async function socialApple() {
+    if (busy) return;
     setError(null);
     setBusy(true);
     try {
@@ -203,7 +205,17 @@ export default function SignInScreen() {
         />
 
         {!usingLocalMode && Platform.OS === 'ios' ? (
-          <PrimaryButton title="Sign in with Apple" onPress={socialApple} disabled={busy} />
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={
+              scheme === 'dark'
+                ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+                : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+            }
+            cornerRadius={radii.md}
+            onPress={socialApple}
+            style={{ height: 48, marginVertical: spacing.xs, opacity: busy ? 0.5 : 1 }}
+          />
         ) : null}
 
         {addingAccount ? (
