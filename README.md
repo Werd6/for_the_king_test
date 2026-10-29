@@ -108,7 +108,7 @@ One-time payments through **Stripe Payment Links**, one per pathway and pass kin
 
 Testers and App Review get **access codes**: Stripe promotion codes for a 100% off coupon, entered on the Stripe page. The order completes at $0 and the webhook records the pass like any other. There's no code box in the apps (Apple doesn't allow in-app codes that unlock paid features).
 
-- **Leader Pass:** $1 x pathway weeks. **Member Pass:** 50¢ x weeks, bought by each member.
+- **Leader Pass:** $1 x pathway weeks, minus 1¢. **Member Pass:** 50¢ x weeks, minus 1¢, bought by each member. For The King: $19.99 / $9.99; Focuses: $11.99 / $5.99.
 - **Access:** ceil(weeks x 1.2) weeks, counted from when the leader taps **Start Week 1** (on This Week, after buying the Leader Pass). Members who join late get the time that's left.
 - Without an active pass the huddle is read-only: content, past progress and notes stay visible, but checking off, writing notes, picking group activities and advancing the week are off. The database enforces this (`huddle_access()` in the migration).
 - Huddles that existed before the migration are free (`billing_exempt`).
@@ -118,7 +118,7 @@ Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/
 Setup:
 
 1. Run `supabase/migrations/006_huddle_passes.sql` and `010_pass_links.sql` in Supabase → SQL Editor. Until 006 is run, every huddle works as before.
-2. **Payment Links** (Stripe → Payment Links → New), one per pathway and kind. For The King (20 weeks): Leader **$20.00**, Member **$10.00**. For each:
+2. **Payment Links** (Stripe → Payment Links → New), one per pathway and kind. For The King (20 weeks): Leader **$19.99**, Member **$9.99** (the price must match `passPriceCents` exactly, or the webhook refunds the payment as underpaid). For each:
    - Product name like "Huddle Pass: Leader (For The King)", one-time price, quantity not adjustable.
    - Options: turn on **Allow promotion codes**.
    - After payment: **Don't show confirmation page** → redirect to `https://goandmake.online/pass?pass=success`.

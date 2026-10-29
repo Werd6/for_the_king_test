@@ -77,7 +77,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 Required before shipping. Background is in "Feature — Huddle Pass" below and README → Huddle Pass.
 
 - [ ] Stripe account verified (test mode first)
-- [ ] **Payment Links** (test mode) — For The King Leader $20.00 and Member $10.00; allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
+- [x] **Payment Links** (live) — For The King Leader $19.99 and Member $9.99; allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
 - [ ] Run `supabase/migrations/010_pass_links.sql`, then paste the links into Supabase → Table Editor → `pathways` (`leader_pass_link`, `member_pass_link`)
 - [ ] **Access codes** — Stripe → Product catalog → Coupons: a 100% off coupon, then promotion codes on it (e.g. one for TestFlight testers, one for App Review), with a redemption limit and expiry
 - [ ] Supabase CLI: install, link, `STRIPE_SECRET_KEY` secret, deploy `stripe-webhook --no-verify-jwt`
