@@ -77,7 +77,9 @@ export function HuddlePassCard() {
     if (!huddle) return;
     const ok = await confirmAction(
       'Start Week 1?',
-      `Your ${weeks}-week pathway includes ${accessWeeks(weeks)} weeks of access for the whole huddle, starting now.`,
+      `Your ${weeks}-week pathway includes ${accessWeeks(weeks)} weeks of access (${
+        accessWeeks(weeks) - weeks
+      } extra for breaks and missed weeks). The clock starts now for everyone in the huddle; members still need their own Member Pass to check in.`,
       'Start'
     );
     if (!ok) return;
