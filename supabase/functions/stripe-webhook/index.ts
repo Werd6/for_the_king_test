@@ -3,13 +3,19 @@
 // Stripe events: checkout.session.completed, checkout.session.async_payment_succeeded, charge.refunded.
 import Stripe from 'npm:stripe@^22';
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { passPriceCents, type PassKind } from '../_shared/pricing.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
 });
+
+type PassKind = 'leader' | 'member';
+
+/** Keep in sync with lib/pricing.ts and the Stripe Payment Link prices ($19.99 / $9.99 for 20 weeks). */
+function passPriceCents(kind: PassKind, weeks: number): number {
+  return (kind === 'leader' ? 100 : 50) * weeks - 1;
+}
 
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 /** The app adds client_reference_id=<huddle id>__<user id> to the Payment Link. */

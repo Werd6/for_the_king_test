@@ -1,5 +1,5 @@
 // Huddle Pass pricing for display. The real price is each pathway's Stripe Payment Link, and the
-// webhook checks payments against supabase/functions/_shared/pricing.ts (keep both in sync).
+// webhook checks payments against its own copy in supabase/functions/stripe-webhook (keep all in sync).
 
 export type PassKind = 'leader' | 'member';
 

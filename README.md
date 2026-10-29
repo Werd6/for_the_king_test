@@ -113,7 +113,7 @@ Testers and App Review get **access codes**: Stripe promotion codes for a 100% o
 - Without an active pass the huddle is read-only: content, past progress and notes stay visible, but checking off, writing notes, picking group activities and advancing the week are off. The database enforces this (`huddle_access()` in the migration).
 - Huddles that existed before the migration are free (`billing_exempt`).
 
-Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database, refunds a payment whose subtotal is below that pass's price ([`_shared/pricing.ts`](supabase/functions/_shared/pricing.ts); promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
+Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database, refunds a payment whose subtotal is below that pass's price (`passPriceCents` in the webhook; promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
 
 Setup:
 
@@ -124,16 +124,17 @@ Setup:
    - After payment: **Don't show confirmation page** → redirect to `https://goandmake.online/pass?pass=success`.
    - Paste the link (`https://buy.stripe.com/…`) into Supabase → Table Editor → `pathways` → `leader_pass_link` / `member_pass_link` for that pathway. No app build needed.
 3. **Access codes:** Stripe → Product catalog → Coupons → a coupon for **100% off**, then promotion codes on it (e.g. `TESTFLIGHT`, `APPREVIEW`) with a redemption limit or expiry. Deactivate a code to stop it.
-4. Install the Supabase CLI (`brew install supabase/tap/supabase`), then `supabase login` and `supabase link --project-ref <project ref>`.
-5. Secrets (never in Vercel, the repo or any `EXPO_PUBLIC_*` var) and deploy:
-   ```bash
-   supabase secrets set STRIPE_SECRET_KEY=sk_test_…
-   supabase functions deploy stripe-webhook --no-verify-jwt
-   ```
-6. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`.
-7. Test in Stripe test mode with card `4242 4242 4242 4242`. For live payments, switch to the live secret key and a live webhook (its own secret), and recreate the Payment Links, coupon and promotion codes in live mode (test-mode links and codes don't carry over), then paste the live links into `pathways`.
+4. Deploy the webhook (secrets never go in Vercel, the repo or any `EXPO_PUBLIC_*` var), either way:
+   - **Dashboard:** Supabase → Edge Functions → Secrets: add `STRIPE_SECRET_KEY`. Then Edge Functions → Deploy a new function → Via Editor, name it `stripe-webhook`, paste [`supabase/functions/stripe-webhook/index.ts`](supabase/functions/stripe-webhook/index.ts) and deploy. In the function's settings, turn **Verify JWT** off.
+   - **CLI:** `brew install supabase/tap/supabase`, `supabase login`, `supabase link --project-ref <project ref>`, then:
+     ```bash
+     supabase secrets set STRIPE_SECRET_KEY=sk_live_…
+     supabase functions deploy stripe-webhook --no-verify-jwt
+     ```
+5. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret into the `STRIPE_WEBHOOK_SECRET` secret (dashboard, or `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`).
+6. Test in Stripe test mode with card `4242 4242 4242 4242`. For live payments, switch to the live secret key and a live webhook (its own secret), and recreate the Payment Links, coupon and promotion codes in live mode (test-mode links and codes don't carry over), then paste the live links into `pathways`.
 
-If a pathway's price changes (more or fewer weeks), make new Payment Links at the new price and update `_shared/pricing.ts` / `lib/pricing.ts` if the per-week rate changed.
+If a pathway's price changes (more or fewer weeks), make new Payment Links at the new price and update `passPriceCents` in the webhook and `lib/pricing.ts` if the per-week rate changed.
 
 Free passes (SQL editor):
 
