@@ -114,6 +114,10 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [ ] Test Information: beta description, feedback email, demo sign-in for Beta App Review
   - [ ] External group "Huddle testers" + public link (first build needs Beta App Review, usually within a day)
 - [ ] Collect feedback via the feedback form; fix blockers
+- **First TestFlight round (build 1)**
+  - [ ] Supabase → Authentication → Sign In / Providers → Apple: enable, Client IDs `com.goandmake.app` (Sign in with Apple said "Provider is not enabled")
+  - [x] Reset password link stuck on a blank screen when the app was already open (fixed; needs the next build)
+  - [ ] Swap the custom "Sign in with Apple" button for Apple's official button (App Review guideline 4.8 / HIG)
 
 ---
 

@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import '@/lib/authLink';
 import { ContentProvider } from '@/lib/ContentContext';
 import { fontAssets } from '@/lib/fonts';
 import { enablePushNotifications, useNotificationTaps } from '@/lib/notifications';

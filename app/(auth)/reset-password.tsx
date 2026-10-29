@@ -1,11 +1,11 @@
 import { Body, FeedbackLink, Field, Loading, PrimaryButton, Screen, Title } from '@/components/ui';
 import { updatePassword } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { clearAuthLinkUrl, useAuthLinkUrl } from '@/lib/authLink';
 import { showAlert } from '@/lib/dialogs';
 import { friendlyError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/ThemeContext';
-import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, Text } from 'react-native';
@@ -13,6 +13,7 @@ import { Platform, ScrollView, Text } from 'react-native';
 type Status = { kind: 'verifying' } | { kind: 'ready' } | { kind: 'invalid'; message: string };
 
 const MIN_PASSWORD_LENGTH = 6;
+const LINK_WAIT_MS = 4000;
 
 /** Supabase puts recovery tokens in the URL hash (implicit flow) or `code` query (PKCE). */
 function parseAuthParams(url: string) {
@@ -25,7 +26,8 @@ function parseAuthParams(url: string) {
   return params;
 }
 
-function clearWebUrl() {
+function clearLinkUrl() {
+  clearAuthLinkUrl();
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     window.history.replaceState(null, '', window.location.pathname);
   }
@@ -35,7 +37,7 @@ export default function ResetPasswordScreen() {
   const router = useRouter();
   const { refresh } = useAuth();
   const { colors, fonts } = useTheme();
-  const nativeUrl = Linking.useURL();
+  const nativeUrl = useAuthLinkUrl();
   const url = Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.href : nativeUrl;
   const consumedRef = useRef(false);
 
@@ -49,13 +51,14 @@ export default function ResetPasswordScreen() {
     if (!supabase || consumedRef.current) return;
     const client = supabase;
     let cancelled = false;
+    let waitTimer: ReturnType<typeof setTimeout> | undefined;
 
     (async () => {
       const params = url ? parseAuthParams(url) : new URLSearchParams();
       const linkError = params.get('error_description');
       if (linkError) {
         consumedRef.current = true;
-        clearWebUrl();
+        clearLinkUrl();
         setStatus({ kind: 'invalid', message: linkError.replace(/\+/g, ' ') });
         return;
       }
@@ -71,12 +74,12 @@ export default function ResetPasswordScreen() {
             refresh_token: refreshToken,
           });
           if (sessionErr) throw sessionErr;
-          clearWebUrl();
+          clearLinkUrl();
         } else if (code) {
           consumedRef.current = true;
           const { error: codeErr } = await client.auth.exchangeCodeForSession(code);
           if (codeErr) throw codeErr;
-          clearWebUrl();
+          clearLinkUrl();
         }
 
         const { data } = await client.auth.getSession();
@@ -88,6 +91,13 @@ export default function ResetPasswordScreen() {
             kind: 'invalid',
             message: 'This reset link is invalid or has expired. Request a new one from sign in.',
           });
+        } else {
+          waitTimer = setTimeout(() => {
+            setStatus({
+              kind: 'invalid',
+              message: 'Open the reset link from your email again, or request a new one from sign in.',
+            });
+          }, LINK_WAIT_MS);
         }
       } catch (e) {
         if (!cancelled) {
@@ -98,6 +108,7 @@ export default function ResetPasswordScreen() {
 
     return () => {
       cancelled = true;
+      if (waitTimer) clearTimeout(waitTimer);
     };
   }, [url]);
 
