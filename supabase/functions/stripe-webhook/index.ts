@@ -12,9 +12,9 @@ const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE
 
 type PassKind = 'leader' | 'member';
 
-/** Keep in sync with lib/pricing.ts and the Stripe Payment Link prices ($19.99 / $9.99 for 20 weeks). */
-function passPriceCents(kind: PassKind, weeks: number): number {
-  return (kind === 'leader' ? 100 : 50) * weeks - 1;
+/** Same for leaders and members. Keep in sync with lib/pricing.ts and the Stripe Payment Link price ($9.99 for 20 weeks). */
+function passPriceCents(weeks: number): number {
+  return 50 * weeks - 1;
 }
 
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
@@ -42,7 +42,7 @@ async function recordPass(session: Stripe.Checkout.Session) {
   const paymentIntent =
     typeof session.payment_intent === 'string' ? session.payment_intent : (session.payment_intent?.id ?? null);
 
-  // The pass kind and price come from the database, not from which link was used.
+  // Leader vs. member comes from the database, not from which link was used.
   const { data: huddle } = await admin
     .from('huddles')
     .select('leader_id, pathway_version_id')
@@ -58,10 +58,10 @@ async function recordPass(session: Stripe.Checkout.Session) {
     .eq('id', huddle.pathway_version_id)
     .maybeSingle();
   const kind: PassKind = huddle.leader_id === user_id ? 'leader' : 'member';
-  const expected = version?.total_weeks ? passPriceCents(kind, version.total_weeks) : null;
+  const expected = version?.total_weeks ? passPriceCents(version.total_weeks) : null;
   // Promotion codes lower the total, not the subtotal.
   if (expected === null || (session.amount_subtotal ?? 0) < expected) {
-    console.warn(`Session ${session.id} subtotal ${session.amount_subtotal} is below the ${kind} price ${expected}.`);
+    console.warn(`Session ${session.id} subtotal ${session.amount_subtotal} is below the price ${expected}.`);
     await refund(paymentIntent, session.id, 'wrong_price');
     return;
   }

@@ -108,21 +108,21 @@ One-time payments through **Stripe Payment Links**, one per pathway and pass kin
 
 Testers and App Review get **access codes**: Stripe promotion codes for a 100% off coupon, entered on the Stripe page. The order completes at $0 and the webhook records the pass like any other. There's no code box in the apps (Apple doesn't allow in-app codes that unlock paid features).
 
-- **Leader Pass:** $1 x pathway weeks, minus 1¢. **Member Pass:** 50¢ x weeks, minus 1¢, bought by each member. For The King: $19.99 / $9.99; Focuses: $11.99 / $5.99.
+- **Price:** 50¢ x pathway weeks, minus 1¢, the same for everyone. The leader and each member buy their own pass. For The King: $9.99; Focuses: $5.99.
 - **Access:** ceil(weeks x 1.2) weeks, counted from when the leader taps **Start Week 1** (on This Week, after buying the Leader Pass). Members who join late get the time that's left.
 - Without an active pass the huddle is read-only: content, past progress and notes stay visible, but checking off, writing notes, picking group activities and advancing the week are off. The database enforces this (`huddle_access()` in the migration).
 - Huddles that existed before the migration are free (`billing_exempt`).
 
-Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database, refunds a payment whose subtotal is below that pass's price (`passPriceCents` in the webhook; promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
+Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database (only a leader's pass unlocks Start Week 1), refunds a payment whose subtotal is below the pathway's price (`passPriceCents` in the webhook; promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
 
 Setup:
 
 1. Run `supabase/migrations/006_huddle_passes.sql` and `010_pass_links.sql` in Supabase → SQL Editor. Until 006 is run, every huddle works as before.
-2. **Payment Links** (Stripe → Payment Links → New), one per pathway and kind. For The King (20 weeks): Leader **$19.99**, Member **$9.99** (the price must match `passPriceCents` exactly, or the webhook refunds the payment as underpaid). For each:
-   - Product name like "Huddle Pass: Leader (For The King)", one-time price, quantity not adjustable.
+2. **Payment Links** (Stripe → Payment Links → New), one per pathway. For The King (20 weeks): **$9.99** (the price must match `passPriceCents` exactly, or the webhook refunds the payment as underpaid). For each:
+   - Product name like "Huddle Pass (For The King)", one-time price, quantity not adjustable.
    - Options: turn on **Allow promotion codes**.
    - After payment: **Don't show confirmation page** → redirect to `https://goandmake.online/pass?pass=success`.
-   - Paste the link (`https://buy.stripe.com/…`) into Supabase → Table Editor → `pathways` → `leader_pass_link` / `member_pass_link` for that pathway. No app build needed.
+   - Paste the link (`https://buy.stripe.com/…`) into Supabase → Table Editor → `pathways` → both `leader_pass_link` and `member_pass_link` for that pathway (the same link). No app build needed.
 3. **Access codes:** Stripe → Product catalog → Coupons → a coupon for **100% off**, then promotion codes on it (e.g. `TESTFLIGHT`, `APPREVIEW`) with a redemption limit or expiry. Deactivate a code to stop it.
 4. Deploy the webhook (secrets never go in Vercel, the repo or any `EXPO_PUBLIC_*` var), either way:
    - **Dashboard:** Supabase → Edge Functions → Secrets: add `STRIPE_SECRET_KEY`. Then Edge Functions → Deploy a new function → Via Editor, name it `stripe-webhook`, paste [`supabase/functions/stripe-webhook/index.ts`](supabase/functions/stripe-webhook/index.ts) and deploy. In the function's settings, turn **Verify JWT** off.

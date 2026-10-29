@@ -136,8 +136,7 @@ export function HuddlePassCard() {
     );
   }
 
-  const kind = isLeader ? 'leader' : 'member';
-  const price = formatCents(passPriceCents(kind, weeks));
+  const price = formatCents(passPriceCents(weeks));
   const accessText = endsAt
     ? `This huddle has started; access runs until ${formatDate(endsAt)}.`
     : `Includes ${accessWeeks(weeks)} weeks of access, starting when ${
@@ -153,8 +152,8 @@ export function HuddlePassCard() {
         </Body>
       ) : null}
       <Body>
-        Pay once for the entire pathway. Leader access is $1/week and participant access is
-        50¢/week. Every Huddle includes an additional 20% of time for breaks and missed weeks.
+        Pay once for the entire pathway: 50¢/week for everyone in the huddle, leader included. Every
+        Huddle includes an additional 20% of time for breaks and missed weeks.
       </Body>
       <Body>
         {isLeader ? 'Leader Pass' : 'Your pass'} for this {weeks}-week pathway: {price}. {accessText}

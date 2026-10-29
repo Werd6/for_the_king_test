@@ -77,7 +77,7 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 Required before shipping. Background is in "Feature — Huddle Pass" below and README → Huddle Pass.
 
 - [ ] Stripe account verified (test mode first)
-- [x] **Payment Links** (live) — For The King Leader $19.99 and Member $9.99; allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
+- [x] **Payment Links** (live) — For The King $9.99 for everyone, leader included (point `leader_pass_link` and `member_pass_link` at the same $9.99 link); allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
 - [ ] Run `supabase/migrations/010_pass_links.sql`, then paste the links into Supabase → Table Editor → `pathways` (`leader_pass_link`, `member_pass_link`)
 - [ ] **Access codes** — Stripe → Product catalog → Coupons: a 100% off coupon, then promotion codes on it (e.g. one for TestFlight testers, one for App Review), with a redemption limit and expiry
 - [ ] Supabase CLI: install, link, `STRIPE_SECRET_KEY` secret, deploy `stripe-webhook --no-verify-jwt`
@@ -315,7 +315,7 @@ Go and Make is the platform; For The King is the first content pathway.
 
 ## Feature — Huddle Pass (payments)
 
-Leader $1/week, member 50¢/week, access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Payment Links, opened from the web app (new tab) and the phone apps (in-app browser); access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
+50¢/week for everyone (leader included, each buys their own pass), access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Payment Links, opened from the web app (new tab) and the phone apps (in-app browser); access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
 
 - [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
 - [x] Edge Function `stripe-webhook` (Payment Links; `create-checkout` was removed)
