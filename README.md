@@ -88,7 +88,8 @@ Each pathway's look lives in `content/theme.json` (light + dark colors, corner r
 Native builds only (not the browser). Members get:
 
 - **Huddle has started the next week** when the leader advances the week (or jumps ahead with Change week; going back doesn't notify).
-- **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (every day, for daily items). Tapping it opens their progress.
+- **{name} has done 3 of 7 days of “{item}”. Send encouragement!** each time someone checks off another day of a multi-day item. Tapping it opens their progress.
+- **{name} has finished “{item}”! Send encouragement!** when someone fully checks off any item (the last day, for multi-day items). Tapping it opens their progress.
 - **Huddle is tomorrow at {time}**, 24 hours before the weekly meeting. Scheduled on the device, so it works without Firebase.
 
 Someone signed in to several accounts (Settings → Swap account, e.g. a leader who is also a member of another huddle) gets notifications for all of them. Tapping one switches to the account it was sent to. Each account keeps its own meeting reminder, and signing out of one account stops only that account's notifications. Saved sign-ins are kept in the device keychain/keystore (`lib/authStorage.ts`); on the web they stay in the browser.
@@ -97,7 +98,7 @@ The first two are sent from the database through Expo's push service and use the
 
 Setup:
 
-1. Run `supabase/migrations/005_push_notifications.sql`, then `007_multi_account_notifications.sql` and `008_neutral_defaults.sql`, in Supabase → SQL Editor.
+1. Run `supabase/migrations/005_push_notifications.sql`, then `007_multi_account_notifications.sql`, `008_neutral_defaults.sql` and `013_day_progress_notifications.sql`, in Supabase → SQL Editor.
 2. Android push needs Firebase: create a Firebase project, add an Android app with package `com.goandmake.app`, and put its `google-services.json` in the project root (gitignored; [`app.config.js`](app.config.js) picks it up). EAS builds read it from the secret file variable `GOOGLE_SERVICES_JSON` instead. Then upload an FCM V1 service account key with `eas credentials` → Android → Push Notifications.
 3. iOS push needs an Apple push key, which `eas build` offers to create.
 4. Rebuild the native app.

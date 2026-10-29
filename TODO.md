@@ -297,6 +297,8 @@ Typed notes and journal photos/scans on journaling and SOAP items, with leader s
 - [x] Migration `supabase/migrations/007_multi_account_notifications.sql` — one device token can belong to several accounts; pushes say which account and huddle they're for
 - [x] Run `supabase/migrations/007_multi_account_notifications.sql` in Supabase → SQL Editor
 - [x] Run `supabase/migrations/008_neutral_defaults.sql` in Supabase → SQL Editor ("Member" / "Someone" instead of "Brother" / "A brother" when there's no display name)
+- [x] Notify on each day of a multi-day item ("has done 3 of 7 days of …"), not only when it's finished
+- [ ] Run `supabase/migrations/013_day_progress_notifications.sql` in Supabase → SQL Editor
 - Two-account phone test: Phase 5 · Push tokens in App Privacy / Data Safety: Phases 6 and 7
 
 ---
