@@ -108,11 +108,41 @@ Go and Make is a **$4.99 paid app** on the App Store and Google Play. Buying the
 
 Earlier builds sold per-huddle **Huddle Passes** through Stripe ([`006_huddle_passes.sql`](supabase/migrations/006_huddle_passes.sql)). That's switched off by [`011_paid_app.sql`](supabase/migrations/011_paid_app.sql): every huddle, existing and new, is free (`billing_exempt`), so `huddle_access()` returns `exempt` for every member. The pass tables, functions and the `pathways.*_pass_link` columns are still in the database, unused; the Stripe webhook is in git history (removed after commit `fea785c`). To bring passes back, see the header of migration 011.
 
+## Moderation
+
+Shared notes are user-generated content, so App Store guideline 1.2 requires reporting, blocking and a timely response. Needs [`012_moderation.sql`](supabase/migrations/012_moderation.sql).
+
+- **Report:** the note viewer (Progress → View notes) has **Report this note** with a reason (offensive or abusive, spam, something else) and optional details. Reports go to `note_reports` with a copy of the note's text and photo paths; only the dashboard / SQL editor can read them.
+- **Block:** **Block {name}** in the note viewer hides that person's shared notes and photos from you (enforced by row-level security). They aren't told. Unblock in Settings → Blocked.
+- **Remove a member:** leaders use Settings → Members → Remove. It deletes the member's notes, photos and checkmarks in the huddle, and they can't rejoin with the invite code.
+
+Check open reports at least daily (we promise review within 24 hours), in Supabase → SQL Editor:
+
+```sql
+-- Open reports, newest first
+select r.created_at, r.reason, r.details, r.note_body, r.photo_paths,
+       author.display_name as author, reporter.display_name as reporter, h.name as huddle, r.id, r.note_id, r.author_id
+from public.note_reports r
+left join public.profiles author on author.id = r.author_id
+left join public.profiles reporter on reporter.id = r.reporter_id
+left join public.huddles h on h.id = r.huddle_id
+where r.resolved_at is null
+order by r.created_at desc;
+
+-- Remove the note (its photos' files stay in Storage → journal; delete them there by path)
+delete from public.journal_notes where id = '<note_id>';
+
+-- Close the report
+update public.note_reports set resolved_at = now(), resolution = 'removed note' where id = '<report id>';
+```
+
+For serious or repeated abuse, delete the author's account in Supabase → Authentication → Users.
+
 ## Flows
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).
 - **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
-- **Leader:** advance week, change to any week (Progress → Leader → Change week, e.g. to undo an accidental advance), view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
+- **Leader:** advance week, change to any week (Progress → Leader → Change week, e.g. to undo an accidental advance), view any past week's progress, Leader Materials / Guide / pool, journaling settings, remove a member, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
 - **Notifications:** native iOS/Android only; see Notifications above.
 

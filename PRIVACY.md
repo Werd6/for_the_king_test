@@ -15,6 +15,8 @@ Go and Make (“the App”) is a discipleship companion for small discipleship g
 - Group journaling settings chosen by the leader (whether notes are required, and whether notes are private or shared)
 - Optional meeting dates for the group calendar
 - Leader-selected group-challenge activity for certain weeks
+- If you report a shared note: the report (reason, any details you add, and a copy of the note's text and photo references), so we can review it
+- If you block someone: who you blocked, so their shared notes stay hidden from you
 - If you allow notifications in the native app: a push token for your device, so the App can notify you about your group (one for each account signed in on the device)
 
 ## Data we do not collect
@@ -31,6 +33,8 @@ To run discipleship groups, show shared progress to others in the same group, ke
 
 We do not sell personal data. Progress is visible only to members of your group.
 
+Reports of shared notes are seen only by us (Bespoke IT LLC), not by the person reported or your group leader. Blocking is private: the person you block isn't told.
+
 Your data is stored with Supabase, our database, sign-in, and file storage provider. Sign-in and password-reset emails are sent through Resend.
 
 Notifications tell members of your group when the week advances and when someone finishes a checklist item (with their display name and the item). They are delivered through Expo’s push service and Apple or Google’s notification services. Meeting reminders are scheduled on your device. If you are signed in to more than one account (Settings → Swap account), each account gets its own notifications. Signing out of an account stops its notifications to that device, and you can turn them off in your device settings.
@@ -46,7 +50,7 @@ The notes screen always tells you which setting applies before you save. Changin
 
 ## Deletion
 
-You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Leaders who dissolve a group remove that group’s membership, progress, journal notes, and photos. You can delete an individual note by clearing its text and photos. See [Delete your account](https://goandmake.online/delete-account) for step-by-step instructions, including how to ask us to delete it for you.
+You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Leaders who dissolve a group remove that group’s membership, progress, journal notes, and photos; a leader who removes a member deletes that member’s progress, notes, and photos in the group. Reports you made are kept without your account so we can finish reviewing them. You can delete an individual note by clearing its text and photos. See [Delete your account](https://goandmake.online/delete-account) for step-by-step instructions, including how to ask us to delete it for you.
 
 ## Contact
 

@@ -406,7 +406,7 @@ export async function getHuddle(huddleId: string): Promise<Huddle | null> {
   return found ? normalizeHuddle(found) : null;
 }
 
-/** PostgREST codes for a function or table that doesn't exist yet (migration 006 not run). */
+/** PostgREST codes for a function or table that doesn't exist yet (a migration not run). */
 const MISSING_OBJECT = new Set(['PGRST202', 'PGRST205', '42883', '42P01']);
 
 /**
@@ -516,6 +516,19 @@ export async function leaveHuddle(userId: string) {
   await writeJson(
     STORAGE_KEYS.memberships,
     memberships.filter((m) => m.user_id !== userId)
+  );
+}
+
+/**
+ * Leader removes a member: their notes, photos and checkmarks in the huddle are deleted,
+ * and they can't rejoin with the invite code.
+ */
+export async function removeHuddleMember(huddleId: string, memberId: string) {
+  if (!isRemoteConfigured || !supabase) throw new Error(ONLINE_ONLY);
+  const { data, error } = await supabase.rpc('remove_huddle_member', { hid: huddleId, uid: memberId });
+  if (error) throw error;
+  await removeStorageFiles((data ?? []) as string[]).catch((e) =>
+    console.warn('Could not delete the removed member’s photo files', e)
   );
 }
 
@@ -903,6 +916,61 @@ export async function notePhotoUrls(photos: JournalPhoto[]): Promise<Record<stri
     return urls;
   }
   return Object.fromEntries(photos.map((p) => [p.path, p.path]));
+}
+
+const ONLINE_ONLY = 'This needs an online account.';
+
+export type ReportReason = 'abusive' | 'spam' | 'other';
+
+/** Reports a shared note for review (saved in note_reports, migration 012). */
+export async function reportNote(noteId: string, reason: ReportReason, details: string) {
+  if (!isRemoteConfigured || !supabase) throw new Error(ONLINE_ONLY);
+  const { error } = await supabase.rpc('report_note', {
+    p_note_id: noteId,
+    p_reason: reason,
+    p_details: details.trim() || null,
+  });
+  if (error) throw error;
+}
+
+/** Hides the other person's shared notes and photos from the caller. They aren't told. */
+export async function blockUser(blockerId: string, blockedId: string) {
+  if (!isRemoteConfigured || !supabase) throw new Error(ONLINE_ONLY);
+  const { error } = await supabase
+    .from('user_blocks')
+    .upsert({ blocker_id: blockerId, blocked_id: blockedId }, { ignoreDuplicates: true });
+  if (error) throw error;
+}
+
+export async function unblockUser(blockerId: string, blockedId: string) {
+  if (!isRemoteConfigured || !supabase) throw new Error(ONLINE_ONLY);
+  const { error } = await supabase
+    .from('user_blocks')
+    .delete()
+    .eq('blocker_id', blockerId)
+    .eq('blocked_id', blockedId);
+  if (error) throw error;
+}
+
+export type BlockedUser = { id: string; name: string | null };
+
+/** People the caller blocked. Names are only visible for people still in the caller's huddle. */
+export async function getBlockedUsers(blockerId: string): Promise<BlockedUser[]> {
+  if (!isRemoteConfigured || !supabase) return [];
+  const { data, error } = await supabase
+    .from('user_blocks')
+    .select('blocked_id')
+    .eq('blocker_id', blockerId)
+    .order('created_at');
+  if (error) {
+    if (MISSING_OBJECT.has(error.code)) return [];
+    throw error;
+  }
+  const ids = (data ?? []).map((b) => b.blocked_id as string);
+  if (!ids.length) return [];
+  const { data: profiles } = await supabase.from('profiles').select('id, display_name').in('id', ids);
+  const names = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string]));
+  return ids.map((id) => ({ id, name: names.get(id) ?? null }));
 }
 
 async function removeStorageFiles(paths: string[]) {

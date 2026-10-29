@@ -13,9 +13,14 @@ import { useLeaderTour } from '@/components/LeaderTour';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import {
   dissolveHuddle,
+  getBlockedUsers,
+  getHuddleMembers,
   leaveHuddle,
+  removeHuddleMember,
+  unblockUser,
   updateDisplayName,
   updateHuddleSettings,
+  type BlockedUser,
 } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { friendlyError } from '@/lib/errors';
@@ -24,10 +29,10 @@ import { useContent } from '@/lib/ContentContext';
 import { confirmAction, shareText, showAlert } from '@/lib/dialogs';
 import { openFeedbackForm, openPrivacyPolicy } from '@/lib/feedback';
 import type { ThemePreference } from '@/lib/theme';
-import type { HuddleSettings, NotesVisibility } from '@/lib/types';
+import type { HuddleSettings, NotesVisibility, Profile } from '@/lib/types';
 import { useTheme } from '@/lib/ThemeContext';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
@@ -41,6 +46,26 @@ export default function SettingsScreen() {
   const [busy, setBusy] = useState(false);
   const [accountAction, setAccountAction] = useState<'signOut' | 'delete' | null>(null);
   const accountBusy = loading || accountAction !== null;
+  const [members, setMembers] = useState<Profile[]>([]);
+  const [blocked, setBlocked] = useState<BlockedUser[]>([]);
+  const [peopleBusy, setPeopleBusy] = useState<string | null>(null);
+  const huddleId = huddle?.id;
+
+  const loadPeople = useCallback(async () => {
+    if (!huddleId || !userId) return;
+    const [m, b] = await Promise.all([
+      isLeader ? getHuddleMembers(huddleId).catch(() => [] as Profile[]) : Promise.resolve([] as Profile[]),
+      getBlockedUsers(userId).catch(() => [] as BlockedUser[]),
+    ]);
+    setMembers(m);
+    setBlocked(b);
+  }, [huddleId, userId, isLeader]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadPeople();
+    }, [loadPeople])
+  );
 
   // Profile can arrive after first render (e.g. opening /settings directly).
   useEffect(() => {
@@ -99,6 +124,41 @@ export default function SettingsScreen() {
       await refresh();
     } catch (e) {
       showAlert('Error', friendlyError(e, 'Could not dissolve'));
+    }
+  }
+
+  async function onRemoveMember(member: Profile) {
+    if (peopleBusy) return;
+    const ok = await confirmAction(
+      `Remove ${member.display_name}?`,
+      `${member.display_name} will be taken out of the huddle, and their notes, photos and checkmarks here will be deleted. They can't rejoin with the invite code.`,
+      'Remove'
+    );
+    if (!ok) return;
+    setPeopleBusy(member.id);
+    try {
+      await removeHuddleMember(huddle!.id, member.id);
+      await loadPeople();
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not remove this member'));
+    } finally {
+      setPeopleBusy(null);
+    }
+  }
+
+  async function onUnblock(person: BlockedUser) {
+    if (peopleBusy) return;
+    const name = person.name ?? 'this person';
+    const ok = await confirmAction(`Unblock ${name}?`, 'You’ll see their shared notes again.', 'Unblock');
+    if (!ok) return;
+    setPeopleBusy(person.id);
+    try {
+      await unblockUser(userId!, person.id);
+      await loadPeople();
+    } catch (e) {
+      showAlert('Error', friendlyError(e, 'Could not unblock'));
+    } finally {
+      setPeopleBusy(null);
     }
   }
 
@@ -264,7 +324,39 @@ export default function SettingsScreen() {
                 onChange={(id) => changeJournaling({ notesVisibility: id })}
               />
             </SettingsGroup>
+            <SettingsGroup
+              label="Members"
+              footer="Removing someone deletes their notes, photos and checkmarks in this huddle. They can't rejoin with the invite code."
+            >
+              {members.filter((m) => m.id !== userId).length ? (
+                members
+                  .filter((m) => m.id !== userId)
+                  .map((m) => (
+                    <SettingsRow
+                      key={m.id}
+                      label={m.display_name}
+                      value={peopleBusy === m.id ? 'Removing…' : 'Remove'}
+                      onPress={() => onRemoveMember(m)}
+                    />
+                  ))
+              ) : (
+                <SettingsRow label="No members yet" showChevron={false} />
+              )}
+            </SettingsGroup>
           </>
+        ) : null}
+
+        {blocked.length ? (
+          <SettingsGroup label="Blocked" footer="You don’t see shared notes from people you block.">
+            {blocked.map((b) => (
+              <SettingsRow
+                key={b.id}
+                label={b.name ?? 'Former huddle member'}
+                value={peopleBusy === b.id ? 'Unblocking…' : 'Unblock'}
+                onPress={() => onUnblock(b)}
+              />
+            ))}
+          </SettingsGroup>
         ) : null}
 
         {!isLeader ? (

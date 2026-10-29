@@ -353,7 +353,11 @@ function WeekProgressModal({
           ) : null}
           {body()}
         </ScrollView>
-        <NoteViewer viewed={viewed} onClose={() => setViewed(null)} />
+        <NoteViewer
+          viewed={viewed}
+          onClose={() => setViewed(null)}
+          onBlocked={() => shownWeek != null && load(shownWeek)}
+        />
       </SafeAreaView>
     </Modal>
   );
@@ -561,7 +565,7 @@ export default function ProgressScreen() {
         {leaderTools}
         <FeedbackLink />
       </ScrollView>
-      <NoteViewer viewed={viewed} onClose={() => setViewed(null)} />
+      <NoteViewer viewed={viewed} onClose={() => setViewed(null)} onBlocked={load} />
     </Screen>
   );
 }

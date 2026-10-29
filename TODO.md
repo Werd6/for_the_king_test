@@ -137,8 +137,12 @@ The app costs $4.99 on the App Store and Google Play and gives full access; ther
 - [ ] **Screenshots** — iPhone 6.9"; For The King only while Focuses is on hold
 - [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens (Apple handles the purchase)
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
+- [x] **Moderation (guideline 1.2)** — report shared notes, block members, leaders remove members (README → Moderation; needs the next build)
+  - [ ] Run `supabase/migrations/012_moderation.sql` in Supabase → SQL Editor
+  - [ ] Test: report a note (row appears in `note_reports`), block hides their notes, unblock in Settings, leader removes a member and they can't rejoin
+  - [ ] Check open reports daily (query in README → Moderation)
 - [ ] **Demo account** for App Review — a leader with a For The King huddle and a member who has shared a note
-- [ ] **Review notes** — demo login, how huddles work (paid app, no in-app purchases)
+- [ ] **Review notes** — demo login, how huddles work (paid app, no in-app purchases); shared notes can be reported or the author blocked from the note viewer (Progress → View notes), and leaders can remove members (Settings → Members)
 - [ ] Submit for review
 - [ ] Respond to review feedback
 

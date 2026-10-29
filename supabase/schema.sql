@@ -382,6 +382,7 @@ create policy "picks_update_leader"
 -- Client RPCs
 -- -----------------------------------------------------------------------------
 
+-- migrations/012_moderation.sql adds a check that people the leader removed can't rejoin.
 create or replace function public.join_huddle_by_code(p_code text)
 returns public.huddles
 language plpgsql
