@@ -19,7 +19,6 @@ import {
   type NotesSheetResult,
 } from '@/components/NotesSheet';
 import { DayCheckboxes } from '@/components/DayCheckboxes';
-import { HuddlePassCard } from '@/components/HuddlePassCard';
 import { PathwayLogo } from '@/components/PathwayLogo';
 import { StudyBlocks } from '@/components/StudyBlocks';
 import {
@@ -298,7 +297,6 @@ export default function WeekHomeScreen() {
       <Screen>
         <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
           <PathwayLogo />
-          <HuddlePassCard />
           <Title>
             Week {week.weekNumber} of {totalWeeks}
           </Title>
@@ -355,7 +353,6 @@ export default function WeekHomeScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 48 }}>
         <PathwayLogo />
-        <HuddlePassCard />
         <Title>
           Week {week.weekNumber} of {totalWeeks}
         </Title>

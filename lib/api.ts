@@ -10,8 +10,6 @@ import {
   writeJson,
 } from '@/lib/supabase';
 import { isAuthApiError } from '@supabase/supabase-js';
-import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import type {
   Huddle,
@@ -411,7 +409,10 @@ export async function getHuddle(huddleId: string): Promise<Huddle | null> {
 /** PostgREST codes for a function or table that doesn't exist yet (migration 006 not run). */
 const MISSING_OBJECT = new Set(['PGRST202', 'PGRST205', '42883', '42P01']);
 
-/** The signed-in user's Huddle Pass status. Local mode and databases without passes are free. */
+/**
+ * The signed-in user's access to the huddle. Passes are off (the app is paid), so every
+ * huddle is 'exempt' once migration 011 has run. Local mode and databases without 006 are free.
+ */
 export async function getHuddleAccess(huddleId: string): Promise<HuddleAccess> {
   if (!isRemoteConfigured || !supabase) return 'exempt';
   const { data, error } = await supabase.rpc('huddle_access', { hid: huddleId });
@@ -420,66 +421,6 @@ export async function getHuddleAccess(huddleId: string): Promise<HuddleAccess> {
     throw error;
   }
   return data as HuddleAccess;
-}
-
-/** Ids of huddle members with a current pass (visible to the leader), or null if unavailable. */
-export async function getHuddlePassHolders(huddleId: string): Promise<Set<string> | null> {
-  if (!isRemoteConfigured || !supabase) return null;
-  const { data, error } = await supabase
-    .from('huddle_passes')
-    .select('user_id')
-    .eq('huddle_id', huddleId)
-    .is('refunded_at', null);
-  if (error) {
-    if (MISSING_OBJECT.has(error.code)) return null;
-    throw error;
-  }
-  return new Set((data ?? []).map((p) => p.user_id as string));
-}
-
-/** Leader starts Week 1, which starts the huddle's access window. */
-export async function startHuddle(huddleId: string): Promise<Huddle> {
-  if (!isRemoteConfigured || !supabase) throw new Error('Huddle Passes need an online account.');
-  const { data, error } = await supabase.rpc('start_huddle', { hid: huddleId }).single();
-  if (error) throw new Error(error.message);
-  return normalizeHuddle(data as Huddle);
-}
-
-export type PassLinks = { leader: string | null; member: string | null };
-
-/** The pathway's Stripe Payment Links (set in Supabase → pathways). */
-export async function getPassLinks(pathwayId: string): Promise<PassLinks> {
-  if (!supabase) return { leader: null, member: null };
-  const { data, error } = await supabase
-    .from('pathways')
-    .select('leader_pass_link, member_pass_link')
-    .eq('id', pathwayId)
-    .maybeSingle();
-  if (error) throw error;
-  return { leader: data?.leader_pass_link ?? null, member: data?.member_pass_link ?? null };
-}
-
-/**
- * Opens a Payment Link for this person's pass. client_reference_id tells the Stripe webhook
- * which huddle and account paid. Web opens a new tab and the phone apps an in-app browser:
- * iOS resolves 'closed' when it's dismissed; web and Android resolve 'opened' right away
- * (access is rechecked when the app or tab comes back into focus).
- */
-export async function openPassCheckout(
-  link: string,
-  huddleId: string,
-  userId: string,
-  email?: string | null
-): Promise<'closed' | 'opened'> {
-  const params = [`client_reference_id=${encodeURIComponent(`${huddleId}__${userId}`)}`];
-  if (email) params.push(`prefilled_email=${encodeURIComponent(email)}`);
-  const url = `${link}${link.includes('?') ? '&' : '?'}${params.join('&')}`;
-  if (Platform.OS === 'web') {
-    window.open(url, '_blank', 'noopener');
-    return 'opened';
-  }
-  const result = await WebBrowser.openBrowserAsync(url);
-  return result.type === WebBrowser.WebBrowserResultType.OPENED ? 'opened' : 'closed';
 }
 
 export async function getHuddleMembers(huddleId: string): Promise<Profile[]> {

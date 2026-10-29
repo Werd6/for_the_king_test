@@ -72,25 +72,22 @@ SQL: `supabase/migrations/001_phase1_security.sql` · App code: `lib/api.ts` (al
 
 ---
 
-## Phase 4 — Payments (Huddle Pass)
+## Phase 4 — Paid app ($4.99)
 
-Required before shipping. Background is in "Feature — Huddle Pass" below and README → Huddle Pass.
+The app costs $4.99 on the App Store and Google Play and gives full access; there are no Huddle Passes. Background is in "Feature — Paid app" below and README → Paid app.
 
-- [ ] Stripe account verified (test mode first)
-- [x] **Payment Links** (live) — For The King $9.99 for everyone, leader included (point `leader_pass_link` and `member_pass_link` at the same $9.99 link); allow promotion codes; redirect to `https://goandmake.online/pass?pass=success` (README → Huddle Pass)
-- [ ] Run `supabase/migrations/010_pass_links.sql`, then paste the links into Supabase → Table Editor → `pathways` (`leader_pass_link`, `member_pass_link`)
-- [ ] **Access codes** — Stripe → Product catalog → Coupons: a 100% off coupon, then promotion codes on it (e.g. one for TestFlight testers, one for App Review), with a redemption limit and expiry
-- [ ] Supabase CLI: install, link, `STRIPE_SECRET_KEY` secret, deploy `stripe-webhook --no-verify-jwt`
-- [ ] Stripe webhook + `STRIPE_WEBHOOK_SECRET`
-- [ ] Run `supabase/migrations/006_huddle_passes.sql` once the build with the Get Huddle Pass button is on TestFlight (new huddles need a pass from then on)
-- [ ] Test: leader pays, starts Week 1, member pays and checks in; access code checks out at $0; refund removes access; expired window (edit `started_at`); exempt huddle
-- [ ] Test from the iPhone app: Get Huddle Pass opens Stripe in the app, Done returns, the pass shows up (needs the next build)
-- [ ] Switch to the live key and a live webhook; recreate the Payment Links, coupon and promotion codes in live mode and paste the live links into `pathways`
-- [x] **Decide how Huddle Pass goes through store review** — **website purchasing, linked from the apps** (allowed on the US storefront)
-  - [x] Phone apps show the price and a Get Huddle Pass button that opens the pathway's Stripe Payment Link in an in-app browser; it returns to https://goandmake.online/pass
-  - [ ] App Store Connect → Pricing and Availability: United States only (link-outs without in-app purchase are only allowed on the US storefront)
-  - [ ] Review notes: purchases happen on Stripe's website; give App Review a promotion code (or a demo huddle that's already free)
-  - Fallback if review rejects under 3.1.1 / 3.1.3(b): add Apple / Google in-app purchase alongside Stripe, or turn off pass checks in the phone apps
+- [x] **Decide pricing** — $4.99 paid app (iPhone and Android), no in-app purchases; the web app stays free until it's retired
+- [ ] Run `supabase/migrations/011_paid_app.sql` in Supabase → SQL Editor (every huddle becomes free; the current TestFlight build's pass card disappears)
+- [ ] **Shut down Stripe passes**
+  - [ ] Stripe → Payment Links: deactivate both Huddle Pass links
+  - [ ] Refund the test purchases
+  - [ ] Stripe → Developers → Webhooks: delete the `stripe-webhook` endpoint
+  - [ ] Supabase → Edge Functions: delete `stripe-webhook`, and delete the `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` secrets
+  - [ ] Stripe → Developers → API keys: roll the live secret key (it was stored in Supabase)
+- [ ] **App Store Connect → Business:** accept the Paid Apps Agreement; add banking and tax info (paid pricing can't go live without it)
+- [ ] **App Store Connect → Pricing and Availability:** price $4.99; choose countries (no US-only limit now)
+- [ ] Optional: turn on Family Sharing for the app
+- [ ] New TestFlight build without the pass card (TestFlight stays free for testers)
 
 ---
 
@@ -113,7 +110,6 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
   - [ ] Calendar sync, date picker, share sheet
   - [ ] Photo attach and document scanner on notes
   - [ ] Home-screen icon switches to For The King
-  - [ ] Read-only state for a huddle without a pass
 - [ ] **TestFlight testers**
   - [ ] Internal: add yourself (Users and Access), install from the TestFlight app
   - [ ] Test Information: beta description, feedback email, demo sign-in for Beta App Review
@@ -139,10 +135,10 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [x] **Support URL / contact email** — https://goandmake.online/support, bespoke.it.llc@gmail.com
 - [ ] **Store listing** — name, subtitle, description, keywords, category (e.g. Lifestyle or Reference)
 - [ ] **Screenshots** — iPhone 6.9"; For The King only while Focuses is on hold
-- [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens, purchase records
+- [ ] **App Privacy questionnaire** — email, name, journal text and photos, push tokens (Apple handles the purchase)
 - [ ] **Age rating questionnaire** — answer yes to user-generated content (shared huddle notes)
-- [ ] **Demo account** for App Review — a leader with a For The King huddle and a comp pass (`grant_comp_pass`)
-- [ ] **Review notes** — demo login, how huddles work, passes bought on Stripe's website (US storefront link-out), promotion code for a free pass
+- [ ] **Demo account** for App Review — a leader with a For The King huddle and a member who has shared a note
+- [ ] **Review notes** — demo login, how huddles work (paid app, no in-app purchases)
 - [ ] Submit for review
 - [ ] Respond to review feedback
 
@@ -164,6 +160,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [x] **Account deletion URL** — https://goandmake.online/delete-account
 - [ ] **Content rating** questionnaire (IARC)
 - [ ] Target audience and ads declaration (no ads)
+- [ ] **Paid app, $4.99** — set up a payments profile / merchant account and set the price before the first release (an app published as free can't become paid)
 - [ ] Declare photo/camera permissions if Play flags them
 - [ ] Promote to production
 
@@ -176,6 +173,7 @@ Required before shipping. Background is in "Feature — Huddle Pass" below and R
 - [ ] **Separate environments** — staging Supabase project vs. production
 - [ ] **Retire the tester web app** (https://for-the-king-test.vercel.app) once testers have moved to the store apps
   - [ ] Password-reset links: Supabase Site URL and redirect URLs, and `EXPO_PUBLIC_SITE_URL` / `lib/siteUrl.ts`, point at the web app; move them before turning it off
+  - [ ] Give testers free copies of the app (App Store promo/offer codes, Google Play promo codes)
   - [ ] Tell testers, then remove the Vercel project
 - [ ] **Automated tests** — E2E happy path: sign up → create huddle → join → check in → advance week
 - [ ] **CI** — typecheck + tests on every push (GitHub Actions)
@@ -313,22 +311,20 @@ Go and Make is the platform; For The King is the first content pathway.
 
 ---
 
-## Feature — Huddle Pass (payments)
+## Feature — Paid app
 
-50¢/week for everyone (leader included, each buys their own pass), access ceil(weeks x 1.2) weeks from Start Week 1. Stripe Payment Links, opened from the web app (new tab) and the phone apps (in-app browser); access codes are 100%-off Stripe promotion codes. See README → Huddle Pass.
+$4.99 upfront on the App Store and Google Play, full access, no in-app purchases. See README → Paid app.
 
-- [x] Migration `supabase/migrations/006_huddle_passes.sql` — passes, access rule, read-only enforcement, existing huddles free
-- [x] Edge Function `stripe-webhook` (Payment Links; `create-checkout` was removed)
-- [x] Huddle Pass card (checkout, Start Week 1, expired), read-only UI, "Pass pending" in Progress
-- [x] Get Huddle Pass opens the pathway's Payment Link (links live in `pathways`, migration 010) and checks for the pass afterwards; the webhook accepts $0 promotion-code orders and refunds underpayments
-- Setup, testing, going live and the store-review decision: Phase 4
+- [x] Migration `supabase/migrations/011_paid_app.sql` — every huddle free (`billing_exempt`), including new ones
+- [x] Removed the Huddle Pass card, Stripe checkout, "Pass pending" in Progress and the `stripe-webhook` function
+- Earlier: Huddle Passes through Stripe Payment Links (migrations 006 and 010, still in the database, unused)
+- Setup: Phase 4
 
 ---
 
 ## Notes
 
 - Never commit `.env` / `.env.publish`; never put the service role key in Vercel or any `EXPO_PUBLIC_*` var.
-- Stripe secret keys and the webhook secret go only in Supabase function secrets.
 - `EXPO_PUBLIC_*` vars are baked in at build time — redeploy after changing them.
 - Run `eas` / `expo` commands from `~/dev/For_The_King`, not the Desktop copy.
 - Feedback form: https://forms.gle/NGM9MmfJ2y9hmstp6

@@ -1,6 +1,6 @@
 # Privacy Policy — Go and Make
 
-Last updated: 2026-10-28
+Last updated: 2026-10-29
 
 The published copy is `privacy.html` in [Werd6/Go_and_Make](https://github.com/Werd6/Go_and_Make), served at https://goandmake.online/privacy. Change both together.
 
@@ -16,12 +16,11 @@ Go and Make (“the App”) is a discipleship companion for small discipleship g
 - Optional meeting dates for the group calendar
 - Leader-selected group-challenge activity for certain weeks
 - If you allow notifications in the native app: a push token for your device, so the App can notify you about your group (one for each account signed in on the device)
-- If you buy a Huddle Pass on our website: a record of the pass (which group, leader or member pass, amount, date, and Stripe payment references)
 
 ## Data we do not collect
 
 - Journal text or photos you don’t save in the App (writing in a paper journal stays on paper)
-- Card or bank details. Payments are processed by Stripe, which handles your payment information under its own privacy policy (stripe.com/privacy)
+- Card or bank details. You buy the App through the App Store or Google Play, which handle the payment under their own privacy policies; we don't receive your payment information
 - Location, contacts, or health metrics beyond optional calendar event creation you initiate
 
 ## How we use data
@@ -33,8 +32,6 @@ To run discipleship groups, show shared progress to others in the same group, ke
 We do not sell personal data. Progress is visible only to members of your group.
 
 Your data is stored with Supabase, our database, sign-in, and file storage provider. Sign-in and password-reset emails are sent through Resend.
-
-When you buy a Huddle Pass, your email address and the purchase go to Stripe to process the payment. Your group leader can see whether you have a pass, but not payment details.
 
 Notifications tell members of your group when the week advances and when someone finishes a checklist item (with their display name and the item). They are delivered through Expo’s push service and Apple or Google’s notification services. Meeting reminders are scheduled on your device. If you are signed in to more than one account (Settings → Swap account), each account gets its own notifications. Signing out of an account stops its notifications to that device, and you can turn them off in your device settings.
 
@@ -49,7 +46,7 @@ The notes screen always tells you which setting applies before you save. Changin
 
 ## Deletion
 
-You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Huddle Pass records are kept without your account, for accounting and refunds. Leaders who dissolve a group remove that group’s membership, progress, journal notes, and photos. You can delete an individual note by clearing its text and photos. See [Delete your account](https://goandmake.online/delete-account) for step-by-step instructions, including how to ask us to delete it for you.
+You can delete your account from Settings → Delete account. This also deletes your journal notes, photos, and device push tokens. Leaders who dissolve a group remove that group’s membership, progress, journal notes, and photos. You can delete an individual note by clearing its text and photos. See [Delete your account](https://goandmake.online/delete-account) for step-by-step instructions, including how to ask us to delete it for you.
 
 ## Contact
 

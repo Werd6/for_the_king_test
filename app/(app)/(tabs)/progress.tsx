@@ -15,7 +15,6 @@ import { NoteViewer, type ViewedNote } from '@/components/NoteViewer';
 import {
   advanceWeek,
   getHuddleMembers,
-  getHuddlePassHolders,
   getNotesForWeek,
   getProgressForWeek,
   getWeekPick,
@@ -72,11 +71,8 @@ function MemberProgress({
   onToggle,
   sharedNote,
   onViewNote,
-  passPending,
 }: {
   name: string;
-  /** Leader view: this member hasn't bought their Huddle Pass. */
-  passPending?: boolean;
   week: StandardWeek;
   completed: ReadonlySet<string>;
   expanded: boolean;
@@ -101,7 +97,7 @@ function MemberProgress({
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded }}
-        accessibilityLabel={`${name}${passPending ? ', pass pending' : ''}, ${formatCount(done)} of ${total} done`}
+        accessibilityLabel={`${name}, ${formatCount(done)} of ${total} done`}
         onPress={onToggle}
         style={({ pressed }) => ({
           flexDirection: 'row',
@@ -113,22 +109,6 @@ function MemberProgress({
         })}
       >
         <Text style={{ ...typography.subtitle, color: colors.ink, flex: 1 }}>{name}</Text>
-        {passPending ? (
-          <Text
-            style={{
-              ...typography.label,
-              fontSize: 12,
-              color: colors.mutedText,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: radii.sm,
-              paddingHorizontal: 6,
-              paddingVertical: 2,
-            }}
-          >
-            Pass pending
-          </Text>
-        ) : null}
         <Text style={{ ...typography.label, color: colors.mutedText }}>
           {formatCount(done)}/{total}
         </Text>
@@ -382,7 +362,6 @@ function WeekProgressModal({
 export default function ProgressScreen() {
   const { huddle, userId, isLeader, canEdit, refresh } = useAuth();
   const { getWeek, loading: contentLoading, pathway, reloadForHuddle } = useContent();
-  const [passHolders, setPassHolders] = useState<Set<string> | null>(null);
   const router = useRouter();
   const [members, setMembers] = useState<Profile[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
@@ -412,18 +391,13 @@ export default function ProgressScreen() {
       setMembers(m);
       setProgress(p);
       setWeekNotes(notes);
-      setPassHolders(
-        isLeader && !huddle.billing_exempt
-          ? await getHuddlePassHolders(huddle.id).catch(() => null)
-          : null
-      );
       setLoadError(null);
     } catch (e) {
       setLoadError(friendlyError(e, 'Could not load progress.'));
     } finally {
       setLoading(false);
     }
-  }, [huddle, isLeader]);
+  }, [huddle]);
 
   useFocusEffect(
     useCallback(() => {
@@ -574,7 +548,6 @@ export default function ProgressScreen() {
             <MemberProgress
               key={m.id}
               name={m.display_name}
-              passPending={passHolders != null && !passHolders.has(m.id)}
               week={week}
               completed={new Set(progress.filter((p) => p.user_id === m.id).map((p) => p.item_id))}
               sharedNote={(itemId) => shared.get(`${m.id}:${itemId}`)}

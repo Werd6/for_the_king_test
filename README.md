@@ -102,52 +102,17 @@ Setup:
 3. iOS push needs an Apple push key, which `eas build` offers to create.
 4. Rebuild the native app.
 
-## Huddle Pass
+## Paid app
 
-One-time payments through **Stripe Payment Links**, one per pathway and pass kind (the price depends on the pathway's length). **Get Huddle Pass** opens the right link: a new tab on web, an in-app browser in the phone apps (allowed on the US App Store storefront without in-app purchase). The app adds `client_reference_id=<huddle id>__<user id>` so the webhook knows who paid, and checks for the pass when the browser closes or the app/tab comes back into focus. After paying, Stripe redirects to https://goandmake.online/pass.
+Go and Make is a **$4.99 paid app** on the App Store and Google Play. Buying the app gives full access to every huddle someone leads or joins, with nothing else to buy. Apple and Google handle the purchase, so the apps have no prices, purchase links or Stripe code. The tester web app is free until it's retired (TODO Phase 8).
 
-Testers and App Review get **access codes**: Stripe promotion codes for a 100% off coupon, entered on the Stripe page. The order completes at $0 and the webhook records the pass like any other. There's no code box in the apps (Apple doesn't allow in-app codes that unlock paid features).
-
-- **Price:** 50¢ x pathway weeks, minus 1¢, the same for everyone. The leader and each member buy their own pass. For The King: $9.99; Focuses: $5.99.
-- **Access:** ceil(weeks x 1.2) weeks, counted from when the leader taps **Start Week 1** (on This Week, after buying the Leader Pass). Members who join late get the time that's left.
-- Without an active pass the huddle is read-only: content, past progress and notes stay visible, but checking off, writing notes, picking group activities and advancing the week are off. The database enforces this (`huddle_access()` in the migration).
-- Huddles that existed before the migration are free (`billing_exempt`).
-
-Passes are recorded by [`supabase/functions/stripe-webhook`](supabase/functions/stripe-webhook/index.ts). It decides leader vs. member from the database (only a leader's pass unlocks Start Week 1), refunds a payment whose subtotal is below the pathway's price (`passPriceCents` in the webhook; promotion codes lower the total, not the subtotal), refunds duplicate payments, and removes access when a charge is fully refunded in Stripe. [`lib/pricing.ts`](lib/pricing.ts) is for display only.
-
-Setup:
-
-1. Run `supabase/migrations/006_huddle_passes.sql` and `010_pass_links.sql` in Supabase → SQL Editor. Until 006 is run, every huddle works as before.
-2. **Payment Links** (Stripe → Payment Links → New), one per pathway. For The King (20 weeks): **$9.99** (the price must match `passPriceCents` exactly, or the webhook refunds the payment as underpaid). For each:
-   - Product name like "Huddle Pass (For The King)", one-time price, quantity not adjustable.
-   - Options: turn on **Allow promotion codes**.
-   - After payment: **Don't show confirmation page** → redirect to `https://goandmake.online/pass?pass=success`.
-   - Paste the link (`https://buy.stripe.com/…`) into Supabase → Table Editor → `pathways` → both `leader_pass_link` and `member_pass_link` for that pathway (the same link). No app build needed.
-3. **Access codes:** Stripe → Product catalog → Coupons → a coupon for **100% off**, then promotion codes on it (e.g. `TESTFLIGHT`, `APPREVIEW`) with a redemption limit or expiry. Deactivate a code to stop it.
-4. Deploy the webhook (secrets never go in Vercel, the repo or any `EXPO_PUBLIC_*` var), either way:
-   - **Dashboard:** Supabase → Edge Functions → Secrets: add `STRIPE_SECRET_KEY`. Then Edge Functions → Deploy a new function → Via Editor, name it `stripe-webhook`, paste [`supabase/functions/stripe-webhook/index.ts`](supabase/functions/stripe-webhook/index.ts) and deploy. In the function's settings, turn **Verify JWT** off.
-   - **CLI:** `brew install supabase/tap/supabase`, `supabase login`, `supabase link --project-ref <project ref>`, then:
-     ```bash
-     supabase secrets set STRIPE_SECRET_KEY=sk_live_…
-     supabase functions deploy stripe-webhook --no-verify-jwt
-     ```
-5. In Stripe → Developers → Webhooks, add `https://<project ref>.supabase.co/functions/v1/stripe-webhook` with the events `checkout.session.completed`, `checkout.session.async_payment_succeeded` and `charge.refunded`. Copy its signing secret into the `STRIPE_WEBHOOK_SECRET` secret (dashboard, or `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_…`).
-6. Test in Stripe test mode with card `4242 4242 4242 4242`. For live payments, switch to the live secret key and a live webhook (its own secret), and recreate the Payment Links, coupon and promotion codes in live mode (test-mode links and codes don't carry over), then paste the live links into `pathways`.
-
-If a pathway's price changes (more or fewer weeks), make new Payment Links at the new price and update `passPriceCents` in the webhook and `lib/pricing.ts` if the per-week rate changed.
-
-Free passes (SQL editor):
-
-```sql
-select public.grant_comp_pass('ABC123', 'someone@example.com');           -- one person
-update public.huddles set billing_exempt = true where invite_code = 'ABC123'; -- whole huddle
-```
+Earlier builds sold per-huddle **Huddle Passes** through Stripe ([`006_huddle_passes.sql`](supabase/migrations/006_huddle_passes.sql)). That's switched off by [`011_paid_app.sql`](supabase/migrations/011_paid_app.sql): every huddle, existing and new, is free (`billing_exempt`), so `huddle_access()` returns `exempt` for every member. The pass tables, functions and the `pathways.*_pass_link` columns are still in the database, unused; the Stripe webhook is in git history (removed after commit `fea785c`). To bring passes back, see the header of migration 011.
 
 ## Flows
 
 - **Out of huddle:** Join (invite code) or Create (pathway + optional meeting time/location).
 - **In huddle:** This Week, Study (when the pathway has it), Progress (accountability), Settings.
-- **Leader:** Start Week 1 (Huddle Pass), advance week, change to any week (Progress → Leader → Change week, e.g. to undo an accidental advance), view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
+- **Leader:** advance week, change to any week (Progress → Leader → Change week, e.g. to undo an accidental advance), view any past week's progress, Leader Materials / Guide / pool, journaling settings, dissolve, meeting time & location.
 - **Calendar sync:** native iOS/Android only (not in the browser).
 - **Notifications:** native iOS/Android only; see Notifications above.
 

@@ -279,7 +279,7 @@ export default function SettingsScreen() {
 
         <SettingsGroup
           label="Account"
-          footer="We store your account, huddle membership, checkmarks, Huddle Pass records, and any journal notes or photos you save in the app."
+          footer="We store your account, huddle membership, checkmarks, and any journal notes or photos you save in the app."
         >
           <SettingsRow label="Privacy policy" onPress={openPrivacyPolicy} />
           <SettingsRow

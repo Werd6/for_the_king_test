@@ -9,7 +9,7 @@ const FRIENDLY: [RegExp, string][] = [
   [/rate limit|too many requests/i, 'Too many attempts. Please wait a minute and try again.'],
   [/jwt expired|invalid jwt|refresh token/i, 'Your session expired. Please sign in again.'],
   [/NOTE_REQUIRED/, 'Add your notes before checking this off.'],
-  [/row-level security/i, "Your Huddle Pass isn't active."],
+  [/row-level security/i, "You don't have permission to do that."],
   [
     /_user_id_fkey/,
     "Your account isn't fully set up. Sign out, sign back in, and try again.",

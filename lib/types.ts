@@ -108,14 +108,14 @@ export type Huddle = {
   started_at?: string | null;
   /** Weeks of access from `started_at`: ceil(pathway weeks x 1.2). */
   access_weeks?: number | null;
-  /** Free huddle (grandfathered or comped); no passes needed. */
+  /** Free huddle; no passes needed. Every huddle since the app became paid (migration 011). */
   billing_exempt?: boolean;
   created_at: string;
 };
 
 /**
- * The signed-in user's Huddle Pass status (`huddle_access` in the database).
- * Only `active` and `exempt` can check off items, write notes or advance weeks.
+ * The signed-in user's access to the huddle (`huddle_access` in the database). Passes are off,
+ * so members get `exempt`. Only `active` and `exempt` can check off items, write notes or advance weeks.
  */
 export type HuddleAccess = 'active' | 'exempt' | 'not_started' | 'unpaid' | 'expired' | 'none';
 

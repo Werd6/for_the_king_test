@@ -70,7 +70,7 @@ export function NotesSheet({
   note: JournalNote | null;
   photos: JournalPhoto[];
   onFinish: (result: NotesSheetResult) => void;
-  /** View only: the Huddle Pass isn't active. */
+  /** View only: the user can't edit this huddle. */
   readOnly?: boolean;
 }) {
   const { colors, radii, spacing, fonts, typography } = useTheme();
@@ -255,7 +255,7 @@ export function NotesSheet({
           </View>
 
           {readOnly ? (
-            <Body>Your Huddle Pass isn&apos;t active, so these notes are view only.</Body>
+            <Body>These notes are view only.</Body>
           ) : required && !completed ? (
             <Body>
               Your huddle requires notes for this item. Write a few sentences or add a photo of your

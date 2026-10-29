@@ -122,10 +122,11 @@ create table if not exists public.huddles (
   pathway_version_id uuid not null references public.pathway_versions (id),
   current_week int not null default 1 check (current_week >= 1),
   meetings jsonb not null default '{"time":null,"location":null}'::jsonb,  -- { time: ISO|null, location: string|null }
-  -- Huddle Pass (passes, access rules and RPCs: migrations/006_huddle_passes.sql)
+  -- Huddle Pass (passes, access rules and RPCs: migrations/006_huddle_passes.sql).
+  -- Off since the app became paid: every huddle is billing_exempt (migrations/011_paid_app.sql).
   started_at timestamptz,                       -- leader started Week 1; the access window starts here
   access_weeks int check (access_weeks is null or access_weeks > 0),
-  billing_exempt boolean not null default false,
+  billing_exempt boolean not null default true,
   created_at timestamptz not null default now()
 );
 

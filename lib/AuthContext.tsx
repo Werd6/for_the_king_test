@@ -24,28 +24,16 @@ import { cancelMeetingReminder, disablePushNotifications } from '@/lib/notificat
 import { isRemoteConfigured, supabase } from '@/lib/supabase';
 import type { Huddle, HuddleAccess, Profile } from '@/lib/types';
 
-/**
- * After opening a Payment Link. 'confirming': checking for the pass. 'unconfirmed': checkout is
- * open elsewhere, or closed without a pass showing up yet (paid moments ago, or cancelled).
- */
-export type CheckoutReturn = 'confirming' | 'unconfirmed' | null;
-
 type AuthState = {
   loading: boolean;
   userId: string | null;
   profile: Profile | null;
   huddle: Huddle | null;
   isLeader: boolean;
-  /** Huddle Pass status for the signed-in user. */
+  /** The signed-in user's access to the huddle (`huddle_access` in the database). */
   access: HuddleAccess;
   /** Check-ins, notes and advancing weeks are allowed. */
   canEdit: boolean;
-  checkoutReturn: CheckoutReturn;
-  dismissCheckoutReturn: () => void;
-  /** Checkout opened in a tab or browser that doesn't report back. */
-  checkoutOpened: () => void;
-  /** Polls for the pass after checkout; the webhook can land a few seconds after payment. */
-  confirmCheckout: () => Promise<void>;
   /** Accounts signed in on this device, for Swap account. Includes the current one. */
   savedAccounts: SavedAccount[];
   /** Makes a saved account the current one; the others stay signed in. */
@@ -87,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [huddle, setHuddle] = useState<Huddle | null>(null);
   const [access, setAccess] = useState<HuddleAccess>('none');
-  const [checkoutReturn, setCheckoutReturn] = useState<CheckoutReturn>(null);
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
   const accessRef = useRef<HuddleAccess>('none');
   const huddleIdRef = useRef<string | null>(null);
@@ -168,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refresh]);
 
-  // Passes and the access window change outside the app (payments, expiry), so recheck on focus.
+  // The huddle changes on other devices (e.g. the leader advances the week), so recheck on focus.
   useEffect(() => {
     if (!isRemoteConfigured) return;
     const recheck = () => {
@@ -187,32 +174,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => sub.remove();
   }, [refresh]);
 
-  const confirmSeq = useRef(0);
-  const confirmCheckout = useCallback(async () => {
-    const seq = ++confirmSeq.current;
-    setCheckoutReturn('confirming');
-    for (let attempt = 0; attempt < 5; attempt++) {
-      await refresh().catch(() => {});
-      if (seq !== confirmSeq.current) return;
-      if (accessRef.current !== 'unpaid' && accessRef.current !== 'none') {
-        setCheckoutReturn(null);
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-    if (seq === confirmSeq.current) setCheckoutReturn('unconfirmed');
-  }, [refresh]);
-
-  const checkoutOpened = useCallback(() => {
-    confirmSeq.current++;
-    setCheckoutReturn('unconfirmed');
-  }, []);
-
-  const dismissCheckoutReturn = useCallback(() => {
-    confirmSeq.current++;
-    setCheckoutReturn(null);
-  }, []);
-
   const value = useMemo<AuthState>(
     () => ({
       loading,
@@ -222,10 +183,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLeader: Boolean(userId && huddle && huddle.leader_id === userId),
       access,
       canEdit: access === 'active' || access === 'exempt',
-      checkoutReturn,
-      dismissCheckoutReturn,
-      checkoutOpened,
-      confirmCheckout,
       savedAccounts,
       switchAccount: async (id) => {
         await changeAccount(() => activateSavedAccount(id));
@@ -282,10 +239,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       huddle,
       access,
-      checkoutReturn,
-      dismissCheckoutReturn,
-      checkoutOpened,
-      confirmCheckout,
       savedAccounts,
       changeAccount,
       refresh,
