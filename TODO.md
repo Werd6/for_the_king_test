@@ -128,7 +128,7 @@ The app costs $4.99 on the App Store and Google Play and gives full access; ther
   - [x] Domain `goandmake.online` (Namecheap)
   - [x] Pages: home (what Go and Make is, pathways, ministries contact), join, privacy, support, delete account
   - [x] Import the repo into Vercel and point Namecheap DNS at it (steps in that repo's README)
-  - [ ] Swap the "Coming soon" badges on the join page for real App Store and Google Play links once the apps are live
+  - [x] Swap the App Store "Coming soon" badge for the live App Store link (Google Play still coming soon)
   - [ ] Link to the business site eventually
 - [x] **Privacy policy** — contact email filled in, "draft" removed, published as `privacy.html` on the marketing site
   - [x] Settings → Privacy policy opens https://goandmake.online/privacy (Apple 5.1.1)
